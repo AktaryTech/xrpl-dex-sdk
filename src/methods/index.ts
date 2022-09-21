@@ -27,6 +27,7 @@ import loadIssuers from './loadIssuers';
 import loadMarkets from './loadMarkets';
 import watchOrders from './watchOrders';
 import watchTicker from './watchTicker';
+import watchTickers from './watchTickers';
 
 const methods: Record<string, any> = {
   cancelOrder,
@@ -58,6 +59,7 @@ const methods: Record<string, any> = {
   loadMarkets,
   watchOrders,
   watchTicker,
+  watchTickers,
 };
 
 export default methods;

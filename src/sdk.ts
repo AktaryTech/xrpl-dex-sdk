@@ -49,6 +49,7 @@ export class SDK implements SDKContext {
   /** Streaming */
   watchOrders = methods.watchOrders.bind(this);
   watchTicker = methods.watchTicker.bind(this);
+  watchTickers = methods.watchTickers.bind(this);
 
   constructor(params: SDKParams) {
     const { network, websocketsOptions, walletPrivateKey, walletPublicKey, walletSecret } = params;

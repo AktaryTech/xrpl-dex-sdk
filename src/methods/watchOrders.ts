@@ -52,11 +52,7 @@ async function watchOrders(
   const showClosed = params.showClosed || true;
   const showCanceled = params.showCanceled || true;
 
-  const orderStream = new Readable({
-    read: () => {
-      return this;
-    },
-  });
+  const orderStream = new Readable({ read: () => this });
 
   await this.client.request({
     command: 'subscribe',

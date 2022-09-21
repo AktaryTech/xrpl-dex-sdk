@@ -4,11 +4,7 @@ import { BookOffer, BookOffersRequest } from 'xrpl';
 import { parseAmountValue } from 'xrpl/dist/npm/models/transactions/common';
 import { DEFAULT_TICKER_SEARCH_LIMIT } from '../constants';
 import { MarketSymbol, FetchTickerParams, Ticker, FetchTickerResponse, SDKContext } from '../models';
-import {
-  BN,
-  // getBaseAmountKey, getOrderSideFromOffer, getQuoteAmountKey,
-  parseMarketSymbol,
-} from '../utils';
+import { BN, parseMarketSymbol } from '../utils';
 
 /**
  * Retrieves order book data for a single market pair. Returns an
@@ -21,7 +17,7 @@ async function fetchTicker(
   /** Token pair (called Unified Market Symbol in CCXT) */
   symbol: MarketSymbol,
   /** Parameters specific to the exchange API endpoint */
-  params: FetchTickerParams = {}
+  params: FetchTickerParams
 ): Promise<FetchTickerResponse | undefined> {
   const [base, quote] = parseMarketSymbol(symbol);
 
@@ -44,8 +40,8 @@ async function fetchTicker(
   const timestamp = Date.now();
   const datetime = new Date(timestamp).toISOString();
 
-  const baseAmount = { currency: base, issuer: params.baseIssuer };
-  const quoteAmount = { currency: quote, issuer: params.quoteIssuer };
+  const baseAmount = { currency: base, issuer: params.issuers[base] };
+  const quoteAmount = { currency: quote, issuer: params.issuers[quote] };
 
   const bookOffersBaseRequest = { command: 'book_offers', limit: limit + 1 };
 
@@ -128,7 +124,7 @@ async function fetchTicker(
     average: average.toString(),
     baseVolume: baseVolume.toString(),
     quoteVolume: quoteVolume.toString(),
-    info: { bids: bidsResponse, asks: asksResponse },
+    info: { bids: bidsResponse.result, asks: asksResponse.result },
   };
 
   return ticker;

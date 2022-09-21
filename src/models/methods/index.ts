@@ -27,3 +27,4 @@ export * from './loadIssuers';
 export * from './loadMarkets';
 export * from './watchOrders';
 export * from './watchTicker';
+export * from './watchTickers';

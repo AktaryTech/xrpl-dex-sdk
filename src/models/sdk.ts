@@ -1,3 +1,4 @@
+import { Readable } from 'stream';
 import { Client, ClientOptions, Wallet } from 'xrpl';
 import { Currencies, Markets, OrderSide, OrderType } from './ccxt';
 import { AccountSequencePair, CurrencyCode, MarketSymbol, UnixTimestamp, XrplNetwork } from './common';
@@ -48,7 +49,7 @@ import {
   WatchOrdersParams,
   WatchOrdersResponse,
   WatchTickerParams,
-  WatchTickerResponse,
+  WatchTickersParams,
 } from './methods';
 import { Issuers } from './xrpl';
 
@@ -162,6 +163,7 @@ export interface SDKContext {
     limit?: number,
     params?: WatchOrdersParams
   ): Promise<WatchOrdersResponse>;
-  watchTicker(symbol: MarketSymbol, params: WatchTickerParams): Promise<WatchTickerResponse | undefined>;
+  watchTicker(symbol: MarketSymbol, params: WatchTickerParams): Promise<Readable>;
+  watchTickers(symbols: MarketSymbol[], params: WatchTickersParams): Promise<Readable>;
   [key: string]: any;
 }

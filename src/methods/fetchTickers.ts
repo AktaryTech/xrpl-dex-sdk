@@ -7,7 +7,7 @@ import {
   SDKContext,
   FetchTickerParams,
 } from '../models';
-import { parseMarketSymbol } from '../utils';
+// import { parseMarketSymbol } from '../utils';
 
 /**
  * Retrieves order book data for a single market pair. Returns an
@@ -26,10 +26,10 @@ async function fetchTickers(
   const tickers: Ticker[] = [];
 
   for (const symbol of symbols) {
-    const [base, quote] = parseMarketSymbol(symbol);
-    const tickerParams: FetchTickerParams = { searchLimit };
-    if (issuers[base]) tickerParams.baseIssuer = issuers[base];
-    if (issuers[quote]) tickerParams.quoteIssuer = issuers[quote];
+    // const [base, quote] = parseMarketSymbol(symbol);
+    const tickerParams: FetchTickerParams = { searchLimit, issuers };
+    // if (issuers[base]) tickerParams.baseIssuer = issuers[base];
+    // if (issuers[quote]) tickerParams.quoteIssuer = issuers[quote];
     const ticker = await this.fetchTicker(symbol, tickerParams);
     if (ticker) tickers.push(ticker);
   }

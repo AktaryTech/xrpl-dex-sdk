@@ -16,15 +16,25 @@ describe('watchOrders', function () {
   before(_.partial(setupRemoteSDK, NETWORK, addresses.AKT_BUYER_SECRET));
   after(teardownRemoteSDK);
 
-  it.only('should subscribe to Order data', function (done) {
-    this.sdk
-      .watchOrders('USD/XRP', { baseIssuer: 'rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B' })
-      .then((orderStream: Readable) => {
-        orderStream.on('data', (rawOrder) => {
-          const order = JSON.parse(rawOrder);
-          assert(typeof order !== 'undefined');
-          done();
-        });
+  it('should subscribe to Order data', function (done) {
+    this.sdk.watchOrders().then((orderStream: Readable) => {
+      orderStream.on('data', (rawOrder) => {
+        const order = JSON.parse(rawOrder);
+        assert(typeof order !== 'undefined');
+        done();
       });
+    });
+  });
+
+  it('should subscribe to Order data for a given market symbol', function (done) {
+    const symbol = 'USD/XRP';
+    this.sdk.watchOrders(symbol, { baseIssuer: 'rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B' }).then((orderStream: Readable) => {
+      orderStream.on('data', (rawOrder) => {
+        const order = JSON.parse(rawOrder);
+        assert(typeof order !== 'undefined');
+        assert(order.symbol === symbol);
+        done();
+      });
+    });
   });
 });

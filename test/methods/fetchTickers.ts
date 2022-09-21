@@ -3,7 +3,7 @@ import { assert } from 'chai';
 import 'mocha';
 
 import { setupRemoteSDK, teardownRemoteSDK } from '../setupClient';
-import { XrplNetwork } from '../../src/models';
+import { FetchTickersParams, XrplNetwork } from '../../src/models';
 import { addresses } from '../fixtures';
 
 const TIMEOUT = 15000;
@@ -18,7 +18,7 @@ describe('fetchTickers', function () {
   it('should return Ticker data for the given symbols', async function () {
     const tickers = await this.sdk.fetchTickers(['TST/XRP', 'XRP/TST'], {
       issuers: { TST: 'rP9jPyP5kyvFRb6ZiRghAGw5u8SGAmU4bd' },
-    });
+    } as FetchTickersParams);
     assert(tickers.length === 2);
   });
 });
