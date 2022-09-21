@@ -45,6 +45,10 @@ import {
   LoadCurrenciesResponse,
   LoadIssuersResponse,
   LoadMarketsResponse,
+  WatchOrdersParams,
+  WatchOrdersResponse,
+  WatchTickerParams,
+  WatchTickerResponse,
 } from './methods';
 import { Issuers } from './xrpl';
 
@@ -152,5 +156,12 @@ export interface SDKContext {
   loadCurrencies(reload?: boolean): Promise<LoadCurrenciesResponse | undefined>;
   loadIssuers(reload?: boolean): Promise<LoadIssuersResponse | undefined>;
   loadMarkets(reload?: boolean): Promise<LoadMarketsResponse | undefined>;
+  watchOrders(
+    symbol?: MarketSymbol,
+    since?: UnixTimestamp,
+    limit?: number,
+    params?: WatchOrdersParams
+  ): Promise<WatchOrdersResponse>;
+  watchTicker(symbol: MarketSymbol, params: WatchTickerParams): Promise<WatchTickerResponse | undefined>;
   [key: string]: any;
 }

@@ -25,6 +25,7 @@ import fetchTransactionFees from './fetchTransactionFees';
 import loadCurrencies from './loadCurrencies';
 import loadIssuers from './loadIssuers';
 import loadMarkets from './loadMarkets';
+import watchOrders from './watchOrders';
 import watchTicker from './watchTicker';
 
 const methods: Record<string, any> = {
@@ -55,6 +56,7 @@ const methods: Record<string, any> = {
   loadCurrencies,
   loadIssuers,
   loadMarkets,
+  watchOrders,
   watchTicker,
 };
 

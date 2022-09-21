@@ -1,4 +1,4 @@
-import { MarketSymbol } from '../common';
+import { MarketSymbol, UnixTimestamp } from '../common';
 import { Fee, Trade } from '.';
 
 export type OrderStatus = 'open' | 'closed' | 'canceled' | 'expired' | 'rejected';
@@ -9,20 +9,32 @@ export type OrderTimeInForce = 'GTC' | 'IOC' | 'FOK' | 'PO';
 
 export type OrderSide = 'buy' | 'sell';
 
-export default interface Order {
+export interface BaseOrder {
+  datetime: string;
+  timestamp: UnixTimestamp;
+  symbol: MarketSymbol;
+  type: OrderType;
+  side: OrderSide;
+  amount: string;
+  price: string;
+  cost: string;
+  fee?: Fee;
+}
+
+export interface Order {
   /** The Offer's Sequence number (as a string) */
   id: string;
   clientOrderId?: string;
   datetime: string;
-  timestamp: number;
-  lastTradeTimestamp: number;
+  timestamp: UnixTimestamp;
+  lastTradeTimestamp: UnixTimestamp;
   status: OrderStatus;
   symbol: MarketSymbol;
   type: OrderType;
   timeInForce?: OrderTimeInForce;
   side: OrderSide;
   amount: string | number;
-  price?: string | number; // May be empty for Market orders
+  price: string | number;
   average?: string | number;
   filled: string | number;
   remaining: string | number;

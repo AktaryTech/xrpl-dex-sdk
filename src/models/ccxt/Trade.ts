@@ -1,7 +1,7 @@
 import { MarketSymbol } from '../common';
 import { Fee } from './Fees';
 
-export default interface Trade {
+export interface Trade {
   id: string; // string trade id
   order?: string; // string order id or undefined/None/null
   datetime: string; // ISO8601 datetime with milliseconds;

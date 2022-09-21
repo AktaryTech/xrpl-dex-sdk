@@ -46,6 +46,10 @@ export class SDK implements SDKContext {
   fetchTransactionFee = methods.fetchTransactionFee.bind(this);
   fetchTransactionFees = methods.fetchTransactionFees.bind(this);
 
+  /** Streaming */
+  watchOrders = methods.watchOrders.bind(this);
+  watchTicker = methods.watchTicker.bind(this);
+
   constructor(params: SDKParams) {
     const { network, websocketsOptions, walletPrivateKey, walletPublicKey, walletSecret } = params;
 

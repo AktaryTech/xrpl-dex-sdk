@@ -20,7 +20,7 @@ describe('fetchOrder', function () {
 
   it('should return an open Buy Order', async function () {
     const fetchOrderResponse = await this.sdk.fetchOrder(requests.fetchOrder.testnet.tstBuy);
-    const omittedFields = ['id', 'clientOrderId', 'lastTradeTimestamp', 'datetime', 'timestamp', 'fee', 'info'];
+    const omittedFields = ['datetime', 'timestamp', 'info'];
     assertResultMatch(_.omit(fetchOrderResponse, omittedFields), _.omit(responses.fetchOrder.tstBuy, omittedFields));
   });
 

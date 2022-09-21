@@ -9,6 +9,8 @@ import {
   OfferCreate,
   OfferCreateFlags,
   RippledError,
+  rippleTimeToISOTime,
+  rippleTimeToUnixTime,
   TransactionMetadata,
   TxRequest,
   TxResponse,
@@ -23,13 +25,17 @@ import {
   AccountAddress,
   AccountSequencePair,
   AccountTransaction,
+  BaseOrder,
   LedgerTransaction,
   Node,
   OrderSide,
   TransactionData,
   TxResult,
   XrplErrorTypes,
+  XrplTimestamp,
 } from '../models';
+import { getAmountCurrencyCode, getMarketSymbol } from './conversions';
+import { fetchTransferRate } from './markets';
 import { divideAmountValues, subtractAmounts } from './numbers';
 
 /**
@@ -222,14 +228,6 @@ export const parseTransaction = (
     metadata = metaData;
   } else return;
 
-  // const tx = transaction.hasOwnProperty('result')
-  //   ? ((transaction as TxResponse).result as TxResult<OfferCreate>)
-  //   : ((transaction as AccountTransaction).tx as TxResult<OfferCreate>);
-
-  // const metadata = transaction.hasOwnProperty('result')
-  //   ? ((transaction as TxResponse).result.meta as TransactionMetadata)
-  //   : ((transaction as AccountTransaction).meta as TransactionMetadata);
-
   if (!tx.hash || tx?.TransactionType !== 'OfferCreate' || typeof metadata !== 'object') return;
 
   const parsedNodes: Node[] = [];
@@ -330,6 +328,59 @@ export const getMostRecentTxId = async (
 
     throw new BadResponse(`Could not find Transaction history for Order ${id}`);
   }
+};
+
+export const getBaseOrder = async (
+  client: Client,
+  source: (OfferCreate & { date?: number }) | Offer,
+  date: XrplTimestamp,
+  filled?: number
+) => {
+  const side: OrderSide = source.Flags === OfferFlags.lsfSell ? 'sell' : 'buy';
+
+  const baseAmount = source[getBaseAmountKey(side)];
+  const quoteAmount = source[getQuoteAmountKey(side)];
+
+  const baseCode = getAmountCurrencyCode(baseAmount);
+  const quoteCode = getAmountCurrencyCode(quoteAmount);
+
+  const baseRate = parseFloat(await fetchTransferRate(client, baseAmount));
+  const quoteRate = parseFloat(await fetchTransferRate(client, quoteAmount));
+
+  const baseValue = parseAmountValue(baseAmount);
+  const quoteValue = parseAmountValue(quoteAmount);
+
+  const price = quoteValue / baseValue;
+  const cost = (filled || baseValue) * price;
+
+  const feeRate = side === 'buy' ? quoteRate : baseRate;
+  // const feeValue = side === 'buy' ? quoteValue : baseValue;
+  // const feeCode = side === 'buy' ? quoteCode : baseCode;
+  // const feeCost = (filled || feeValue) * feeRate;
+  const feeCost = (filled || baseValue) * feeRate;
+
+  const baseOrder: BaseOrder = {
+    datetime: rippleTimeToISOTime(date),
+    timestamp: rippleTimeToUnixTime(date),
+    symbol: getMarketSymbol(baseAmount, quoteAmount),
+    type: 'limit',
+    side,
+    amount: baseCode === 'XRP' ? dropsToXrp(baseValue) : baseValue.toString(),
+    price: quoteCode === 'XRP' ? dropsToXrp(price) : price.toString(),
+    cost: quoteCode === 'XRP' ? dropsToXrp(cost) : cost.toString(),
+  };
+
+  if (feeCost != 0) {
+    baseOrder.fee = {
+      currency: getAmountCurrencyCode(side === 'buy' ? quoteAmount : baseAmount),
+      cost: baseCode === 'XRP' ? dropsToXrp(feeCost) : feeCost.toString(),
+      // cost: feeCode === 'XRP' ? dropsToXrp(feeCost) : feeCost.toString(),
+      rate: feeRate.toString(),
+      percentage: true,
+    };
+  }
+
+  return baseOrder;
 };
 
 // /**

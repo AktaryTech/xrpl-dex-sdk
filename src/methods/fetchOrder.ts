@@ -18,6 +18,7 @@ import {
 } from '../models';
 import {
   fetchTransferRate,
+  // fetchTransferRate,
   fetchTxn,
   getAmountCurrencyCode,
   getBaseAmountKey,
@@ -92,10 +93,8 @@ async function fetchOrder(
       const baseCurrency = getAmountCurrencyCode(baseAmount);
       const quoteCurrency = getAmountCurrencyCode(quoteAmount);
 
-      const baseValue =
-        baseCurrency === 'XRP' ? parseInt(dropsToXrp(parseAmountValue(baseAmount))) : parseAmountValue(baseAmount);
-      const quoteValue =
-        quoteCurrency === 'XRP' ? parseInt(dropsToXrp(parseAmountValue(quoteAmount))) : parseAmountValue(quoteAmount);
+      const baseValue = parseAmountValue(baseAmount);
+      const quoteValue = parseAmountValue(quoteAmount);
 
       const price = quoteValue / baseValue;
       const cost = baseValue * price;
@@ -113,16 +112,16 @@ async function fetchOrder(
         symbol: getMarketSymbol(baseAmount, quoteAmount),
         type: 'limit',
         side: side,
-        amount: baseValue.toString(),
-        price: price.toString(),
+        amount: baseCurrency === 'XRP' ? dropsToXrp(baseValue) : baseValue.toString(),
+        price: quoteCurrency === 'XRP' ? dropsToXrp(price) : price.toString(),
         takerOrMaker: getTakerOrMaker(side),
-        cost: cost.toString(),
+        cost: baseCurrency === 'XRP' ? dropsToXrp(cost) : cost.toString(),
         info: { [transaction.Account !== account ? 'transaction' : 'offer']: source },
       };
 
       if (feeCost != 0) {
         trade.fee = {
-          currency: getAmountCurrencyCode(side === 'buy' ? quoteAmount : baseAmount),
+          currency: side === 'buy' ? quoteCurrency : baseCurrency,
           cost: feeCost.toString(),
           rate: feeRate.toString(),
           percentage: true,
@@ -153,13 +152,12 @@ async function fetchOrder(
       const baseCurrency = getAmountCurrencyCode(baseAmount);
       const quoteCurrency = getAmountCurrencyCode(quoteAmount);
 
-      const baseValue =
-        baseCurrency === 'XRP' ? parseInt(dropsToXrp(parseAmountValue(baseAmount))) : parseAmountValue(baseAmount);
-      const quoteValue =
-        quoteCurrency === 'XRP' ? parseInt(dropsToXrp(parseAmountValue(quoteAmount))) : parseAmountValue(quoteAmount);
+      const baseValue = parseAmountValue(baseAmount);
+      const quoteValue = parseAmountValue(quoteAmount);
 
       const orderPrice = quoteValue / baseValue;
       const cost = filled * orderPrice;
+      const remaining = baseValue - filled;
 
       const feeRate = side === 'buy' ? quoteRate : baseRate;
       const feeCost = filled * feeRate;
@@ -175,19 +173,19 @@ async function fetchOrder(
         type: 'limit',
         timeInForce: orderTimeInForce,
         side,
-        amount: baseValue.toString(),
-        price: orderPrice.toString(),
+        amount: baseCurrency === 'XRP' ? dropsToXrp(baseValue) : baseValue.toString(),
+        price: quoteCurrency === 'XRP' ? dropsToXrp(orderPrice) : orderPrice.toString(),
         average: (trades.length ? filled / trades.length : 0).toString(), // as cool as dividing by zero is, we shouldn't do it
-        filled: filled.toString(),
-        remaining: (baseValue - filled).toString(),
-        cost: cost.toString(),
+        filled: baseCurrency === 'XRP' ? dropsToXrp(filled) : filled.toString(),
+        remaining: baseCurrency === 'XRP' ? dropsToXrp(remaining) : remaining.toString(),
+        cost: baseCurrency === 'XRP' ? dropsToXrp(cost) : cost.toString(),
         trades,
         info: { transactionData },
       };
 
       if (feeCost != 0) {
         order.fee = {
-          currency: getAmountCurrencyCode(side === 'buy' ? quoteAmount : baseAmount),
+          currency: side === 'buy' ? quoteCurrency : baseCurrency,
           cost: feeCost.toString(),
           rate: feeRate.toString(),
           percentage: true,
