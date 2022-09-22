@@ -8,6 +8,7 @@ export * from './fetchClosedOrders';
 export * from './fetchCurrencies';
 export * from './fetchFees';
 export * from './fetchIssuers';
+export * from './fetchL2OrderBook';
 export * from './fetchMarket';
 export * from './fetchMarkets';
 export * from './fetchMyTrades';

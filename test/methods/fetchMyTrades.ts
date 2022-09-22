@@ -17,7 +17,7 @@ describe('fetchMyTrades', function () {
   beforeEach(_.partial(setupRemoteSDK, NETWORK, addresses.AKT_BUYER_SECRET));
   afterEach(teardownRemoteSDK);
 
-  it.only("return a list of the user's Trades for a given market symbol", async function () {
+  it("return a list of the user's Trades for a given market symbol", async function () {
     // this.mockRippled.addResponse('server_state', () => rippled.server_state.normal);
     // const trades = await this.sdk.fetchMyTrades('AKT/XRP', undefined, 5, { searchLimit: 500 });
     // console.log(trades);

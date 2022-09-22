@@ -8,6 +8,7 @@ import fetchClosedOrders from './fetchClosedOrders';
 import fetchCurrencies from './fetchCurrencies';
 import fetchFees from './fetchFees';
 import fetchIssuers from './fetchIssuers';
+import fetchL2OrderBook from './fetchL2OrderBook';
 import fetchMarket from './fetchMarket';
 import fetchMarkets from './fetchMarkets';
 import fetchMyTrades from './fetchMyTrades';
@@ -46,6 +47,7 @@ const methods: Record<string, any> = {
   fetchCurrencies,
   fetchFees,
   fetchIssuers,
+  fetchL2OrderBook,
   fetchMarket,
   fetchMarkets,
   fetchMyTrades,
