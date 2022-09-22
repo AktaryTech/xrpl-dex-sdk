@@ -18,6 +18,7 @@ async function watchTicker(
 ): Promise<Readable> {
   const tickerStream = new Readable({ read: () => this });
 
+  let isProcessing = false;
   let ticker: Ticker | undefined;
 
   await this.client.request({
@@ -26,7 +27,11 @@ async function watchTicker(
   } as SubscribeRequest);
 
   this.client.on('transaction', async (tx: TransactionStream) => {
+    if (isProcessing) return;
+
     if (!tx.validated || tx.transaction.TransactionType !== 'OfferCreate') return;
+
+    isProcessing = true;
 
     const newTicker = await this.fetchTicker(symbol, params);
 
@@ -37,7 +42,10 @@ async function watchTicker(
         Object.values(_.omit(ticker, omittedFields)),
         Object.values(_.omit(newTicker, omittedFields))
       );
-      if (!diffs.length) return;
+      if (!diffs.length) {
+        isProcessing = false;
+        return;
+      }
     }
 
     ticker = newTicker;
@@ -45,6 +53,8 @@ async function watchTicker(
     // TODO: calculate this transaction's impact on the ticker and add it to the existing value
 
     tickerStream.push(JSON.stringify(ticker));
+
+    isProcessing = false;
   });
 
   return tickerStream;

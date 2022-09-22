@@ -54,16 +54,25 @@ async function watchOrders(
 
   const orderStream = new Readable({ read: () => this });
 
+  let isProcessing = false;
+
   await this.client.request({
     command: 'subscribe',
     streams: ['transactions'],
   } as SubscribeRequest);
 
   this.client.on('transaction', async (tx: TransactionStream) => {
+    if (isProcessing) return;
+
     if (!tx.validated || tx.transaction.TransactionType !== 'OfferCreate') return;
 
+    isProcessing = true;
+
     const transaction = tx.transaction as OfferCreate;
-    if (!transaction.Sequence) return;
+    if (!transaction.Sequence) {
+      isProcessing = false;
+      return;
+    }
 
     const tradeOffers: Offer[] = [];
     const parsedNodes: Node[] = [];
@@ -89,7 +98,10 @@ async function watchOrders(
     const orderSymbol = getMarketSymbol(orderBaseAmount, orderQuoteAmount);
 
     /** Filter by symbol (if applicable) */
-    if (symbol && symbol !== orderSymbol) return;
+    if (symbol && symbol !== orderSymbol) {
+      isProcessing = false;
+      return;
+    }
 
     for (const offer of tradeOffers) {
       if (!offer.Sequence) continue;
@@ -199,10 +211,14 @@ async function watchOrders(
       (order.status === 'open' && !showOpen) ||
       (order.status === 'closed' && !showClosed) ||
       (order.status === 'canceled' && !showCanceled)
-    )
+    ) {
+      isProcessing = false;
       return;
+    }
 
     orderStream.push(JSON.stringify(order));
+
+    isProcessing = false;
   });
 
   return orderStream;

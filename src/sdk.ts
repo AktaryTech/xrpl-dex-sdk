@@ -22,6 +22,10 @@ export class SDK implements SDKContext {
   fetchClosedOrders = methods.fetchClosedOrders.bind(this);
   fetchCanceledOrders = methods.fetchCanceledOrders.bind(this);
 
+  /** Trades */
+  fetchTrades = methods.fetchTrades.bind(this);
+  fetchMyTrades = methods.fetchMyTrades.bind(this);
+
   /** Order Book */
   fetchOrderBook = methods.fetchOrderBook.bind(this);
   fetchOrderBooks = methods.fetchOrderBooks.bind(this);
@@ -52,6 +56,7 @@ export class SDK implements SDKContext {
   watchStatus = methods.watchStatus.bind(this);
   watchTicker = methods.watchTicker.bind(this);
   watchTickers = methods.watchTickers.bind(this);
+  watchTrades = methods.watchTrades.bind(this);
 
   constructor(params: SDKParams) {
     const { network, websocketsOptions, walletPrivateKey, walletPublicKey, walletSecret } = params;

@@ -98,61 +98,6 @@ async function watchBalance(
               break;
             }
           }
-
-          //   if (node.hasOwnProperty('ModifiedNode')) {
-          //     const modifiedNode = (node as ModifiedNode).ModifiedNode;
-          //     if (!modifiedNode.FinalFields) {
-          //       return;
-          //     } else if (modifiedNode.LedgerEntryType === 'AccountRoot') {
-          //       const accountRoot = modifiedNode.FinalFields as unknown as AccountRoot;
-          //       if (accountRoot.Account === params.account) {
-          //         console.log('Another ModifiedNode OfferCreate affected our AccountRoot!');
-          //         shouldRefresh = true;
-          //         break;
-          //       }
-          //     } else if (modifiedNode.LedgerEntryType === 'RippleState') {
-          //       const rippleState = modifiedNode.FinalFields as unknown as RippleState;
-          //       if (rippleState.HighLimit.issuer === params.account || rippleState.LowLimit.issuer === params.account) {
-          //         console.log('Another ModifiedNode OfferCreate affected our RippleState!');
-          //         shouldRefresh = true;
-          //         break;
-          //       }
-          //     }
-          //   } else if (node.hasOwnProperty('DeletedNode')) {
-          //     const deletedNode = (node as DeletedNode).DeletedNode;
-          //     if (deletedNode.LedgerEntryType === 'AccountRoot') {
-          //       const accountRoot = deletedNode.FinalFields as unknown as AccountRoot;
-          //       if (accountRoot.Account === params.account) {
-          //         console.log('Another DeletedNode OfferCreate affected our AccountRoot!');
-          //         shouldRefresh = true;
-          //         break;
-          //       }
-          //     } else if (deletedNode.LedgerEntryType === 'RippleState') {
-          //       const rippleState = deletedNode.FinalFields as unknown as RippleState;
-          //       if (rippleState.HighLimit.issuer === params.account || rippleState.LowLimit.issuer === params.account) {
-          //         console.log('Another DeletedNode OfferCreate affected our RippleState!');
-          //         shouldRefresh = true;
-          //         break;
-          //       }
-          //     }
-          //   } else if (node.hasOwnProperty('CreatedNode')) {
-          //     const createdNode = (node as CreatedNode).CreatedNode;
-          //     if (createdNode.LedgerEntryType === 'AccountRoot') {
-          //       const accountRoot = createdNode.NewFields as unknown as AccountRoot;
-          //       if (accountRoot.Account === params.account) {
-          //         console.log('Another CreatedNode OfferCreate affected our AccountRoot!');
-          //         shouldRefresh = true;
-          //         break;
-          //       }
-          //     } else if (createdNode.LedgerEntryType === 'RippleState') {
-          //       const rippleState = createdNode.NewFields as unknown as RippleState;
-          //       if (rippleState.HighLimit.issuer === params.account || rippleState.LowLimit.issuer === params.account) {
-          //         console.log('Another CreatedNode OfferCreate affected our RippleState!');
-          //         shouldRefresh = true;
-          //         break;
-          //       }
-          //     }
-          //   }
         }
       }
       if (shouldRefresh) await refreshBalance();

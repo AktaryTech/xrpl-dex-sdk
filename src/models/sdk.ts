@@ -22,6 +22,8 @@ import {
   FetchIssuersResponse,
   FetchMarketResponse,
   FetchMarketsResponse,
+  FetchMyTradesParams,
+  FetchMyTradesResponse,
   FetchOpenOrdersParams,
   FetchOpenOrdersResponse,
   FetchOrderBookParams,
@@ -37,6 +39,8 @@ import {
   FetchTickerResponse,
   FetchTickersParams,
   FetchTickersResponse,
+  FetchTradesParams,
+  FetchTradesResponse,
   FetchTradingFeeResponse,
   FetchTradingFeesResponse,
   FetchTransactionFeeParams,
@@ -51,6 +55,7 @@ import {
   WatchOrdersResponse,
   WatchTickerParams,
   WatchTickersParams,
+  WatchTradesResponse,
 } from './methods';
 import { Issuers } from './xrpl';
 
@@ -141,10 +146,22 @@ export interface SDKContext {
   fetchIssuers(): Promise<FetchIssuersResponse | undefined>;
   fetchMarket(): Promise<FetchMarketResponse | undefined>;
   fetchMarkets(): Promise<FetchMarketsResponse | undefined>;
+  fetchMyTrades(
+    symbol: MarketSymbol,
+    since?: UnixTimestamp,
+    limit?: number,
+    params?: FetchMyTradesParams
+  ): Promise<FetchMyTradesResponse>;
   fetchFees(): Promise<FetchFeesResponse | undefined>;
   fetchStatus(): Promise<FetchStatusResponse | undefined>;
   fetchTicker(symbol: MarketSymbol, params: FetchTickerParams): Promise<FetchTickerResponse | undefined>;
   fetchTickers(symbols: MarketSymbol[], params: FetchTickersParams): Promise<FetchTickersResponse | undefined>;
+  fetchTrades(
+    symbol: MarketSymbol,
+    since?: UnixTimestamp,
+    limit?: number,
+    params?: FetchTradesParams
+  ): Promise<FetchTradesResponse>;
   fetchTradingFee(symbol: MarketSymbol): Promise<FetchTradingFeeResponse | undefined>;
   fetchTradingFees(): Promise<FetchTradingFeesResponse | undefined>;
   fetchTransactionFee(
@@ -168,5 +185,6 @@ export interface SDKContext {
   watchStatus(): Promise<Readable>;
   watchTicker(symbol: MarketSymbol, params: WatchTickerParams): Promise<Readable>;
   watchTickers(symbols: MarketSymbol[], params: WatchTickersParams): Promise<Readable>;
+  watchTrades(symbol: MarketSymbol): Promise<WatchTradesResponse>;
   [key: string]: any;
 }
