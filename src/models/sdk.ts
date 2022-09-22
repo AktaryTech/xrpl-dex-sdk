@@ -165,6 +165,7 @@ export interface SDKContext {
     limit?: number,
     params?: WatchOrdersParams
   ): Promise<WatchOrdersResponse>;
+  watchStatus(): Promise<Readable>;
   watchTicker(symbol: MarketSymbol, params: WatchTickerParams): Promise<Readable>;
   watchTickers(symbols: MarketSymbol[], params: WatchTickersParams): Promise<Readable>;
   [key: string]: any;
