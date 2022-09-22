@@ -1,23 +1,27 @@
-import { BadRequest } from 'ccxt';
 import _ from 'lodash';
 import { Readable } from 'stream';
-import { WatchBalanceParams, SDKContext } from '../models';
+import { LedgerStream, SubscribeRequest } from 'xrpl';
+import { SDKContext } from '../models';
 
 /**
  * Streams information regarding {@link ExchangeStatus} from either the info
- * hardcoded in the exchange instance or the API, if available. Returns an
- * {@link WatchStatusResponse}.
+ * hardcoded in the exchange instance or the API, if available. Returns a
+ * {@link Readable} stream.
  *
  * @category Methods
  */
-async function watchStatus(
-  this: SDKContext,
-  /** Parameters specific to the exchange API endpoint */
-  params: WatchBalanceParams
-): Promise<Readable> {
-  if (!params.account) throw new BadRequest('Must include account address in params');
-
+async function watchStatus(this: SDKContext): Promise<Readable> {
   const statusStream = new Readable({ read: () => this });
+
+  await this.client.request({
+    command: 'subscribe',
+    streams: ['ledger'],
+  } as SubscribeRequest);
+
+  this.client.on('ledgerClosed', async (ledger: LedgerStream) => {
+    const newStatus = await this.fetchStatus();
+    if (newStatus) statusStream.push(JSON.stringify(newStatus));
+  });
 
   return statusStream;
 }
