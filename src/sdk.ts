@@ -47,6 +47,7 @@ export class SDK implements SDKContext {
   fetchTransactionFees = methods.fetchTransactionFees.bind(this);
 
   /** Streaming */
+  watchBalance = methods.watchBalance.bind(this);
   watchOrders = methods.watchOrders.bind(this);
   watchTicker = methods.watchTicker.bind(this);
   watchTickers = methods.watchTickers.bind(this);

@@ -25,6 +25,8 @@ export * from './fetchTransactionFees';
 export * from './loadCurrencies';
 export * from './loadIssuers';
 export * from './loadMarkets';
+export * from './watchBalance';
 export * from './watchOrders';
+export * from './watchStatus';
 export * from './watchTicker';
 export * from './watchTickers';

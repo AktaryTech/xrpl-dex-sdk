@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { AccountInfoRequest, AccountLinesRequest, dropsToXrp } from 'xrpl';
 import { DEFAULT_LIMIT } from '../constants';
 import { Balances, FetchBalanceParams, FetchBalanceResponse, SDKContext } from '../models';
+import { BN } from '../utils';
 
 /**
  * Returns information about an account's balances, sorted by currency
@@ -32,16 +33,21 @@ async function fetchBalance(
     const accountObjectCount = accountInfo.OwnerCount;
 
     const serverState = await this.fetchStatus();
-    const { reserve_base: reserveBase, reserve_inc: reserveInc } = serverState?.info.serverState.validated_ledger;
+    const { reserve_base, reserve_inc } = serverState?.info.serverState.validated_ledger;
 
-    const usedXrp = reserveBase + accountObjectCount * reserveInc;
-    const freeXrp = parseFloat(accountInfo.Balance) - usedXrp;
-    const totalXrp = usedXrp + freeXrp;
+    info.validatedLedger = serverState?.info.serverState.validated_ledger;
+
+    const reserveBase = BN(dropsToXrp(reserve_base));
+    const reserveInc = BN(dropsToXrp(reserve_inc));
+
+    const usedXrp = reserveBase.plus(accountObjectCount).multipliedBy(reserveInc);
+    const freeXrp = BN(dropsToXrp(accountInfo.Balance)).minus(usedXrp);
+    const totalXrp = usedXrp.plus(freeXrp);
 
     balances['XRP'] = {
-      free: dropsToXrp(freeXrp),
-      used: dropsToXrp(usedXrp),
-      total: dropsToXrp(totalXrp),
+      free: freeXrp.toString(),
+      total: totalXrp.toString(),
+      used: usedXrp.toString(),
     };
 
     info.accountInfo = accountInfoResponse;
@@ -64,19 +70,19 @@ async function fetchBalance(
 
       const trustLines = accountTrustLinesResponse.result.lines;
 
-      _.forEach(trustLines, ({ currency, balance }) => {
+      for (const { balance, currency } of trustLines) {
         if (code && code !== currency) return;
 
-        const usedBalance = 0;
-        const freeBalance = parseFloat(balance) - usedBalance;
-        const totalBalance = usedBalance + freeBalance;
+        const usedBalance = BN(0);
+        const freeBalance = BN(balance).minus(usedBalance);
+        const totalBalance = balance;
 
         balances[currency] = {
           free: freeBalance.toString(),
           used: usedBalance.toString(),
           total: totalBalance.toString(),
         };
-      });
+      }
 
       info.accountLines = accountTrustLinesResponse;
 
