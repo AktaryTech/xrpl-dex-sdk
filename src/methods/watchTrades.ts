@@ -11,7 +11,7 @@ import {
 } from 'xrpl';
 import { Offer } from 'xrpl/dist/npm/models/ledger';
 import { parseAmountValue } from 'xrpl/dist/npm/models/transactions/common';
-import { MarketSymbol, SDKContext, Trade, AffectedNode } from '../models';
+import { MarketSymbol, SDKContext, Trade, AffectedNode, TradeStream } from '../models';
 import {
   BN,
   fetchTransferRate,
@@ -32,7 +32,7 @@ async function watchTrades(
   this: SDKContext,
   /** Filter Trades by market symbol */
   symbol: MarketSymbol
-): Promise<Readable> {
+): Promise<TradeStream> {
   if (!symbol) throw new BadRequest('Must provide a market symbol');
 
   const tradeStream = new Readable({ read: () => this });

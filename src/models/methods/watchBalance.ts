@@ -1,12 +1,12 @@
-import { Readable } from 'stream';
-import { AccountAddress, BaseParams, CurrencyCode } from '../common';
+import { BalanceStream } from '../ccxt';
+import { AccountAddress, CurrencyCode } from '../common';
 
 /**
  * Request parameters for a watchBalance call
  *
  * @category Parameters
  */
-export interface WatchBalanceParams extends BaseParams {
+export interface WatchBalanceParams {
   /** The account to fetch balances for */
   account: AccountAddress;
   /** Currency code to filter balances by */
@@ -18,4 +18,4 @@ export interface WatchBalanceParams extends BaseParams {
  *
  * @category Responses
  */
-export type WatchBalanceResponse = Readable;
+export type WatchBalanceResponse = BalanceStream;

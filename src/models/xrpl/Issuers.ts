@@ -7,7 +7,7 @@ export interface Issuer {
   trusted: boolean;
   website: string;
   addresses: AccountAddress[];
-  currencies: IssuerCurrency[];
+  currencies: CurrencyCode[];
 }
 
 type Issuers = Record<string, Issuer>;

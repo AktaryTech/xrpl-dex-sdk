@@ -1,5 +1,8 @@
+import { Readable } from 'stream';
 import { MarketSymbol } from '../common';
 import { Fee } from './Fees';
+
+export type TradeStream = Readable;
 
 export interface Trade {
   id: string; // string trade id
@@ -14,5 +17,5 @@ export interface Trade {
   takerOrMaker: 'taker' | 'maker'; // string, 'taker' or 'maker'
   cost: string; // total cost (including fees), `price * amount`
   fee?: Fee;
-  info: any; // the original decoded JSON as is
+  info: Record<string, any>; // the original decoded JSON as is
 }

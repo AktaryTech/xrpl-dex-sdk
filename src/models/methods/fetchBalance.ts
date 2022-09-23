@@ -1,12 +1,12 @@
 import { Balances } from '../ccxt';
-import { AccountAddress, BaseParams, BaseResponse, CurrencyCode } from '../common';
+import { AccountAddress, CurrencyCode } from '../common';
 
 /**
  * Request parameters for a fetchBalance call
  *
  * @category Parameters
  */
-export interface FetchBalanceParams extends BaseParams {
+export interface FetchBalanceParams {
   /** The account to fetch balances for */
   account: AccountAddress;
   /** Currency code to filter balances by */
@@ -18,4 +18,4 @@ export interface FetchBalanceParams extends BaseParams {
  *
  * @category Responses
  */
-export type FetchBalanceResponse = BaseResponse & { balances: Balances };
+export type FetchBalanceResponse = { balances: Balances; info: Record<string, any> } | undefined;

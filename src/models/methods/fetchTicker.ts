@@ -1,13 +1,11 @@
 import { Ticker } from '../ccxt';
-import { AccountAddress, BaseParams, CurrencyCode } from '../common';
 
 /**
  * Request parameters for a fetchTicker call
  *
  * @category Parameters
  */
-export interface FetchTickerParams extends BaseParams {
-  issuers: Record<CurrencyCode, AccountAddress>;
+export interface FetchTickerParams {
   /** Max number of Orders to look through before calculating ticker data */
   searchLimit?: number;
 }
@@ -17,4 +15,4 @@ export interface FetchTickerParams extends BaseParams {
  *
  * @category Responses
  */
-export type FetchTickerResponse = Ticker;
+export type FetchTickerResponse = Ticker | undefined;

@@ -1,13 +1,11 @@
-import { Readable } from 'stream';
-import { AccountAddress, BaseParams, CurrencyCode } from '../common';
+import { TickerStream } from '../ccxt';
 
 /**
  * Request parameters for a watchTicker call
  *
  * @category Parameters
  */
-export interface WatchTickerParams extends BaseParams {
-  issuers: Record<CurrencyCode, AccountAddress>;
+export interface WatchTickerParams {
   /** Max number of Orders to look through before calculating ticker data */
   searchLimit?: number;
 }
@@ -17,4 +15,4 @@ export interface WatchTickerParams extends BaseParams {
  *
  * @category Responses
  */
-export type WatchTickerResponse = Readable;
+export type WatchTickerResponse = TickerStream;

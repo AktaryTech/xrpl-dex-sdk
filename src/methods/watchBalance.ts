@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { Readable } from 'stream';
 import { OfferCreate, Payment, SubscribeRequest, TransactionStream } from 'xrpl';
 import { LedgerStreamResponse } from 'xrpl/dist/npm/models/methods/subscribe';
-import { WatchBalanceParams, SDKContext } from '../models';
+import { WatchBalanceParams, SDKContext, BalanceStream } from '../models';
 import { getAmountCurrencyCode } from '../utils';
 
 /**
@@ -16,7 +16,7 @@ async function watchBalance(
   this: SDKContext,
   /** Parameters specific to the exchange API endpoint */
   params: WatchBalanceParams
-): Promise<Readable> {
+): Promise<BalanceStream> {
   if (!params.account) throw new BadRequest('Must include account address in params');
 
   const balanceStream = new Readable({ read: () => this });

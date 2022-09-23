@@ -14,7 +14,7 @@ async function fetchBalance(
   this: SDKContext,
   /* Request parameters */
   params: FetchBalanceParams
-): Promise<FetchBalanceResponse | undefined> {
+): Promise<FetchBalanceResponse> {
   const { account, code } = params;
 
   const balances: Balances = {};

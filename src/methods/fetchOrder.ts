@@ -7,7 +7,7 @@ import {
   FetchOrderParams,
   FetchOrderResponse,
   MarketSymbol,
-  AccountSequencePair,
+  OrderId,
   TransactionData,
   Order,
   Trade,
@@ -35,7 +35,7 @@ import {
 async function fetchOrder(
   this: SDKContext,
   /** The Order's Account and Sequence number, separated by a colon */
-  id: AccountSequencePair,
+  id: OrderId,
   /** Symbol field is not used */
   /* eslint-disable-next-line */
   symbol: MarketSymbol | undefined = undefined,

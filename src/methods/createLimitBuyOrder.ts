@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { CreateLimitBuyOrderParams, MarketSymbol, Order, SDKContext } from '../models';
+import { CreateLimitBuyOrderParams, CreateLimitBuyOrderResponse, MarketSymbol, SDKContext } from '../models';
 import createOrder from './createOrder';
 
 /**
@@ -18,7 +18,7 @@ async function createLimitBuyOrder(
   price: string,
   /** Parameters specific to the exchange API endpoint */
   params: CreateLimitBuyOrderParams
-): Promise<Order | undefined> {
+): Promise<CreateLimitBuyOrderResponse> {
   const newOrder = await createOrder.call(this, symbol, 'buy', 'limit', amount, price, params);
 
   return newOrder;

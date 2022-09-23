@@ -1,13 +1,5 @@
 import _ from 'lodash';
-import {
-  MarketSymbol,
-  FetchTickersParams,
-  Ticker,
-  FetchTickersResponse,
-  SDKContext,
-  FetchTickerParams,
-} from '../models';
-// import { parseMarketSymbol } from '../utils';
+import { MarketSymbol, FetchTickersParams, Ticker, FetchTickersResponse, SDKContext } from '../models';
 
 /**
  * Retrieves order book data for a single market pair. Returns an
@@ -21,16 +13,11 @@ async function fetchTickers(
   symbols: MarketSymbol[],
   /** Parameters specific to the exchange API endpoint */
   params: FetchTickersParams
-): Promise<FetchTickersResponse | undefined> {
-  const { issuers, searchLimit } = params;
+): Promise<FetchTickersResponse> {
   const tickers: Ticker[] = [];
 
   for (const symbol of symbols) {
-    // const [base, quote] = parseMarketSymbol(symbol);
-    const tickerParams: FetchTickerParams = { searchLimit, issuers };
-    // if (issuers[base]) tickerParams.baseIssuer = issuers[base];
-    // if (issuers[quote]) tickerParams.quoteIssuer = issuers[quote];
-    const ticker = await this.fetchTicker(symbol, tickerParams);
+    const ticker = await this.fetchTicker(symbol, params);
     if (ticker) tickers.push(ticker);
   }
 

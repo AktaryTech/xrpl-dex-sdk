@@ -1,8 +1,8 @@
-import { Readable } from 'stream';
+import { TradeStream } from '../ccxt';
 
 /**
  * Expected response from a {@link WatchTradesRequest}.
  *
  * @category Responses
  */
-export type WatchTradesResponse = Readable;
+export type WatchTradesResponse = TradeStream;

@@ -1,5 +1,10 @@
-import { MarketSymbol, UnixTimestamp } from '../common';
+import { AccountAddress, MarketSymbol, Sequence, UnixTimestamp } from '../common';
 import { Fee, Trade } from '.';
+import { Readable } from 'stream';
+
+export type OrderStream = Readable;
+
+export type OrderId = `${AccountAddress}:${Sequence}`;
 
 export type OrderStatus = 'open' | 'closed' | 'canceled' | 'expired' | 'rejected';
 
@@ -22,8 +27,8 @@ export interface BaseOrder {
 }
 
 export interface Order {
-  /** The Offer's Sequence number (as a string) */
-  id: string;
+  id: OrderId;
+  /** The XRPL ledger hash of the related Offer */
   clientOrderId?: string;
   datetime: string;
   timestamp: UnixTimestamp;
@@ -33,14 +38,14 @@ export interface Order {
   type: OrderType;
   timeInForce?: OrderTimeInForce;
   side: OrderSide;
-  amount: string | number;
-  price: string | number;
-  average?: string | number;
-  filled: string | number;
-  remaining: string | number;
-  cost: string | number;
+  amount: string;
+  price: string;
+  average?: string;
+  filled: string;
+  remaining: string;
+  cost: string;
   trades: Trade[];
   fee?: Fee;
   /** Raw XRPL responses as JSON strings */
-  info: any;
+  info: Record<string, any>;
 }

@@ -1,7 +1,15 @@
 import { BadResponse } from 'ccxt';
 import _ from 'lodash';
 import { OfferCreate, setTransactionFlagsToNumber } from 'xrpl';
-import { CreateOrderParams, MarketSymbol, Order, OrderSide, OrderType, SDKContext } from '../models';
+import {
+  CreateOrderParams,
+  CreateOrderResponse,
+  MarketSymbol,
+  Order,
+  OrderSide,
+  OrderType,
+  SDKContext,
+} from '../models';
 import { getAmount, getBaseAmountKey, getOrderOrTradeId, handleTxErrors, parseMarketSymbol } from '../utils';
 
 /**
@@ -24,17 +32,13 @@ async function createOrder(
   price: string,
   /** Parameters specific to the exchange API endpoint */
   params: CreateOrderParams
-): Promise<Order | undefined> {
-  const { baseCurrencyIssuer, quoteCurrencyIssuer, expiration, memos, flags } = params;
+): Promise<CreateOrderResponse> {
+  const { expiration, memos, flags } = params;
 
   const [baseCurrency, quoteCurrency] = parseMarketSymbol(symbol);
 
-  const baseAmount = getAmount(baseCurrency, amount, baseCurrencyIssuer);
-  const quoteAmount = getAmount(
-    quoteCurrency,
-    (parseFloat(amount) * parseFloat(price)).toString(),
-    quoteCurrencyIssuer
-  );
+  const baseAmount = getAmount(baseCurrency, amount);
+  const quoteAmount = getAmount(quoteCurrency, (parseFloat(amount) * parseFloat(price)).toString());
 
   const baseAmountKey = getBaseAmountKey(side);
 

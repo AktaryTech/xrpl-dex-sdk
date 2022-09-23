@@ -16,7 +16,7 @@ describe('watchOrderBook', function () {
   before(_.partial(setupRemoteSDK, NETWORK, addresses.AKT_BUYER_SECRET));
   after(teardownRemoteSDK);
 
-  it('should subscribe to Order Book updates', function (done) {
+  it.only('should subscribe to Order Book updates', function (done) {
     this.sdk
       .watchOrderBook('SGB/CSC', 5, {
         issuers: {

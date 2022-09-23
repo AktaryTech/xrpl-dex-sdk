@@ -1,7 +1,7 @@
-import { BadRequest } from 'ccxt';
-import { OfferCreate, OfferCreateFlags, setTransactionFlagsToNumber, xrpToDrops } from 'xrpl';
+import { OfferCreate, OfferCreateFlags, setTransactionFlagsToNumber } from 'xrpl';
 import { Amount } from 'xrpl/dist/npm/models/common';
-import { AccountAddress, BigNumberish, CurrencyCode, MarketSymbol, OrderTimeInForce } from '../models';
+import { TakerAmount } from 'xrpl/dist/npm/models/methods/bookOffers';
+import { AccountAddress, BigNumberish, CurrencyCode, IssuerAddress, MarketSymbol, OrderTimeInForce } from '../models';
 
 /**
  * Market Symbols
@@ -12,34 +12,40 @@ export const parseMarketSymbol = (symbol: MarketSymbol): [base: CurrencyCode, qu
 };
 
 export const getMarketSymbol = (base: Amount, quote: Amount): MarketSymbol => {
-  const symbol: string[] = [];
+  const symbol: CurrencyCode[] = [];
 
-  symbol.push(typeof base === 'object' ? base.currency : 'XRP');
-  symbol.push(typeof quote === 'object' ? quote.currency : 'XRP');
+  symbol.push(typeof base === 'string' ? 'XRP' : `${base.currency}+${base.issuer}`);
+  symbol.push(typeof quote === 'string' ? 'XRP' : `${quote.currency}+${quote.issuer}`);
 
-  return symbol.join('/');
+  return symbol.join('/') as MarketSymbol;
 };
 
 /**
  * Currencies
  */
+export const parseCurrencyCode = (currencyCode: CurrencyCode): { currency: string; issuer?: IssuerAddress } => {
+  const [currency, issuer] = currencyCode.split('+');
+  if (issuer) {
+    return { currency, issuer };
+  } else {
+    return { currency };
+  }
+};
+
 export const getAmountIssuer = (amount: Amount): AccountAddress | undefined =>
   typeof amount === 'object' ? amount.issuer : undefined;
 
 export const getAmountCurrencyCode = (amount: Amount): CurrencyCode =>
   typeof amount === 'object' ? amount.currency : 'XRP';
 
-export const getAmount = (code: CurrencyCode, value: BigNumberish, issuer?: AccountAddress): Amount => {
-  if (code === 'XRP') {
-    return xrpToDrops(value);
-  } else {
-    if (!issuer) throw new BadRequest('Non-XRP currencies must specify an issuer');
-    return {
-      currency: code,
-      issuer,
-      value: value.toString(),
-    };
-  }
+export const getAmount = (code: CurrencyCode, value: BigNumberish): Amount => {
+  const { currency, issuer } = parseCurrencyCode(code);
+  return issuer ? { currency, issuer, value: value.toString() } : value.toString();
+};
+
+export const getTakerAmount = (code: CurrencyCode): TakerAmount => {
+  const { currency, issuer } = parseCurrencyCode(code);
+  return issuer ? { currency, issuer } : { currency };
 };
 
 /**

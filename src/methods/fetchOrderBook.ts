@@ -12,7 +12,7 @@ import {
   OrderBookBid,
   OrderBook,
 } from '../models';
-import { getBaseAmountKey, getOrderSideFromOffer, parseMarketSymbol } from '../utils';
+import { getBaseAmountKey, getOrderSideFromOffer, getTakerAmount, parseMarketSymbol } from '../utils';
 
 /**
  * Retrieves order book data for a single market pair. Returns an
@@ -28,26 +28,21 @@ async function fetchOrderBook(
   limit: number = DEFAULT_SEARCH_LIMIT,
   /** Parameters specific to the exchange API endpoint */
   params: FetchOrderBookParams
-): Promise<FetchOrderBookResponse | undefined> {
+): Promise<FetchOrderBookResponse> {
   if (!params) throw new BadRequest('Must provide a params object');
 
-  const { issuers } = params;
+  const [baseCurrency, quoteCurrency] = parseMarketSymbol(symbol);
 
-  const [base, quote] = parseMarketSymbol(symbol);
-
-  if ((base !== 'XRP' && !issuers[base]) || (quote !== 'XRP' && !issuers[quote]))
-    throw new BadRequest('Must specify an issuer for non-XRP currencies');
+  const baseAmount = getTakerAmount(baseCurrency);
+  const quoteAmount = getTakerAmount(quoteCurrency);
 
   const orderBookRequest: BookOffersRequest = {
     command: 'book_offers',
-    taker_pays: { currency: base },
-    taker_gets: { currency: quote },
+    taker_pays: baseAmount,
+    taker_gets: quoteAmount,
     limit,
     both: true,
   };
-
-  if (base !== 'XRP') orderBookRequest.taker_pays.issuer = issuers[base];
-  if (quote !== 'XRP') orderBookRequest.taker_gets.issuer = issuers[quote];
 
   const orderBookResponse = await this.client.request(orderBookRequest);
   const offers = orderBookResponse.result.offers;
@@ -60,15 +55,11 @@ async function fetchOrderBook(
     const side = getOrderSideFromOffer(offer);
     const baseAmount = offer[getBaseAmountKey(side)];
     const baseValue =
-      base === 'XRP' ? dropsToXrp(parseAmountValue(baseAmount)) : parseAmountValue(baseAmount).toString();
+      baseCurrency === 'XRP' ? dropsToXrp(parseAmountValue(baseAmount)) : parseAmountValue(baseAmount).toString();
 
     const orderBookEntry = [offer.quality, baseValue];
 
-    if (side === 'buy') {
-      bids.push(orderBookEntry as OrderBookBid);
-    } else {
-      asks.push(orderBookEntry as OrderBookAsk);
-    }
+    bids.push(side === 'buy' ? (orderBookEntry as OrderBookBid) : (orderBookEntry as OrderBookAsk));
   }
   const nonce = offers[offers.length - 1].Sequence;
 

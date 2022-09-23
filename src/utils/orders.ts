@@ -23,7 +23,7 @@ import { hashOfferId } from 'xrpl/dist/npm/utils/hashes';
 import { DEFAULT_LIMIT, DEFAULT_SEARCH_LIMIT } from '../constants';
 import {
   AccountAddress,
-  AccountSequencePair,
+  OrderId,
   AccountTransaction,
   BaseOrder,
   LedgerTransaction,
@@ -33,6 +33,7 @@ import {
   TxResult,
   XrplErrorTypes,
   XrplTimestamp,
+  Sequence,
 } from '../models';
 import { getAmountCurrencyCode, getMarketSymbol } from './conversions';
 import { fetchTransferRate } from './markets';
@@ -41,7 +42,7 @@ import { divideAmountValues, subtractAmounts } from './numbers';
 /**
  * Parsers
  */
-export const parseOrderId = (orderId: string) => {
+export const parseOrderId = (orderId: OrderId) => {
   const [account, sequenceString] = orderId.split(':');
   const sequence = parseInt(sequenceString);
   return { account, sequence, sequenceString };
@@ -50,7 +51,7 @@ export const parseOrderId = (orderId: string) => {
 /**
  * Getters
  */
-export const getOrderOrTradeId = (account: AccountAddress, sequence: number) => `${account}:${sequence}`;
+export const getOrderOrTradeId = (account: AccountAddress, sequence: Sequence): OrderId => `${account}:${sequence}`;
 
 export const getOrderSideFromTx = (tx: TxResponse['result']): OrderSide =>
   tx.Flags === OfferFlags.lsfSell ? 'sell' : 'buy';
@@ -133,7 +134,7 @@ export const getOfferFromTransaction = (
  */
 export const fetchOfferEntry = async (
   client: Client,
-  orderId: AccountSequencePair,
+  orderId: OrderId,
   ledgerIndex: LedgerIndex = 'validated'
 ): Promise<Offer | undefined> => {
   const { account, sequence } = parseOrderId(orderId);
@@ -197,7 +198,7 @@ export const fetchAccountTxns = async (
  * Filter out irrelevant Transactions, parse AffectedNodes, and normalize results
  */
 export const parseTransaction = (
-  orderId: AccountSequencePair,
+  orderId: OrderId,
   transaction:
     | TxResponse
     | AccountTransaction
@@ -288,7 +289,7 @@ export const parseTransaction = (
  */
 export const getMostRecentTxId = async (
   client: Client,
-  id: AccountSequencePair,
+  id: OrderId,
   /** This is to prevent us spending forever searching through an account's Transactions for an Order */
   searchLimit: number = DEFAULT_SEARCH_LIMIT
 ) => {

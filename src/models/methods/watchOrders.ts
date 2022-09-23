@@ -1,4 +1,4 @@
-import { Order } from '../ccxt';
+import { OrderStream } from '../ccxt';
 
 export interface WatchOrdersParams {
   /** Max Transactions to search through looking for Order data before giving up */
@@ -16,4 +16,4 @@ export interface WatchOrdersParams {
  *
  * @category Responses
  */
-export type WatchOrdersResponse = Order[];
+export type WatchOrdersResponse = OrderStream;
