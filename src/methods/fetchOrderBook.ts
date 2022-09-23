@@ -1,4 +1,3 @@
-import { BadRequest } from 'ccxt';
 import _ from 'lodash';
 import { BookOffersRequest, dropsToXrp } from 'xrpl';
 import { parseAmountValue } from 'xrpl/dist/npm/models/transactions/common';
@@ -27,10 +26,8 @@ async function fetchOrderBook(
   /** Number of results to return */
   limit: number = DEFAULT_SEARCH_LIMIT,
   /** Parameters specific to the exchange API endpoint */
-  params: FetchOrderBookParams
+  params: FetchOrderBookParams = {}
 ): Promise<FetchOrderBookResponse> {
-  if (!params) throw new BadRequest('Must provide a params object');
-
   const [baseCurrency, quoteCurrency] = parseMarketSymbol(symbol);
 
   const baseAmount = getTakerAmount(baseCurrency);
@@ -43,6 +40,9 @@ async function fetchOrderBook(
     limit,
     both: true,
   };
+
+  if (params.ledgerHash) orderBookRequest.ledger_hash = params.ledgerHash;
+  if (params.ledgerIndex) orderBookRequest.ledger_index = params.ledgerIndex;
 
   const orderBookResponse = await this.client.request(orderBookRequest);
   const offers = orderBookResponse.result.offers;

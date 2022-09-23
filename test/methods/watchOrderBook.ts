@@ -16,14 +16,9 @@ describe('watchOrderBook', function () {
   before(_.partial(setupRemoteSDK, NETWORK, addresses.AKT_BUYER_SECRET));
   after(teardownRemoteSDK);
 
-  it.only('should subscribe to Order Book updates', function (done) {
+  it('should subscribe to Order Book updates', function (done) {
     this.sdk
-      .watchOrderBook('SGB/CSC', 5, {
-        issuers: {
-          CSC: 'rBZJzEisyXt2gvRWXLxHftFRkd1vJEpBQP',
-          SGB: 'rBZJzEisyXt2gvRWXLxHftFRkd1vJEpBQP',
-        },
-      })
+      .watchOrderBook('SGB+rBZJzEisyXt2gvRWXLxHftFRkd1vJEpBQP/CSC+rBZJzEisyXt2gvRWXLxHftFRkd1vJEpBQP', 5)
       .then((orderBookStream: Readable) => {
         orderBookStream.on('data', (rawOrderBook) => {
           const orderBook = JSON.parse(rawOrderBook);

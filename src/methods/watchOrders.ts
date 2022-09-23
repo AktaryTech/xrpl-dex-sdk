@@ -23,7 +23,7 @@ import {
   OrderTimeInForce,
   OrderStatus,
   XrplTimestamp,
-  OrderStream,
+  WatchOrdersResponse,
 } from '../models';
 import {
   fetchTransferRate,
@@ -48,7 +48,7 @@ async function watchOrders(
   symbol?: MarketSymbol,
   /** eslint-disable-next-line */
   params: WatchOrdersParams = {}
-): Promise<OrderStream> {
+): Promise<WatchOrdersResponse> {
   const showOpen = params.showOpen || true;
   const showClosed = params.showClosed || true;
   const showCanceled = params.showCanceled || true;

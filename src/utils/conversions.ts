@@ -1,4 +1,4 @@
-import { OfferCreate, OfferCreateFlags, setTransactionFlagsToNumber } from 'xrpl';
+import { OfferCreate, OfferCreateFlags, setTransactionFlagsToNumber, xrpToDrops } from 'xrpl';
 import { Amount } from 'xrpl/dist/npm/models/common';
 import { TakerAmount } from 'xrpl/dist/npm/models/methods/bookOffers';
 import { AccountAddress, BigNumberish, CurrencyCode, IssuerAddress, MarketSymbol, OrderTimeInForce } from '../models';
@@ -32,6 +32,9 @@ export const parseCurrencyCode = (currencyCode: CurrencyCode): { currency: strin
   }
 };
 
+export const getCurrencyCode = (code: string, issuer?: IssuerAddress): CurrencyCode =>
+  code === 'XRP' ? code : `${code}+${issuer}`;
+
 export const getAmountIssuer = (amount: Amount): AccountAddress | undefined =>
   typeof amount === 'object' ? amount.issuer : undefined;
 
@@ -40,7 +43,7 @@ export const getAmountCurrencyCode = (amount: Amount): CurrencyCode =>
 
 export const getAmount = (code: CurrencyCode, value: BigNumberish): Amount => {
   const { currency, issuer } = parseCurrencyCode(code);
-  return issuer ? { currency, issuer, value: value.toString() } : value.toString();
+  return issuer ? { currency, issuer, value: value.toString() } : xrpToDrops(value);
 };
 
 export const getTakerAmount = (code: CurrencyCode): TakerAmount => {

@@ -50,7 +50,6 @@ import {
   LoadIssuersResponse,
   LoadMarketsResponse,
   WatchBalanceParams,
-  WatchOrderBookParams,
   WatchOrderBookResponse,
   WatchOrdersParams,
   WatchOrdersResponse,
@@ -128,7 +127,7 @@ export interface SDKContext {
     params?: FetchOpenOrdersParams
   ): Promise<FetchOpenOrdersResponse>;
   fetchOrder(id: OrderId, symbol?: MarketSymbol, params?: FetchOrderParams): Promise<FetchOrderResponse>;
-  fetchOrderBook(symbol: MarketSymbol, limit: number, params: FetchOrderBookParams): Promise<FetchOrderBookResponse>;
+  fetchOrderBook(symbol: MarketSymbol, limit?: number, params?: FetchOrderBookParams): Promise<FetchOrderBookResponse>;
   fetchOrderBooks(
     symbols: MarketSymbol[],
     limit: number,
@@ -170,7 +169,7 @@ export interface SDKContext {
   loadIssuers(reload?: boolean): Promise<LoadIssuersResponse>;
   loadMarkets(reload?: boolean): Promise<LoadMarketsResponse>;
   watchBalance(params: WatchBalanceParams): Promise<Readable>;
-  watchOrderBook(symbol: MarketSymbol, params: WatchOrderBookParams): Promise<WatchOrderBookResponse>;
+  watchOrderBook(symbol: MarketSymbol, limit?: number): Promise<WatchOrderBookResponse>;
   watchOrders(
     symbol?: MarketSymbol,
     since?: UnixTimestamp,

@@ -10,7 +10,7 @@ import {
   OrderType,
   SDKContext,
 } from '../models';
-import { getAmount, getBaseAmountKey, getOrderOrTradeId, handleTxErrors, parseMarketSymbol } from '../utils';
+import { BN, getAmount, getBaseAmountKey, getOrderOrTradeId, handleTxErrors, parseMarketSymbol } from '../utils';
 
 /**
  * Creates a new Order on the Ripple dEX. Returns an {@link CreateOrderResponse}
@@ -38,7 +38,7 @@ async function createOrder(
   const [baseCurrency, quoteCurrency] = parseMarketSymbol(symbol);
 
   const baseAmount = getAmount(baseCurrency, amount);
-  const quoteAmount = getAmount(quoteCurrency, (parseFloat(amount) * parseFloat(price)).toString());
+  const quoteAmount = getAmount(quoteCurrency, BN(amount).times(BN(price)));
 
   const baseAmountKey = getBaseAmountKey(side);
 

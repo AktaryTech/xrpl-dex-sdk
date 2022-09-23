@@ -1,7 +1,7 @@
 import Currencies, { Currency } from './Currencies';
-import ExchangeStatus, { ExchangeStatusType } from './ExchangeStatus';
+import ExchangeStatus, { ExchangeStatusType, ExchangeStatusStream } from './ExchangeStatus';
 import Markets, { Market } from './Markets';
-import OrderBook, { OrderBookBid, OrderBookAsk, OrderBookLevel } from './OrderBook';
+import OrderBook, { OrderBookBid, OrderBookAsk, OrderBookLevel, OrderBookStream } from './OrderBook';
 import Transaction, { TransactionType, TransactionStatus } from './Transaction';
 
 export * from './Balances';
@@ -14,6 +14,7 @@ export {
   Currencies,
   Currency,
   ExchangeStatus,
+  ExchangeStatusStream,
   ExchangeStatusType,
   Market,
   Markets,
@@ -21,6 +22,7 @@ export {
   OrderBookBid,
   OrderBookAsk,
   OrderBookLevel,
+  OrderBookStream,
   Transaction,
   TransactionStatus,
   TransactionType,

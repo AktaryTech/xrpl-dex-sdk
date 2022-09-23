@@ -17,7 +17,7 @@ async function fetchTicker(
   /** Token pair (called Unified Market Symbol in CCXT) */
   symbol: MarketSymbol,
   /** Parameters specific to the exchange API endpoint */
-  params: FetchTickerParams
+  params: FetchTickerParams = {}
 ): Promise<FetchTickerResponse> {
   const [base, quote] = parseMarketSymbol(symbol);
 

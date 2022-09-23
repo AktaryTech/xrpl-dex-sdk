@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { AccountInfoRequest, AccountLinesRequest, dropsToXrp } from 'xrpl';
 import { DEFAULT_LIMIT } from '../constants';
 import { Balances, FetchBalanceParams, FetchBalanceResponse, SDKContext } from '../models';
-import { BN } from '../utils';
+import { BN, getCurrencyCode } from '../utils';
 
 /**
  * Returns information about an account's balances, sorted by currency
@@ -70,14 +70,16 @@ async function fetchBalance(
 
       const trustLines = accountTrustLinesResponse.result.lines;
 
-      for (const { balance, currency } of trustLines) {
-        if (code && code !== currency) return;
+      for (const { account, balance, currency } of trustLines) {
+        const currencyCode = getCurrencyCode(currency, account);
+
+        if (code && code !== currencyCode) return;
 
         const usedBalance = BN(0);
         const freeBalance = BN(balance).minus(usedBalance);
         const totalBalance = balance;
 
-        balances[currency] = {
+        balances[currencyCode] = {
           free: freeBalance.toString(),
           used: usedBalance.toString(),
           total: totalBalance.toString(),

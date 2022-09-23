@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { Readable } from 'stream';
 import { SubscribeRequest, TransactionStream } from 'xrpl';
-import { MarketSymbol, WatchTickerParams, SDKContext, Ticker, TickerStream } from '../models';
+import { MarketSymbol, WatchTickerParams, SDKContext, Ticker, WatchTickerResponse } from '../models';
 
 /**
  * Retrieves order book data for a single market pair. Returns an
@@ -15,7 +15,7 @@ async function watchTicker(
   symbol: MarketSymbol,
   /** Parameters specific to the exchange API endpoint */
   params: WatchTickerParams
-): Promise<TickerStream> {
+): Promise<WatchTickerResponse> {
   const tickerStream = new Readable({ read: () => this });
 
   let isProcessing = false;

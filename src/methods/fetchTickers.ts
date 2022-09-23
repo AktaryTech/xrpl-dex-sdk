@@ -12,7 +12,7 @@ async function fetchTickers(
   /** Array of token pairs (called Unified Market Symbols in CCXT) */
   symbols: MarketSymbol[],
   /** Parameters specific to the exchange API endpoint */
-  params: FetchTickersParams
+  params: FetchTickersParams = {}
 ): Promise<FetchTickersResponse> {
   const tickers: Ticker[] = [];
 

@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { Readable } from 'stream';
 import { LedgerStream, SubscribeRequest } from 'xrpl';
 import { SDKContext } from '../models';
-import { ExchangeStatusStream } from '../models/ccxt/ExchangeStatus';
+import { WatchStatusResponse } from '../models';
 
 /**
  * Streams information regarding {@link ExchangeStatus} from either the info
@@ -11,7 +11,7 @@ import { ExchangeStatusStream } from '../models/ccxt/ExchangeStatus';
  *
  * @category Methods
  */
-async function watchStatus(this: SDKContext): Promise<ExchangeStatusStream> {
+async function watchStatus(this: SDKContext): Promise<WatchStatusResponse> {
   const statusStream = new Readable({ read: () => this });
 
   let isProcessing = false;
