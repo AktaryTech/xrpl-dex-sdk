@@ -31,6 +31,7 @@ import loadMarkets from './loadMarkets';
 import watchBalance from './watchBalance';
 import watchMyTrades from './watchMyTrades';
 import watchOrders from './watchOrders';
+import watchOrderBook from './watchOrderBook';
 import watchStatus from './watchStatus';
 import watchTicker from './watchTicker';
 import watchTickers from './watchTickers';
@@ -69,6 +70,7 @@ const methods: Record<string, any> = {
   loadMarkets,
   watchBalance,
   watchMyTrades,
+  watchOrderBook,
   watchOrders,
   watchStatus,
   watchTicker,

@@ -17,12 +17,18 @@ describe('watchStatus', function () {
   after(teardownRemoteSDK);
 
   it('should subscribe to exchange status updates', function (done) {
-    this.sdk.watchStatus().then((statusStream: Readable) => {
-      statusStream.on('data', (rawStatus) => {
-        const status = JSON.parse(rawStatus);
-        assert(typeof status !== 'undefined');
-        done();
+    this.sdk
+      .watchStatus()
+      .then((statusStream: Readable) => {
+        statusStream.on('data', (rawStatus) => {
+          const status = JSON.parse(rawStatus);
+          assert(typeof status !== 'undefined');
+          done();
+        });
+      })
+      .catch((err: Error) => {
+        console.error(err);
+        done(err);
       });
-    });
   });
 });

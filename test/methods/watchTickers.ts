@@ -30,6 +30,10 @@ describe('watchTickers', function () {
           assert(['USD/XRP', 'XRP/USD'].includes(ticker.symbol));
           done();
         });
+      })
+      .catch((err: Error) => {
+        console.error(err);
+        done(err);
       });
   });
 });

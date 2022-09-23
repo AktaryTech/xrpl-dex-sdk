@@ -17,12 +17,18 @@ describe('watchTrades', function () {
   after(teardownRemoteSDK);
 
   it('should subscribe to new Trades for a given market symbol', function (done) {
-    this.sdk.watchTrades('CNY/XRP').then((tradeStream: Readable) => {
-      tradeStream.on('data', (rawTrade) => {
-        const trade = JSON.parse(rawTrade);
-        assert(typeof trade !== 'undefined');
-        done();
+    this.sdk
+      .watchTrades('CNY/XRP')
+      .then((tradeStream: Readable) => {
+        tradeStream.on('data', (rawTrade) => {
+          const trade = JSON.parse(rawTrade);
+          assert(typeof trade !== 'undefined');
+          done();
+        });
+      })
+      .catch((err: Error) => {
+        console.error(err);
+        done(err);
       });
-    });
   });
 });

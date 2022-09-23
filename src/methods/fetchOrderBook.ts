@@ -1,18 +1,18 @@
+import { BadRequest } from 'ccxt';
 import _ from 'lodash';
-import { BookOffersRequest } from 'xrpl';
-import { OfferFlags } from 'xrpl/dist/npm/models/ledger';
-import { TakerAmount } from 'xrpl/dist/npm/models/methods/bookOffers';
-import { DEFAULT_LIMIT } from '../constants';
+import { BookOffersRequest, dropsToXrp } from 'xrpl';
+import { parseAmountValue } from 'xrpl/dist/npm/models/transactions/common';
+import { DEFAULT_SEARCH_LIMIT } from '../constants';
 import {
   OrderBookAsk,
-  OrderBookBid,
   MarketSymbol,
   FetchOrderBookParams,
-  OrderBook,
   FetchOrderBookResponse,
   SDKContext,
+  OrderBookBid,
+  OrderBook,
 } from '../models';
-import { parseCurrencyAmount, parseMarketSymbol } from '../utils';
+import { getBaseAmountKey, getOrderSideFromOffer, parseMarketSymbol } from '../utils';
 
 /**
  * Retrieves order book data for a single market pair. Returns an
@@ -25,57 +25,52 @@ async function fetchOrderBook(
   /** Token pair (called Unified Market Symbol in CCXT) */
   symbol: MarketSymbol,
   /** Number of results to return */
-  limit: number = DEFAULT_LIMIT,
+  limit: number = DEFAULT_SEARCH_LIMIT,
   /** Parameters specific to the exchange API endpoint */
-  params: FetchOrderBookParams = {}
-): Promise<FetchOrderBookResponse> {
+  params: FetchOrderBookParams
+): Promise<FetchOrderBookResponse | undefined> {
+  if (!params) throw new BadRequest('Must provide a params object');
+
+  const { issuers } = params;
+
   const [base, quote] = parseMarketSymbol(symbol);
 
-  const { taker, taker_gets_issuer, taker_pays_issuer, ledger_hash, ledger_index } = params;
+  if ((base !== 'XRP' && !issuers[base]) || (quote !== 'XRP' && !issuers[quote]))
+    throw new BadRequest('Must specify an issuer for non-XRP currencies');
 
-  // TODO: fetch the issuer info from the cache produced by `loadMarkets` (if present)
-
-  const takerPays: TakerAmount = {
-    currency: quote,
-    issuer: taker_pays_issuer,
-  };
-
-  const takerGets: TakerAmount = {
-    currency: base,
-    issuer: taker_gets_issuer,
-  };
-
-  const bookOffersRequest: BookOffersRequest = {
+  const orderBookRequest: BookOffersRequest = {
     command: 'book_offers',
-    taker_pays: takerPays,
-    taker_gets: takerGets,
+    taker_pays: { currency: base },
+    taker_gets: { currency: quote },
     limit,
-    ledger_index,
-    ledger_hash,
-    taker,
+    both: true,
   };
 
-  const bookOffersResponse = await this.client.requestAll(bookOffersRequest);
+  if (base !== 'XRP') orderBookRequest.taker_pays.issuer = issuers[base];
+  if (quote !== 'XRP') orderBookRequest.taker_gets.issuer = issuers[quote];
 
-  // Format XRPL response
-  const orders = _.flatMap(bookOffersResponse, (offersResult) => offersResult.result.offers);
+  const orderBookResponse = await this.client.request(orderBookRequest);
+  const offers = orderBookResponse.result.offers;
 
-  // Create bids/asks arrays
   const bids: OrderBookBid[] = [];
   const asks: OrderBookAsk[] = [];
-  _.forEach(orders, (order) => {
-    if (!order.quality) return;
-    // L2 Order book
-    if ((order.Flags & OfferFlags.lsfSell) === 0) {
-      bids.push([order.quality, parseCurrencyAmount(order.TakerGets).toString()]);
+
+  for (const offer of offers) {
+    if (!offer.quality) return;
+    const side = getOrderSideFromOffer(offer);
+    const baseAmount = offer[getBaseAmountKey(side)];
+    const baseValue =
+      base === 'XRP' ? dropsToXrp(parseAmountValue(baseAmount)) : parseAmountValue(baseAmount).toString();
+
+    const orderBookEntry = [offer.quality, baseValue];
+
+    if (side === 'buy') {
+      bids.push(orderBookEntry as OrderBookBid);
     } else {
-      asks.push([order.quality, parseCurrencyAmount(order.TakerGets).toString()]);
+      asks.push(orderBookEntry as OrderBookAsk);
     }
-  });
-
-  const lastOffers = bookOffersResponse[bookOffersResponse.length - 1].result.offers;
-
-  const nonce = lastOffers[lastOffers.length - 1].Sequence;
+  }
+  const nonce = offers[offers.length - 1].Sequence;
 
   const response: OrderBook = {
     symbol,

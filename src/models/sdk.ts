@@ -51,6 +51,8 @@ import {
   LoadIssuersResponse,
   LoadMarketsResponse,
   WatchBalanceParams,
+  WatchOrderBookParams,
+  WatchOrderBookResponse,
   WatchOrdersParams,
   WatchOrdersResponse,
   WatchTickerParams,
@@ -176,6 +178,7 @@ export interface SDKContext {
   loadIssuers(reload?: boolean): Promise<LoadIssuersResponse | undefined>;
   loadMarkets(reload?: boolean): Promise<LoadMarketsResponse | undefined>;
   watchBalance(params: WatchBalanceParams): Promise<Readable>;
+  watchOrderBook(symbol: MarketSymbol, params: WatchOrderBookParams): Promise<WatchOrderBookResponse | undefined>;
   watchOrders(
     symbol?: MarketSymbol,
     since?: UnixTimestamp,

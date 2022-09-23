@@ -17,12 +17,17 @@ describe('watchBalance', function () {
   it('should subscribe to Balance data for an account', function (done) {
     done();
     // this.sdk.watchBalance({ account: addresses.AKT_SELLER } as WatchBalanceParams).then((balanceStream: Readable) => {
-    //   balanceStream.on('data', (rawBalance) => {
-    //     const balance = JSON.parse(rawBalance);
-    //     console.log(balance);
-    //     assert(typeof balance !== 'undefined');
-    //     done();
-    //   });
+    //   balanceStream
+    //     .on('data', (rawBalance) => {
+    //       const balance = JSON.parse(rawBalance);
+    //       console.log(balance);
+    //       assert(typeof balance !== 'undefined');
+    //       done();
+    //     })
+    //     .catch((err: Error) => {
+    //       console.error(err);
+    //       done(err);
+    //     });
     // });
   });
 });

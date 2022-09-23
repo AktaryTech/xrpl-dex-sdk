@@ -30,6 +30,7 @@ export * from './loadIssuers';
 export * from './loadMarkets';
 export * from './watchBalance';
 export * from './watchMyTrades';
+export * from './watchOrderBook';
 export * from './watchOrders';
 export * from './watchStatus';
 export * from './watchTicker';

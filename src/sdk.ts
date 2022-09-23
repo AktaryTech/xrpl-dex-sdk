@@ -52,6 +52,7 @@ export class SDK implements SDKContext {
 
   /** Streaming */
   watchBalance = methods.watchBalance.bind(this);
+  watchOrderBook = methods.watchOrderBook.bind(this);
   watchOrders = methods.watchOrders.bind(this);
   watchStatus = methods.watchStatus.bind(this);
   watchTicker = methods.watchTicker.bind(this);

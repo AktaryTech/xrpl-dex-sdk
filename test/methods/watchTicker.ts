@@ -27,6 +27,10 @@ describe('watchTicker', function () {
           assert(typeof ticker !== 'undefined');
           done();
         });
+      })
+      .catch((err: Error) => {
+        console.error(err);
+        done(err);
       });
   });
 });
