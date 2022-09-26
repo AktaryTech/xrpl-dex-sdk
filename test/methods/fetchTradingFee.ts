@@ -17,7 +17,7 @@ describe('fetchTradingFee', function () {
       this.mockRippled.addResponse('account_info', rippled.account_info.issuer);
     }
 
-    const tradingFee = await this.sellerSdk.fetchTradingFee('XRP/USD');
+    const tradingFee = await this.sellerSdk.fetchTradingFee('XRP/USD+rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq');
     assertResultMatch(tradingFee, responses.fetchTradingFee);
   });
 });

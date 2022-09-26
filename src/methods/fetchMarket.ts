@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { transferRateToDecimal } from 'xrpl';
 import { markets } from '../data';
 import { FetchMarketResponse, MarketSymbol, SDKContext, XrplNetwork } from '../models';
+import { validateMarketSymbol } from '../utils';
 
 /**
  * Retrieves info about a single market being traded on the dEX.
@@ -10,6 +11,8 @@ import { FetchMarketResponse, MarketSymbol, SDKContext, XrplNetwork } from '../m
  * @category Methods
  */
 async function fetchMarket(this: SDKContext, symbol: MarketSymbol): Promise<FetchMarketResponse> {
+  validateMarketSymbol(symbol);
+
   if (this.markets && this.markets[symbol]) return this.markets[symbol];
 
   const market = markets[this.params.network || XrplNetwork.Mainnet][symbol];

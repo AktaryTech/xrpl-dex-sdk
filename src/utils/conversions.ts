@@ -1,3 +1,4 @@
+import { BadRequest } from 'ccxt';
 import { OfferCreate, OfferCreateFlags, setTransactionFlagsToNumber, xrpToDrops } from 'xrpl';
 import { Amount } from 'xrpl/dist/npm/models/common';
 import { TakerAmount } from 'xrpl/dist/npm/models/methods/bookOffers';
@@ -18,6 +19,23 @@ export const getMarketSymbol = (base: Amount, quote: Amount): MarketSymbol => {
   symbol.push(typeof quote === 'string' ? 'XRP' : `${quote.currency}+${quote.issuer}`);
 
   return symbol.join('/') as MarketSymbol;
+};
+
+export const validateMarketSymbol = (symbol: MarketSymbol) => {
+  const [base, quote] = parseMarketSymbol(symbol);
+  const [baseCurrency, baseIssuer] = base.split('+');
+  const [quoteCurrency, quoteIssuer] = quote.split('+');
+  if (baseCurrency !== 'XRP' && !baseIssuer) {
+    throw new BadRequest(
+      `Invalid currency code: "${base}". Non-XRP codes must be in the form [CurrencyCode]+[IssuerAddress]`
+    );
+  }
+  if (quoteCurrency !== 'XRP' && !quoteIssuer) {
+    throw new BadRequest(
+      `Invalid currency code: "${quote}". Non-XRP codes must be in the form [CurrencyCode]+[IssuerAddress]`
+    );
+  }
+  return true;
 };
 
 /**

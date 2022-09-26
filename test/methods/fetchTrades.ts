@@ -20,7 +20,7 @@ describe('fetchTrades', function () {
   it('return a list of Trades for a given symbol', async function () {
     // this.mockRippled.addResponse('server_state', () => rippled.server_state.normal);
 
-    const trades = await this.sdk.fetchTrades('TST+rP9jPyP5kyvFRb6ZiRghAGw5u8SGAmU4bd/XRP', undefined, 5, {
+    const trades = await this.sdk.fetchTrades('XRP/USD+rVnYNK9yuxBz4uP8zC8LEFokM2nqH3poc', undefined, 1, {
       searchLimit: 500,
     });
     assert(trades.length);

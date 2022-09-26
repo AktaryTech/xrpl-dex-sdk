@@ -17,7 +17,10 @@ describe('fetchTransactionFees', function () {
       this.mockRippled.addResponse('account_info', rippled.account_info.issuer);
     }
 
-    const transactionFees = await this.sellerSdk.fetchTransactionFees(['USD', 'GBP']);
+    const transactionFees = await this.sellerSdk.fetchTransactionFees([
+      'USD+rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq',
+      'GBP+rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B',
+    ]);
     assertResultMatch(transactionFees, responses.fetchTransactionFees);
   });
 });

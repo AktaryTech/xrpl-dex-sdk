@@ -29,6 +29,7 @@ export class SDK implements SDKContext {
   /** Order Book */
   fetchOrderBook = methods.fetchOrderBook.bind(this);
   fetchOrderBooks = methods.fetchOrderBooks.bind(this);
+  fetchL2OrderBook = methods.fetchL2OrderBook.bind(this);
   fetchTicker = methods.fetchTicker.bind(this);
   fetchTickers = methods.fetchTickers.bind(this);
 

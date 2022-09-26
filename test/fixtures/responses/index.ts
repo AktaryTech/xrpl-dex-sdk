@@ -4,7 +4,7 @@ import createSellOrder from './createSellOrder.json';
 import newCreateOrder from './createOrder';
 import fetchBalance from './fetchBalance.json';
 import fetchCurrencies from './fetchCurrencies.json';
-import fetchFees from './fetchFees.json';
+import fetchFees from './fetchFees';
 import fetchIssuers from './fetchIssuers.json';
 import fetchMarkets from './fetchMarkets.json';
 import fetchOrder, { tstBuy } from './fetchOrder';

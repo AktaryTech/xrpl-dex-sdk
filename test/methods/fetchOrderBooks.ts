@@ -16,7 +16,6 @@ describe('fetchOrderBooks', function () {
     const { symbols, limit, params } = requests.fetchOrderBooks;
 
     const orderBooks = await this.sellerSdk.fetchOrderBooks(symbols, limit, params);
-    console.log(JSON.stringify(orderBooks));
     assertResultMatch(orderBooks, responses.fetchOrderBooks);
   });
 });

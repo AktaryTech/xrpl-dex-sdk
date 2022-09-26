@@ -19,6 +19,8 @@ import {
   FetchCurrenciesResponse,
   FetchFeesResponse,
   FetchIssuersResponse,
+  FetchL2OrderBookParams,
+  FetchL2OrderBookResponse,
   FetchMarketResponse,
   FetchMarketsResponse,
   FetchMyTradesParams,
@@ -140,6 +142,11 @@ export interface SDKContext {
     params?: FetchOrdersParams
   ): Promise<FetchOrdersResponse>;
   fetchIssuers(): Promise<FetchIssuersResponse>;
+  fetchL2OrderBook(
+    symbol: MarketSymbol,
+    limit?: number,
+    params?: FetchL2OrderBookParams
+  ): Promise<FetchL2OrderBookResponse>;
   fetchMarket(symbol: MarketSymbol): Promise<FetchMarketResponse>;
   fetchMarkets(): Promise<FetchMarketsResponse>;
   fetchMyTrades(
