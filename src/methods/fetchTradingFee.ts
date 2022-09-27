@@ -20,8 +20,8 @@ async function fetchTradingFee(
 
   return {
     symbol,
-    base: baseFee?.toString() || '0',
-    quote: quoteFee?.toString() || '0',
+    base: baseFee || '0',
+    quote: quoteFee || '0',
     percentage: true,
     info: { market },
   };

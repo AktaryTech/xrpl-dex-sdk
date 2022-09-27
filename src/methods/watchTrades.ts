@@ -79,8 +79,8 @@ async function watchTrades(
       const baseAmount = offer[getBaseAmountKey(side)];
       const quoteAmount = offer[getQuoteAmountKey(side)];
 
-      const baseRate = BN(await fetchTransferRate(this.client, baseAmount));
-      const quoteRate = BN(await fetchTransferRate(this.client, quoteAmount));
+      const baseRate = await fetchTransferRate(this.client, baseAmount);
+      const quoteRate = await fetchTransferRate(this.client, quoteAmount);
 
       const baseCurrency = getAmountCurrencyCode(baseAmount);
       const quoteCurrency = getAmountCurrencyCode(quoteAmount);

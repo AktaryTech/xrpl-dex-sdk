@@ -14,18 +14,6 @@ export type OrderTimeInForce = 'GTC' | 'IOC' | 'FOK' | 'PO';
 
 export type OrderSide = 'buy' | 'sell';
 
-export interface BaseOrder {
-  datetime: string;
-  timestamp: UnixTimestamp;
-  symbol: MarketSymbol;
-  type: OrderType;
-  side: OrderSide;
-  amount: string;
-  price: string;
-  cost: string;
-  fee?: Fee;
-}
-
 export interface Order {
   id: OrderId;
   /** The XRPL ledger hash of the related Offer */

@@ -26,6 +26,7 @@ import {
   WatchOrdersResponse,
 } from '../models';
 import {
+  BN,
   fetchTransferRate,
   getAmountCurrencyCode,
   getBaseAmountKey,
@@ -91,7 +92,7 @@ async function watchOrders(
     const date: XrplTimestamp | undefined = tx.transaction.date;
     let order: Order | undefined;
     let status: OrderStatus = 'open';
-    let filled = 0;
+    let filled = BN(0);
 
     const orderSide: OrderSide = transaction.Flags === OfferCreateFlags.tfSell ? 'sell' : 'buy';
     const orderBaseAmount = transaction[getBaseAmountKey(orderSide)];
@@ -109,42 +110,47 @@ async function watchOrders(
 
       const side: OrderSide = offer.Flags === OfferFlags.lsfSell ? 'sell' : 'buy';
 
-      const baseAmount = offer[getBaseAmountKey(side)];
+      const orderBaseAmount = offer[getBaseAmountKey(side)];
       const quoteAmount = offer[getQuoteAmountKey(side)];
 
-      const baseRate = parseFloat(await fetchTransferRate(this.client, baseAmount));
-      const quoteRate = parseFloat(await fetchTransferRate(this.client, quoteAmount));
+      const baseRate = BN(await fetchTransferRate(this.client, orderBaseAmount));
+      const quoteRate = await fetchTransferRate(this.client, quoteAmount);
 
-      const baseCurrency = getAmountCurrencyCode(baseAmount);
+      const baseCurrency = getAmountCurrencyCode(orderBaseAmount);
       const quoteCurrency = getAmountCurrencyCode(quoteAmount);
 
-      const baseValue = parseAmountValue(baseAmount);
-      const quoteValue = parseAmountValue(quoteAmount);
+      const baseValue =
+        baseCurrency === 'XRP'
+          ? BN(dropsToXrp(parseAmountValue(orderBaseAmount)))
+          : BN(parseAmountValue(orderBaseAmount));
+      const quoteValue =
+        quoteCurrency === 'XRP' ? BN(dropsToXrp(parseAmountValue(quoteAmount))) : BN(parseAmountValue(quoteAmount));
 
-      const price = quoteValue / baseValue;
-      const cost = baseValue * price;
+      const amount = baseValue;
+      const price = quoteValue.dividedBy(baseValue);
+      const cost = amount.times(price);
 
       const feeRate = side === 'buy' ? quoteRate : baseRate;
-      const feeCost = baseValue * feeRate;
+      const feeCost = (side === 'buy' ? quoteValue : baseValue).times(feeRate);
 
-      filled += baseValue;
+      filled = filled.plus(amount);
 
       const trade: Trade = {
         id: getOrderOrTradeId(offer.Account, offer.Sequence),
         order: getOrderOrTradeId(transaction.Account, transaction.Sequence),
         datetime: rippleTimeToISOTime(date || 0),
         timestamp: rippleTimeToUnixTime(date || 0),
-        symbol: getMarketSymbol(baseAmount, quoteAmount),
+        symbol: getMarketSymbol(orderBaseAmount, quoteAmount),
         type: 'limit',
         side: side,
-        amount: baseCurrency === 'XRP' ? dropsToXrp(baseValue) : baseValue.toString(),
-        price: quoteCurrency === 'XRP' ? dropsToXrp(price) : price.toString(),
+        amount: amount.toString(),
+        price: price.toString(),
         takerOrMaker: getTakerOrMaker(side),
-        cost: baseCurrency === 'XRP' ? dropsToXrp(cost) : cost.toString(),
+        cost: cost.toString(),
         info: { [transaction.Account !== transaction.Account ? 'transaction' : 'offer']: offer },
       };
 
-      if (feeCost != 0) {
+      if (feeCost.isGreaterThan(0)) {
         trade.fee = {
           currency: side === 'buy' ? quoteCurrency : baseCurrency,
           cost: feeCost.toString(),
@@ -161,21 +167,28 @@ async function watchOrders(
     else if (transaction.Flags === OfferCreateFlags.tfFillOrKill) orderTimeInForce = 'FOK';
     else if (transaction.Flags === OfferCreateFlags.tfImmediateOrCancel) orderTimeInForce = 'IOC';
 
-    const baseRate = parseFloat(await fetchTransferRate(this.client, orderBaseAmount));
-    const quoteRate = parseFloat(await fetchTransferRate(this.client, orderQuoteAmount));
+    const baseRate = BN(await fetchTransferRate(this.client, orderBaseAmount));
+    const quoteRate = BN(await fetchTransferRate(this.client, orderQuoteAmount));
 
     const baseCurrency = getAmountCurrencyCode(orderBaseAmount);
     const quoteCurrency = getAmountCurrencyCode(orderQuoteAmount);
 
-    const baseValue = parseAmountValue(orderBaseAmount);
-    const quoteValue = parseAmountValue(orderQuoteAmount);
+    const baseValue =
+      baseCurrency === 'XRP'
+        ? BN(dropsToXrp(parseAmountValue(orderBaseAmount)))
+        : BN(parseAmountValue(orderBaseAmount));
+    const quoteValue =
+      quoteCurrency === 'XRP'
+        ? BN(dropsToXrp(parseAmountValue(orderQuoteAmount)))
+        : BN(parseAmountValue(orderQuoteAmount));
 
-    const orderPrice = quoteValue / baseValue;
-    const cost = filled * orderPrice;
-    const remaining = baseValue - filled;
+    const amount = baseValue;
+    const price = quoteValue.dividedBy(baseValue);
+    const cost = filled.times(price);
+    const remaining = amount.minus(filled);
 
     const feeRate = orderSide === 'buy' ? quoteRate : baseRate;
-    const feeCost = filled * feeRate;
+    const feeCost = filled.times(feeRate);
 
     order = {
       id: orderId,
@@ -188,17 +201,17 @@ async function watchOrders(
       type: 'limit',
       timeInForce: orderTimeInForce,
       side: orderSide,
-      amount: baseCurrency === 'XRP' ? dropsToXrp(baseValue) : baseValue.toString(),
-      price: quoteCurrency === 'XRP' ? dropsToXrp(orderPrice) : orderPrice.toString(),
-      average: (trades.length ? filled / trades.length : 0).toString(), // as cool as dividing by zero is, we shouldn't do it
-      filled: baseCurrency === 'XRP' ? dropsToXrp(filled) : filled.toString(),
-      remaining: baseCurrency === 'XRP' ? dropsToXrp(remaining) : remaining.toString(),
-      cost: baseCurrency === 'XRP' ? dropsToXrp(cost) : cost.toString(),
+      amount: amount.toString(),
+      price: price.toString(),
+      average: (trades.length ? filled.dividedBy(trades.length) : 0).toString(), // as cool as dividing by zero is, we shouldn't do it
+      filled: filled.toString(),
+      remaining: remaining.toString(),
+      cost: cost.toString(),
       trades,
       info: { transaction: tx },
     };
 
-    if (feeCost != 0) {
+    if (feeCost.isGreaterThan(0)) {
       order.fee = {
         currency: orderSide === 'buy' ? quoteCurrency : baseCurrency,
         cost: feeCost.toString(),

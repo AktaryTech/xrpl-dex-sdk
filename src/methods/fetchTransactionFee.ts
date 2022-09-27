@@ -25,7 +25,7 @@ async function fetchTransactionFee(
   const response: FetchTransactionFeeResponse = {
     code,
     current: feesResult.drops.open_ledger_fee,
-    transfer: (currency.fee || 0).toString(),
+    transfer: currency.fee || '0',
     info: { feesResult, currency },
   };
 

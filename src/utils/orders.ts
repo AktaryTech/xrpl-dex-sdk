@@ -9,8 +9,6 @@ import {
   OfferCreate,
   OfferCreateFlags,
   RippledError,
-  rippleTimeToISOTime,
-  rippleTimeToUnixTime,
   TransactionMetadata,
   TxRequest,
   TxResponse,
@@ -25,27 +23,23 @@ import {
   AccountAddress,
   OrderId,
   AccountTransaction,
-  BaseOrder,
   LedgerTransaction,
   Node,
   OrderSide,
   TransactionData,
   TxResult,
   XrplErrorTypes,
-  XrplTimestamp,
   Sequence,
 } from '../models';
-import { getAmountCurrencyCode, getMarketSymbol } from './conversions';
-import { fetchTransferRate } from './markets';
-import { divideAmountValues, subtractAmounts } from './numbers';
+import { BN, divideAmountValues, subtractAmounts } from './numbers';
 
 /**
  * Parsers
  */
 export const parseOrderId = (orderId: OrderId) => {
   const [account, sequenceString] = orderId.split(':');
-  const sequence = parseInt(sequenceString);
-  return { account, sequence, sequenceString };
+  const sequence = BN(sequenceString);
+  return { account, sequence: sequence.toNumber(), sequenceString };
 };
 
 /**
@@ -53,25 +47,25 @@ export const parseOrderId = (orderId: OrderId) => {
  */
 export const getOrderOrTradeId = (account: AccountAddress, sequence: Sequence): OrderId => `${account}:${sequence}`;
 
-export const getOrderSideFromTx = (tx: TxResponse['result']): OrderSide =>
-  tx.Flags === OfferFlags.lsfSell ? 'sell' : 'buy';
+// export const getOrderSideFromTx = (tx: TxResponse['result']): OrderSide =>
+//   tx.Flags === OfferFlags.lsfSell ? 'sell' : 'buy';
 export const getOrderSideFromOffer = (offer: Offer): OrderSide => (offer.Flags === OfferFlags.lsfSell ? 'sell' : 'buy');
 
 export const getBaseAmountKey = (side: OrderSide) => (side === 'buy' ? 'TakerPays' : 'TakerGets');
 export const getQuoteAmountKey = (side: OrderSide) => (side === 'buy' ? 'TakerGets' : 'TakerPays');
-export const getAmountKeys = (side: OrderSide): [base: string, quote: string] => [
-  getBaseAmountKey(side),
-  getQuoteAmountKey(side),
-];
+// export const getAmountKeys = (side: OrderSide): [base: string, quote: string] => [
+//   getBaseAmountKey(side),
+//   getQuoteAmountKey(side),
+// ];
 
-export const getOrderBaseAmount = (offer: Offer) => offer[getBaseAmountKey(getOrderSideFromOffer(offer))];
-export const getOrderQuoteAmount = (offer: Offer) => offer[getQuoteAmountKey(getOrderSideFromOffer(offer))];
+// export const getOrderBaseAmount = (offer: Offer) => offer[getBaseAmountKey(getOrderSideFromOffer(offer))];
+// export const getOrderQuoteAmount = (offer: Offer) => offer[getQuoteAmountKey(getOrderSideFromOffer(offer))];
 
-export const getOrderAmountValue = (amount: Amount) =>
-  typeof amount === 'object' ? parseAmountValue(amount) : parseFloat(dropsToXrp(parseAmountValue(amount)));
+// export const getOrderAmountValue = (amount: Amount) =>
+//   typeof amount === 'object' ? parseAmountValue(amount) : parseFloat(dropsToXrp(parseAmountValue(amount)));
 
-export const getOrderPrice = (baseAmount: Amount, quoteAmount: Amount) => divideAmountValues(baseAmount, quoteAmount);
-export const getOrderCost = (baseAmount: Amount, price: number) => parseAmountValue(baseAmount) * price;
+// export const getOrderPrice = (baseAmount: Amount, quoteAmount: Amount) => divideAmountValues(baseAmount, quoteAmount);
+// export const getOrderCost = (baseAmount: Amount, price: number) => parseAmountValue(baseAmount) * price;
 
 // TODO: verify this result is correct
 export const getTakerOrMaker = (side: OrderSide) => (side === 'buy' ? 'taker' : 'maker');
@@ -313,10 +307,6 @@ export const getMostRecentTxId = async (
       accountTxResponse.result.transactions.sort((a, b) => (b.tx?.date || 0) - (a.tx?.date || 0));
 
       for (const transaction of accountTxResponse.result.transactions) {
-        // if (transaction.tx?.TransactionType === 'OfferCancel' && transaction.tx.Account === account) {
-        //   status = 'canceled';
-        // }
-
         const previousTxnData = parseTransaction(id, transaction);
         if (previousTxnData) return previousTxnData?.previousTxnId;
       }
@@ -330,114 +320,3 @@ export const getMostRecentTxId = async (
     throw new BadResponse(`Could not find Transaction history for Order ${id}`);
   }
 };
-
-export const getBaseOrder = async (
-  client: Client,
-  source: (OfferCreate & { date?: number }) | Offer,
-  date: XrplTimestamp,
-  filled?: number
-) => {
-  const side: OrderSide = source.Flags === OfferFlags.lsfSell ? 'sell' : 'buy';
-
-  const baseAmount = source[getBaseAmountKey(side)];
-  const quoteAmount = source[getQuoteAmountKey(side)];
-
-  const baseCode = getAmountCurrencyCode(baseAmount);
-  const quoteCode = getAmountCurrencyCode(quoteAmount);
-
-  const baseRate = parseFloat(await fetchTransferRate(client, baseAmount));
-  const quoteRate = parseFloat(await fetchTransferRate(client, quoteAmount));
-
-  const baseValue = parseAmountValue(baseAmount);
-  const quoteValue = parseAmountValue(quoteAmount);
-
-  const price = quoteValue / baseValue;
-  const cost = (filled || baseValue) * price;
-
-  const feeRate = side === 'buy' ? quoteRate : baseRate;
-  // const feeValue = side === 'buy' ? quoteValue : baseValue;
-  // const feeCode = side === 'buy' ? quoteCode : baseCode;
-  // const feeCost = (filled || feeValue) * feeRate;
-  const feeCost = (filled || baseValue) * feeRate;
-
-  const baseOrder: BaseOrder = {
-    datetime: rippleTimeToISOTime(date),
-    timestamp: rippleTimeToUnixTime(date),
-    symbol: getMarketSymbol(baseAmount, quoteAmount),
-    type: 'limit',
-    side,
-    amount: baseCode === 'XRP' ? dropsToXrp(baseValue) : baseValue.toString(),
-    price: quoteCode === 'XRP' ? dropsToXrp(price) : price.toString(),
-    cost: quoteCode === 'XRP' ? dropsToXrp(cost) : cost.toString(),
-  };
-
-  if (feeCost != 0) {
-    baseOrder.fee = {
-      currency: getAmountCurrencyCode(side === 'buy' ? quoteAmount : baseAmount),
-      cost: baseCode === 'XRP' ? dropsToXrp(feeCost) : feeCost.toString(),
-      // cost: feeCode === 'XRP' ? dropsToXrp(feeCost) : feeCost.toString(),
-      rate: feeRate.toString(),
-      percentage: true,
-    };
-  }
-
-  return baseOrder;
-};
-
-// /**
-//  * Trades
-//  */
-// export const getTrade = async (
-//   client: Client,
-//   orderId: string,
-//   affectedOffer: Offer,
-//   txData: TransactionData<OfferCreate>
-// ): Promise<Trade | undefined> => {
-//   const { date, transaction } = txData;
-
-//   if (!transaction.Sequence) return;
-
-//   const tradeSide = transaction.Flags === OfferFlags.lsfSell ? OrderSide.Sell : OrderSide.Buy;
-
-//   const tradeBaseAmount = affectedOffer[getBaseAmountKey(tradeSide)];
-//   const tradeQuoteAmount = affectedOffer[getQuoteAmountKey(tradeSide)];
-
-//   const tradeBaseRate = parseFloat(await fetchTransferRate(client, tradeBaseAmount));
-//   const tradeQuoteRate = parseFloat(await fetchTransferRate(client, tradeQuoteAmount));
-
-//   const tradeBaseValue = parseAmountValue(tradeBaseAmount);
-//   const tradeQuoteValue = parseAmountValue(tradeQuoteAmount);
-
-//   const tradePrice = tradeQuoteValue / tradeBaseValue;
-//   const tradeCost = tradeBaseValue * tradePrice;
-
-//   const tradeFeeCurrency = getAmountCurrencyCode(tradeSide === OrderSide.Buy ? tradeQuoteAmount : tradeBaseAmount);
-//   const tradeFeeRate = tradeSide === OrderSide.Buy ? tradeQuoteRate : tradeBaseRate;
-//   const tradeFees = tradeBaseValue * tradeFeeRate;
-
-//   const tradeFee: Fee = {
-//     currency: tradeFeeCurrency,
-//     cost: tradeFees.toString(),
-//   };
-
-//   if (tradeFee.cost != 0) {
-//     tradeFee.rate = tradeFeeRate.toString();
-//     tradeFee.percentage = true;
-//   }
-
-//   return {
-//     id: getOrderOrTradeId(transaction.Account, transaction.Sequence),
-//     order: orderId,
-//     datetime: rippleTimeToISOTime(date || 0),
-//     timestamp: rippleTimeToUnixTime(date || 0),
-//     symbol: getMarketSymbol(tradeBaseAmount, tradeQuoteAmount),
-//     type: OrderType.Limit,
-//     side: tradeSide,
-//     amount: tradeBaseValue.toString(),
-//     price: tradePrice.toString(),
-//     takerOrMaker: getTakerOrMaker(tradeSide),
-//     cost: tradeCost.toString(),
-//     fee: tradeFee,
-//     info: txData,
-//   } as Trade;
-// };

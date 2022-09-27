@@ -40,7 +40,7 @@ async function fetchBalance(
     const reserveBase = BN(dropsToXrp(reserve_base));
     const reserveInc = BN(dropsToXrp(reserve_inc));
 
-    const usedXrp = reserveBase.plus(accountObjectCount).multipliedBy(reserveInc);
+    const usedXrp = reserveBase.plus(accountObjectCount).times(reserveInc);
     const freeXrp = BN(dropsToXrp(accountInfo.Balance)).minus(usedXrp);
     const totalXrp = usedXrp.plus(freeXrp);
 

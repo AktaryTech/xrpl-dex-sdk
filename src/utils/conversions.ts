@@ -85,19 +85,3 @@ export const offerCreateFlagsToTimeInForce = (tx: OfferCreate): OrderTimeInForce
     return 'PO';
   }
 };
-
-export const stringToInt = (input?: string): number | undefined => {
-  try {
-    return input ? parseInt(input) : 0;
-  } catch (err) {
-    return;
-  }
-};
-
-export const stringToFloat = (input?: string): number | undefined => {
-  try {
-    return input ? parseFloat(input) : 0;
-  } catch (err) {
-    return;
-  }
-};

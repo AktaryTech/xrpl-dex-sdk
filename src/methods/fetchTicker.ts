@@ -91,7 +91,7 @@ async function fetchTicker(
     baseVolume = baseVolume.plus(baseValue);
     quoteVolume = quoteVolume.plus(quoteValue);
 
-    vwapPrice = vwapPrice.plus(price.multipliedBy(baseValue));
+    vwapPrice = vwapPrice.plus(price.times(baseValue));
     vwapQuantity = vwapQuantity.plus(baseValue);
   }
 
@@ -100,7 +100,7 @@ async function fetchTicker(
   // absolute change in price
   const change = close.minus(open);
   // relative change in price
-  const percentage = change.dividedBy(open).multipliedBy(100);
+  const percentage = change.dividedBy(open).times(100);
   // average price
   const average = close.plus(open).dividedBy(2);
 
