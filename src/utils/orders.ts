@@ -3,7 +3,6 @@ import {
   AccountTxRequest,
   AccountTxResponse,
   Client,
-  dropsToXrp,
   ErrorResponse,
   LedgerEntryRequest,
   OfferCreate,
@@ -16,7 +15,6 @@ import {
 } from 'xrpl';
 import { Amount, LedgerIndex } from 'xrpl/dist/npm/models/common';
 import { Offer, OfferFlags } from 'xrpl/dist/npm/models/ledger';
-import { parseAmountValue } from 'xrpl/dist/npm/models/transactions/common';
 import { hashOfferId } from 'xrpl/dist/npm/utils/hashes';
 import { DEFAULT_LIMIT, DEFAULT_SEARCH_LIMIT } from '../constants';
 import {
@@ -31,7 +29,7 @@ import {
   XrplErrorTypes,
   Sequence,
 } from '../models';
-import { BN, divideAmountValues, subtractAmounts } from './numbers';
+import { BN, subtractAmounts } from './numbers';
 
 /**
  * Parsers
@@ -134,6 +132,7 @@ export const fetchOfferEntry = async (
   const { account, sequence } = parseOrderId(orderId);
   try {
     const offerResult = await client.request({
+      id: orderId,
       command: 'ledger_entry',
       ledger_index: ledgerIndex,
       offer: {
@@ -144,7 +143,10 @@ export const fetchOfferEntry = async (
     return offerResult.result.node as Offer;
   } catch (err: unknown) {
     const error = err as RippledError;
-    if ((error.data as ErrorResponse).error !== XrplErrorTypes.EntryNotFound) throw error;
+    if ((error.data as ErrorResponse).error !== XrplErrorTypes.EntryNotFound) {
+      console.error(err);
+      throw error;
+    }
   }
 };
 
@@ -153,13 +155,18 @@ export const fetchOfferEntry = async (
  */
 export const fetchTxn = async (client: Client, txnHash: string): Promise<TxResponse | undefined> => {
   try {
-    return await client.request({
+    const txResponse = await client.request({
+      id: txnHash,
       command: 'tx',
       transaction: txnHash,
     } as TxRequest);
+    return txResponse;
   } catch (err: unknown) {
     const error = err as RippledError;
-    if ((error.data as ErrorResponse).error !== XrplErrorTypes.TxnNotFound) throw error;
+    if ((error.data as ErrorResponse).error !== XrplErrorTypes.TxnNotFound) {
+      console.error(err);
+      throw error;
+    }
   }
 };
 
@@ -173,7 +180,8 @@ export const fetchAccountTxns = async (
   marker?: any
 ): Promise<AccountTxResponse | undefined> => {
   try {
-    return await client.request({
+    const accountTxResponse = await client.request({
+      id: account,
       command: 'account_tx',
       account,
       ledger_index_min: -1,
@@ -182,9 +190,13 @@ export const fetchAccountTxns = async (
       limit,
       marker,
     } as AccountTxRequest);
+    return accountTxResponse;
   } catch (err: unknown) {
     const error = err as RippledError;
-    if ((error.data as ErrorResponse).error !== XrplErrorTypes.TxnNotFound) throw error;
+    if ((error.data as ErrorResponse).error !== XrplErrorTypes.TxnNotFound) {
+      console.error(err);
+      throw error;
+    }
   }
 };
 
@@ -288,7 +300,6 @@ export const getMostRecentTxId = async (
   searchLimit: number = DEFAULT_SEARCH_LIMIT
 ) => {
   const ledgerOffer = await fetchOfferEntry(client, id);
-
   if (ledgerOffer) {
     return ledgerOffer.PreviousTxnID;
   } else {
@@ -298,7 +309,6 @@ export const getMostRecentTxId = async (
     let marker: unknown;
     let hasNextPage = true;
     let page = 1;
-
     while (hasNextPage) {
       const accountTxResponse = await fetchAccountTxns(client, account, limit, marker);
       if (!accountTxResponse) return;

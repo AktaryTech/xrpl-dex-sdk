@@ -1,33 +1,51 @@
+import { assert } from 'chai';
 import _ from 'lodash';
 import 'mocha';
-import { XrplNetwork } from '../../src/models';
-import { addresses } from '../fixtures';
+import { Balance, BalanceStream, WatchBalanceParams, XrplNetwork } from '../../src/models';
+import { rippled } from '../fixtures';
 
 import { setupRemoteSDK, teardownRemoteSDK } from '../setupClient';
 
-const TIMEOUT = 10000;
+const TIMEOUT = 20000;
 const NETWORK = XrplNetwork.Testnet;
 
 describe('watchBalance', function () {
   this.timeout(TIMEOUT);
 
-  before(_.partial(setupRemoteSDK, NETWORK, addresses.AKT_SELLER_SECRET));
-  after(teardownRemoteSDK);
+  beforeEach(function (done) {
+    setupRemoteSDK.call(this, NETWORK, undefined, done);
+  });
 
-  it('should subscribe to Balance data for an account', function (done) {
-    done();
-    // this.sdk.watchBalance({ account: addresses.AKT_SELLER } as WatchBalanceParams).then((balanceStream: Readable) => {
-    //   balanceStream
-    //     .on('data', (rawBalance) => {
-    //       const balance = JSON.parse(rawBalance);
-    //       console.log(balance);
-    //       assert(typeof balance !== 'undefined');
-    //       done();
-    //     })
-    //     .catch((err: Error) => {
-    //       console.error(err);
-    //       done(err);
-    //     });
-    // });
+  afterEach(teardownRemoteSDK);
+
+  it('should receive an updated Balance when an Order is placed', function (done) {
+    const account = 'rn5umFvUWKXqwrGJSRcV24wz9zZFiG7rsQ';
+
+    this.sdk
+      .fetchBalance({ account })
+      .then((initialBalance: Balance) => {
+        this.sdk
+          .watchBalance({ account } as WatchBalanceParams)
+          .then(async (balanceStream: BalanceStream) => {
+            balanceStream.on('data', (rawBalance) => {
+              const newBalance = JSON.parse(rawBalance);
+              assert(newBalance !== initialBalance);
+              done();
+            });
+
+            this.sdk.client.emit(
+              'transaction',
+              rippled.v2.subscribe.offerCreate['rn5umFvUWKXqwrGJSRcV24wz9zZFiG7rsQ:30419151']
+            );
+          })
+          .catch((err: Error) => {
+            console.error(err);
+            done(err);
+          });
+      })
+      .catch((err: Error) => {
+        console.error(err);
+        done(err);
+      });
   });
 });

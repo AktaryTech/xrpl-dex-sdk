@@ -18,20 +18,20 @@ describe('createOrder', function () {
 
   it('should create a Buy Order', async function () {
     const { symbol, side, type, amount, price, params } = requests.createOrder.buy;
-    const newOrder = await this.sdk.createOrder(symbol, side as OrderSide, type as OrderType, amount, price, params);
-    assert(typeof newOrder !== 'undefined');
+    const newOrderId = await this.sdk.createOrder(symbol, side as OrderSide, type as OrderType, amount, price, params);
+    assert(typeof newOrderId !== 'undefined');
 
-    const fetchOrderResponse = await this.sdk.fetchOrder(newOrder.id);
+    const fetchOrderResponse = await this.sdk.fetchOrder(newOrderId);
     const omittedFields = ['id', 'clientOrderId', 'lastTradeTimestamp', 'datetime', 'timestamp', 'fee', 'info'];
     assertResultMatch(_.omit(fetchOrderResponse, omittedFields), _.omit(responses.createOrder.buy, omittedFields));
   });
 
   it('should create a Sell Order', async function () {
     const { symbol, side, type, amount, price, params } = requests.createOrder.smallSellOrder;
-    const newOrder = await this.sdk.createOrder(symbol, side as OrderSide, type as OrderType, amount, price, params);
-    assert(typeof newOrder !== 'undefined');
+    const newOrderId = await this.sdk.createOrder(symbol, side as OrderSide, type as OrderType, amount, price, params);
+    assert(typeof newOrderId !== 'undefined');
 
-    const fetchOrderResponse = await this.sdk.fetchOrder(newOrder.id);
+    const fetchOrderResponse = await this.sdk.fetchOrder(newOrderId);
     const omittedFields = ['id', 'clientOrderId', 'lastTradeTimestamp', 'datetime', 'timestamp', 'fee', 'info'];
     assertResultMatch(
       _.omit(fetchOrderResponse, omittedFields),

@@ -1,15 +1,7 @@
 import { BadResponse } from 'ccxt';
 import _ from 'lodash';
 import { OfferCreate, setTransactionFlagsToNumber } from 'xrpl';
-import {
-  CreateOrderParams,
-  CreateOrderResponse,
-  MarketSymbol,
-  Order,
-  OrderSide,
-  OrderType,
-  SDKContext,
-} from '../models';
+import { CreateOrderParams, CreateOrderResponse, MarketSymbol, OrderSide, OrderType, SDKContext } from '../models';
 import { BN, getAmount, getBaseAmountKey, getOrderOrTradeId, handleTxErrors, parseMarketSymbol } from '../utils';
 
 /**
@@ -24,7 +16,8 @@ async function createOrder(
   symbol: MarketSymbol,
   /** Order direction (buy or sell) */
   side: OrderSide,
-  /** Order type (limit or market) */
+  /** Order type (limit only) */
+  /* eslint-disable-next-line */
   type: OrderType,
   /** How much currency you want to trade (usually, but not always) in units of the base currency) */
   amount: string,
@@ -75,7 +68,7 @@ async function createOrder(
 
   const order = await this.fetchOrder(orderId);
 
-  return order as Order;
+  return order?.id;
 }
 
 export default createOrder;

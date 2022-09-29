@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import { CreateLimitSellOrderParams, CreateLimitSellOrderResponse, MarketSymbol, SDKContext } from '../models';
-import createOrder from './createOrder';
 
 /**
  * Creates a new Order on the Ripple dEX. Returns an {@link CreateLimitSellOrderResponse}
@@ -19,9 +18,9 @@ async function createLimitSellOrder(
   /** Parameters specific to the exchange API endpoint */
   params: CreateLimitSellOrderParams
 ): Promise<CreateLimitSellOrderResponse> {
-  const newOrder = await createOrder.call(this, symbol, 'sell', 'limit', amount, price, params);
+  const newOrderId = await this.createOrder(symbol, 'sell', 'limit', amount, price, params);
 
-  return newOrder;
+  return newOrderId;
 }
 
 export default createLimitSellOrder;

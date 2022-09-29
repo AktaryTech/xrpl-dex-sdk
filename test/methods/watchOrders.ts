@@ -1,30 +1,45 @@
 import _ from 'lodash';
-import { assert } from 'chai';
 import 'mocha';
-import { Readable } from 'stream';
-import { XrplNetwork } from '../../src/models';
-import { addresses } from '../fixtures';
+import { OrderStream, XrplNetwork } from '../../src/models';
+import { responses, rippled } from '../fixtures';
 
+import { assertResultMatch } from '../testUtils';
 import { setupRemoteSDK, teardownRemoteSDK } from '../setupClient';
+import SDK from '../../src';
 
-const TIMEOUT = 25000;
+const TIMEOUT = 20000;
 const NETWORK = XrplNetwork.Testnet;
 
 describe('watchOrders', function () {
   this.timeout(TIMEOUT);
 
-  before(_.partial(setupRemoteSDK, NETWORK, addresses.AKT_BUYER_SECRET));
-  after(teardownRemoteSDK);
+  beforeEach(function (done) {
+    setupRemoteSDK.call(this, NETWORK, undefined, done);
+  });
 
-  it('should subscribe to Order data', function (done) {
+  afterEach(teardownRemoteSDK);
+
+  it('should subscribe to Order updates', function (done) {
     this.sdk
       .watchOrders()
-      .then((orderStream: Readable) => {
+      .then(async (orderStream: OrderStream) => {
         orderStream.on('data', (rawOrder) => {
-          const order = JSON.parse(rawOrder);
-          assert(typeof order !== 'undefined');
+          const newOrder = JSON.parse(rawOrder);
+          assertResultMatch(newOrder, responses.v2.orders.byId['rn5umFvUWKXqwrGJSRcV24wz9zZFiG7rsQ:30419151']);
           done();
+          orderStream.removeAllListeners();
         });
+
+        orderStream.on('error', (error) => {
+          console.error(error);
+          done(error);
+          orderStream.removeAllListeners();
+        });
+
+        (this.sdk as SDK).client.emit(
+          'transaction',
+          rippled.v2.subscribe.offerCreate['rn5umFvUWKXqwrGJSRcV24wz9zZFiG7rsQ:30419151']
+        );
       })
       .catch((err: Error) => {
         console.error(err);
@@ -33,16 +48,27 @@ describe('watchOrders', function () {
   });
 
   it('should subscribe to Order data for a given market symbol', function (done) {
-    const symbol = 'USD/XRP';
+    const order = responses.v2.orders.byId['rn5umFvUWKXqwrGJSRcV24wz9zZFiG7rsQ:30419151'];
     this.sdk
-      .watchOrders(symbol, { baseIssuer: 'rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B' })
-      .then((orderStream: Readable) => {
-        orderStream.on('data', (rawOrder) => {
-          const order = JSON.parse(rawOrder);
-          assert(typeof order !== 'undefined');
-          assert(order.symbol === symbol);
+      .watchOrders(order.symbol)
+      .then(async (orderStream: OrderStream) => {
+        orderStream.on('data', (rawOrders) => {
+          const newOrder = JSON.parse(rawOrders);
+          assertResultMatch(newOrder, order);
           done();
+          orderStream.removeAllListeners();
         });
+
+        orderStream.on('error', (error) => {
+          console.error(error);
+          done(error);
+          orderStream.removeAllListeners();
+        });
+
+        (this.sdk as SDK).client.emit(
+          'transaction',
+          rippled.v2.subscribe.offerCreate['rn5umFvUWKXqwrGJSRcV24wz9zZFiG7rsQ:30419151']
+        );
       })
       .catch((err: Error) => {
         console.error(err);

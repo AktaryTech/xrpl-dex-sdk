@@ -1,6 +1,6 @@
 import { OfferCreateFlagsInterface } from 'xrpl';
 import { Memo } from 'xrpl/dist/npm/models/common';
-import { Order } from '../ccxt';
+import { OrderId } from '../ccxt';
 
 /**
  * Request parameters for a createLimitBuyOrder call
@@ -21,4 +21,4 @@ export interface CreateLimitBuyOrderParams {
  *
  * @category Responses
  */
-export type CreateLimitBuyOrderResponse = Order | undefined;
+export type CreateLimitBuyOrderResponse = OrderId | undefined;

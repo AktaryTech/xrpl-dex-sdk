@@ -18,10 +18,10 @@ describe('createLimitBuyOrder', function () {
 
   it('should create a Limit Buy Order', async function () {
     const { symbol, amount, price, params } = requests.createOrder.buy;
-    const newOrder = await this.sdk.createLimitBuyOrder(symbol, amount, price, params);
-    assert(typeof newOrder !== 'undefined');
+    const newOrderId = await this.sdk.createLimitBuyOrder(symbol, amount, price, params);
+    assert(typeof newOrderId !== 'undefined');
 
-    const fetchOrderResponse = await this.sdk.fetchOrder(newOrder.id);
+    const fetchOrderResponse = await this.sdk.fetchOrder(newOrderId);
     const omittedFields = ['id', 'clientOrderId', 'lastTradeTimestamp', 'datetime', 'timestamp', 'fee', 'info'];
     assertResultMatch(_.omit(fetchOrderResponse, omittedFields), _.omit(responses.createOrder.buy, omittedFields));
   });

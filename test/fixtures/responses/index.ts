@@ -16,6 +16,7 @@ import fetchTradingFee from './fetchTradingFee.json';
 import fetchTradingFees from './fetchTradingFees.json';
 import fetchTransactionFee from './fetchTransactionFee.json';
 import fetchTransactionFees from './fetchTransactionFees.json';
+import * as v2 from './v2';
 
 const createOrder = {
   buy: createBuyOrder,
@@ -43,6 +44,7 @@ const responses = {
   fetchTradingFees,
   fetchTransactionFee,
   fetchTransactionFees,
+  v2,
 };
 
 export default responses;

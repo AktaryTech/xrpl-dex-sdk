@@ -7,13 +7,12 @@ import { BN } from './numbers';
 export const fetchTransferRate = async (client: Client, amount: Amount): Promise<BigNumber> => {
   const issuer = getAmountIssuer(amount);
   if (issuer) {
-    const { result } = await client.request({
+    const accountInfoResponse = await client.request({
       command: 'account_info',
       account: issuer,
     } as AccountInfoRequest);
-
-    if (result.account_data.TransferRate) {
-      return BN(transferRateToDecimal(result.account_data.TransferRate));
+    if (accountInfoResponse.result.account_data.TransferRate) {
+      return BN(transferRateToDecimal(accountInfoResponse.result.account_data.TransferRate));
     }
   }
   return BN('0');

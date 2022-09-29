@@ -1,10 +1,11 @@
-import { Client, Wallet } from 'xrpl';
+import { BroadcastClient, Client, Wallet } from 'xrpl';
 import methods from './methods';
 import { Currencies, Markets, Issuers, SDKContext, SDKParams } from './models';
 import networks from './networks';
 
 export class SDK implements SDKContext {
   params: SDKParams;
+  broadcastClient: BroadcastClient;
   client: Client;
   wallet: Wallet;
   markets?: Markets;
@@ -81,6 +82,7 @@ export class SDK implements SDKContext {
     }
 
     this.params = params;
+    this.broadcastClient = new BroadcastClient([websocketsUrl || networks.mainnet.websockets], websocketsOptions);
     this.client = new Client(websocketsUrl || networks.mainnet.websockets, websocketsOptions);
     this.wallet = walletSecret
       ? Wallet.fromSecret(walletSecret)
@@ -88,7 +90,12 @@ export class SDK implements SDKContext {
   }
 
   connect = async () => await this.client.connect();
+
   disconnect = async () => await this.client.disconnect();
+
+  removeListener = (eventName: string, listener: any) => this.client.removeListener(eventName, listener);
+
+  removeAllListeners = () => this.client.removeAllListeners();
 }
 
 export default SDK;

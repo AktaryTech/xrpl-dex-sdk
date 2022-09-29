@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { transferRateToDecimal } from 'xrpl';
 import { currencies } from '../data';
 import { FetchCurrenciesResponse, SDKContext, XrplNetwork } from '../models';
-import { BN, parseCurrencyCode } from '../utils';
+import { parseCurrencyCode } from '../utils';
 
 /**
  * Retrieves a list of currencies being traded on the dEX. Returns

@@ -1,5 +1,5 @@
 import { Readable } from 'stream';
-import { Client, ClientOptions, Wallet } from 'xrpl';
+import { BroadcastClient, Client, ClientOptions, Wallet } from 'xrpl';
 import { Currencies, Markets, OrderId, OrderSide, OrderType } from './ccxt';
 import { CurrencyCode, MarketSymbol, UnixTimestamp, XrplNetwork } from './common';
 import {
@@ -80,13 +80,16 @@ export interface SDKParams {
 
 export interface SDKContext {
   params: SDKParams;
-  client: Client;
+  broadcastClient: BroadcastClient;
+  client: Client | BroadcastClient;
   wallet: Wallet;
   markets?: Markets;
   currencies?: Currencies;
   issuers?: Issuers;
-  connect(): void;
-  disconnect(): void;
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
+  removeListener(eventName: string, listener: any): void;
+  removeAllListeners(): void;
   cancelOrder(id: OrderId): Promise<CancelOrderResponse>;
   createLimitBuyOrder(
     symbol: MarketSymbol,

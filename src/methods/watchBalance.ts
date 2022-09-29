@@ -33,7 +33,6 @@ async function watchBalance(
   const refreshBalance = async () => {
     const newBalance = await this.fetchBalance(params);
     balanceStream.push(JSON.stringify(newBalance));
-    console.log('\nRefreshing balance: ', newBalance);
     balance = newBalance;
   };
 
@@ -44,7 +43,6 @@ async function watchBalance(
       ledger.reserve_inc !== balance?.info.validatedLedger.reserve_inc
     ) {
       isProcessing = true;
-      console.log('Reserve fees have changed!');
       await refreshBalance();
       isProcessing = false;
     }

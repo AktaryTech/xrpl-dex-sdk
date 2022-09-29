@@ -13,16 +13,18 @@ import { BN, getCurrencyCode } from '../utils';
 async function fetchBalance(
   this: SDKContext,
   /* Request parameters */
-  params: FetchBalanceParams
+  params: FetchBalanceParams = {}
 ): Promise<FetchBalanceResponse> {
-  const { account, code } = params;
+  const { code } = params;
+  const account = this.wallet.classicAddress;
 
   const balances: Balances = {};
   const info: any = {};
 
   // Get XRP balances
   if (!code || (code && code === 'XRP')) {
-    const { id, ...accountInfoResponse } = await this.client.request({
+    const accountInfoResponse = await this.client.request({
+      id: account,
       command: 'account_info',
       account,
       ledger_index: 'current',
@@ -60,7 +62,8 @@ async function fetchBalance(
     let hasNextPage = true;
 
     while (hasNextPage) {
-      const { id, ...accountTrustLinesResponse } = await this.client.request({
+      const accountTrustLinesResponse = await this.client.request({
+        id: account,
         command: 'account_lines',
         account,
         ledger_index: 'current',

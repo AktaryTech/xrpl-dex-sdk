@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import 'mocha';
 
-import { requests, responses, rippled } from '../fixtures';
+import { responses, rippled } from '../fixtures';
 import { setupLocalSDK, teardownLocalSDK } from '../setupClient';
 import { assertResultMatch } from '../testUtils';
 
@@ -14,9 +14,7 @@ describe('fetchBalance', function () {
     this.mockRippled.addResponse('account_lines', rippled.account_lines.maker);
     this.mockRippled.addResponse('server_state', rippled.server_state.normal);
 
-    const { params } = requests.fetchBalance;
-
-    const balances = await this.sellerSdk.fetchBalance(params);
+    const balances = await this.sellerSdk.fetchBalance();
 
     assertResultMatch(balances, responses.fetchBalance);
   });

@@ -34,6 +34,7 @@ async function fetchOrderBook(
   const quoteAmount = getTakerAmount(quoteCurrency);
 
   const orderBookRequest: BookOffersRequest = {
+    id: symbol,
     command: 'book_offers',
     taker_pays: baseAmount,
     taker_gets: quoteAmount,
