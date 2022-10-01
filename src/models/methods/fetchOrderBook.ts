@@ -7,6 +7,8 @@ import { OrderBook } from '../ccxt';
  * @category Parameters
  */
 export interface FetchOrderBookParams {
+  /** Max Orders to search through while gathering Order Book data */
+  searchLimit?: number;
   /** Get order book from the given ledger */
   ledgerIndex?: LedgerIndex;
   /** Get order book from the provided hash */

@@ -124,7 +124,7 @@ async function watchMyTrades(
         };
       }
 
-      tradeStream.push(JSON.stringify(trade));
+      if (trade) tradeStream.emit('update', trade);
     }
 
     isProcessing = false;

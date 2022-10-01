@@ -9,7 +9,10 @@ import { setupRemoteSDK, teardownRemoteSDK } from '../setupClient';
 const NETWORK = XrplNetwork.Testnet;
 
 describe('fetchTicker', function () {
-  beforeEach(_.partial(setupRemoteSDK, NETWORK, addresses.AKT_SELLER_SECRET));
+  beforeEach(function (done) {
+    setupRemoteSDK.call(this, NETWORK, addresses.AKT_SELLER_SECRET, done);
+  });
+
   afterEach(teardownRemoteSDK);
 
   it('should return Ticker data for the given symbol', async function () {

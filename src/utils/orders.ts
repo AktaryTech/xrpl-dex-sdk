@@ -28,6 +28,7 @@ import {
   TxResult,
   XrplErrorTypes,
   Sequence,
+  OrderStatus,
 } from '../models';
 import { BN, subtractAmounts } from './numbers';
 
@@ -76,10 +77,10 @@ export const getOfferFromNode = (node: Node): Offer | undefined => {
 
   if (LedgerEntryType !== 'Offer' || !FinalFields) return;
 
-  return {
+  const offer: Offer = {
     ...FinalFields,
     index: LedgerIndex,
-    PreviousTxnID: FinalFields.PreviousTxnID || PreviousTxnID,
+    PreviousTxnID: FinalFields.PreviousTxnID ?? PreviousTxnID,
     TakerGets: PreviousFields
       ? subtractAmounts(PreviousFields.TakerGets as Amount, FinalFields.TakerGets as Amount)
       : FinalFields.TakerGets,
@@ -87,6 +88,8 @@ export const getOfferFromNode = (node: Node): Offer | undefined => {
       ? subtractAmounts(PreviousFields.TakerPays as Amount, FinalFields.TakerPays as Amount)
       : FinalFields.TakerPays,
   };
+
+  return offer;
 };
 
 /**
@@ -235,7 +238,7 @@ export const parseTransaction = (
     metadata = metaData;
   } else return;
 
-  if (!tx.hash || tx?.TransactionType !== 'OfferCreate' || typeof metadata !== 'object') return;
+  if (!tx.hash ?? tx?.TransactionType !== 'OfferCreate' ?? typeof metadata !== 'object') return;
 
   const parsedNodes: Node[] = [];
   const tradeOffers: Offer[] = [];
@@ -276,7 +279,7 @@ export const parseTransaction = (
   // Strip out the `meta` prop in case the transaction is of type TxResponse['result']
   const { meta, ...txData } = tx;
 
-  return {
+  const transactionData = {
     transaction: {
       ...txData,
     },
@@ -286,12 +289,14 @@ export const parseTransaction = (
     } as TransactionMetadata,
     offers: tradeOffers,
     previousTxnId: previousTxnHash,
-    date: tx.date || txData.date || unixTimeToRippleTime(0),
+    date: tx.date ?? txData.date ?? unixTimeToRippleTime(0),
   };
+
+  return transactionData;
 };
 
 /**
- * Get the most recent Transaction to affect an Order
+ * Get the ID of the most recent Transaction to affect an Order
  */
 export const getMostRecentTxId = async (
   client: Client,
@@ -309,24 +314,80 @@ export const getMostRecentTxId = async (
     let marker: unknown;
     let hasNextPage = true;
     let page = 1;
+
     while (hasNextPage) {
       const accountTxResponse = await fetchAccountTxns(client, account, limit, marker);
       if (!accountTxResponse) return;
       marker = accountTxResponse.result.marker;
 
-      accountTxResponse.result.transactions.sort((a, b) => (b.tx?.date || 0) - (a.tx?.date || 0));
+      accountTxResponse.result.transactions.sort((a, b) => (b.tx?.date ?? 0) - (a.tx?.date ?? 0));
 
       for (const transaction of accountTxResponse.result.transactions) {
         const previousTxnData = parseTransaction(id, transaction);
         if (previousTxnData) return previousTxnData?.previousTxnId;
       }
 
-      if (!marker || limit * page >= searchLimit) hasNextPage = false;
+      if (!marker ?? limit * page >= searchLimit) hasNextPage = false;
       else {
         page += 1;
       }
     }
 
     throw new BadResponse(`Could not find Transaction history for Order ${id}`);
+  }
+};
+
+/**
+ * Get data for the most recent Transaction to affect an Order
+ */
+export const getMostRecentTx = async (
+  client: Client,
+  orderId: OrderId,
+  /** This is to prevent us spending forever searching through an account's Transactions for an Order */
+  searchLimit: number = DEFAULT_SEARCH_LIMIT
+): Promise<
+  { previousTxnData?: TransactionData<OfferCreate>; previousTxnId?: string; orderStatus: OrderStatus } | undefined
+> => {
+  let orderStatus: OrderStatus = 'open';
+
+  const ledgerOffer = await fetchOfferEntry(client, orderId);
+  if (ledgerOffer) {
+    const txResponse = await fetchTxn(client, ledgerOffer.PreviousTxnID);
+    if (txResponse) {
+      const previousTxnData = parseTransaction(orderId, txResponse);
+      if (previousTxnData) return { previousTxnData, previousTxnId: previousTxnData?.previousTxnId, orderStatus };
+    }
+  } else {
+    orderStatus = 'closed';
+
+    const { account } = parseOrderId(orderId);
+
+    const limit = DEFAULT_LIMIT;
+    let marker: unknown;
+    let hasNextPage = true;
+    let page = 1;
+
+    while (hasNextPage) {
+      const accountTxResponse = await fetchAccountTxns(client, account, limit, marker);
+      if (!accountTxResponse) return { orderStatus };
+
+      marker = accountTxResponse.result.marker;
+
+      accountTxResponse.result.transactions.sort((a, b) => (b.tx?.date ?? 0) - (a.tx?.date ?? 0));
+
+      for (const transaction of accountTxResponse.result.transactions) {
+        const previousTxnData = parseTransaction(orderId, transaction);
+        if (previousTxnData) return { previousTxnData, previousTxnId: previousTxnData?.previousTxnId, orderStatus };
+      }
+
+      if (!marker ?? limit * page >= searchLimit) hasNextPage = false;
+      else {
+        page += 1;
+      }
+    }
+
+    throw new BadResponse(
+      `Could not find Transaction data for Order ${orderId}. Try increasing the searchLimit parameter or using a full history XRPL server.`
+    );
   }
 };

@@ -13,7 +13,10 @@ const TIMEOUT = 25000;
 describe('fetchOrders', function () {
   this.timeout(TIMEOUT);
 
-  beforeEach(_.partial(setupRemoteSDK, NETWORK, addresses.AKT_SELLER_SECRET));
+  beforeEach(function (done) {
+    setupRemoteSDK.call(this, NETWORK, undefined, done, addresses.seller.public, addresses.seller.private);
+  });
+
   afterEach(teardownRemoteSDK);
 
   it('should retrieve a list of Orders', async function () {
@@ -22,7 +25,7 @@ describe('fetchOrders', function () {
   });
 
   // it('should retrieve a list of Orders for a given market symbol', async function () {
-  //   const orders = await this.sdk.fetchOrders('TST+rP9jPyP5kyvFRb6ZiRghAGw5u8SGAmU4bd/XRP', undefined, 1);
+  //   const orders = await this.sdk.fetchOrders('XRP/AKT+rMZoAqwRn3BLbmFYL3exNVNVKrceYcNy6B', undefined, 1);
   //   assert(orders.length === 1);
   // });
 

@@ -13,8 +13,11 @@ const NETWORK = XrplNetwork.Testnet;
 describe('createLimitBuyOrder', function () {
   this.timeout(TIMEOUT);
 
-  before(_.partial(setupRemoteSDK, NETWORK));
-  after(teardownRemoteSDK);
+  beforeEach(function (done) {
+    setupRemoteSDK.call(this, NETWORK, undefined, done);
+  });
+
+  afterEach(teardownRemoteSDK);
 
   it('should create a Limit Buy Order', async function () {
     const { symbol, amount, price, params } = requests.createOrder.buy;

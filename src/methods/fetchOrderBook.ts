@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { BookOffersRequest, dropsToXrp } from 'xrpl';
 import { parseAmountValue } from 'xrpl/dist/npm/models/transactions/common';
-import { DEFAULT_SEARCH_LIMIT } from '../constants';
+import { CURRENCY_PRECISION, DEFAULT_LIMIT, DEFAULT_SEARCH_LIMIT } from '../constants';
 import {
   OrderBookAsk,
   MarketSymbol,
@@ -11,7 +11,14 @@ import {
   OrderBookBid,
   OrderBook,
 } from '../models';
-import { getBaseAmountKey, getOrderSideFromOffer, getTakerAmount, parseMarketSymbol } from '../utils';
+import {
+  BN,
+  getBaseAmountKey,
+  getOrderSideFromOffer,
+  getQuoteAmountKey,
+  getTakerAmount,
+  parseMarketSymbol,
+} from '../utils';
 
 /**
  * Retrieves order book data for a single market pair. Returns an
@@ -24,10 +31,14 @@ async function fetchOrderBook(
   /** Token pair (called Unified Market Symbol in CCXT) */
   symbol: MarketSymbol,
   /** Number of results to return */
-  limit: number = DEFAULT_SEARCH_LIMIT,
+  limit: number = DEFAULT_LIMIT,
   /** Parameters specific to the exchange API endpoint */
-  params: FetchOrderBookParams = {}
+  params: FetchOrderBookParams = {
+    searchLimit: DEFAULT_SEARCH_LIMIT,
+  }
 ): Promise<FetchOrderBookResponse> {
+  const { searchLimit } = params;
+
   const [baseCurrency, quoteCurrency] = parseMarketSymbol(symbol);
 
   const baseAmount = getTakerAmount(baseCurrency);
@@ -38,9 +49,12 @@ async function fetchOrderBook(
     command: 'book_offers',
     taker_pays: baseAmount,
     taker_gets: quoteAmount,
-    limit,
+    limit: searchLimit,
     both: true,
   };
+
+  console.log('\norderBookRequest');
+  console.log(orderBookRequest);
 
   if (params.ledgerHash) orderBookRequest.ledger_hash = params.ledgerHash;
   if (params.ledgerIndex) orderBookRequest.ledger_index = params.ledgerIndex;
@@ -51,18 +65,34 @@ async function fetchOrderBook(
   const bids: OrderBookBid[] = [];
   const asks: OrderBookAsk[] = [];
 
+  console.log('Offers found: ', offers.length);
+
   for (const offer of offers) {
-    if (!offer.quality) return;
     const side = getOrderSideFromOffer(offer);
     const baseAmount = offer[getBaseAmountKey(side)];
-    const baseValue =
-      baseCurrency === 'XRP' ? dropsToXrp(parseAmountValue(baseAmount)) : parseAmountValue(baseAmount).toString();
+    const baseValue = BN(
+      typeof baseAmount === 'string' ? dropsToXrp(parseAmountValue(baseAmount)) : parseAmountValue(baseAmount)
+    );
+    const quoteAmount = offer[getQuoteAmountKey(side)];
+    const quoteValue = BN(
+      typeof quoteAmount === 'string' ? dropsToXrp(parseAmountValue(quoteAmount)) : parseAmountValue(quoteAmount)
+    );
 
-    const orderBookEntry = [offer.quality, baseValue];
+    const amount = baseValue;
+    const price = quoteValue.dividedBy(amount);
 
-    bids.push(side === 'buy' ? (orderBookEntry as OrderBookBid) : (orderBookEntry as OrderBookAsk));
+    const orderBookEntry = [
+      (+price.toPrecision(CURRENCY_PRECISION)).toString(),
+      (+amount.toPrecision(CURRENCY_PRECISION)).toString(),
+    ];
+
+    if (side === 'sell') asks.push(orderBookEntry as OrderBookAsk);
+    else bids.push(orderBookEntry as OrderBookBid);
+
+    if (bids.length + asks.length > limit) break;
   }
-  const nonce = offers[offers.length - 1].Sequence;
+
+  const nonce = orderBookResponse.result.ledger_index ?? Date.now();
 
   const response: OrderBook = {
     symbol,

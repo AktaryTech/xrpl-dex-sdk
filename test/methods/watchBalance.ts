@@ -27,8 +27,7 @@ describe('watchBalance', function () {
         this.sdk
           .watchBalance({ account } as WatchBalanceParams)
           .then(async (balanceStream: BalanceStream) => {
-            balanceStream.on('data', (rawBalance) => {
-              const newBalance = JSON.parse(rawBalance);
+            balanceStream.on('update', (newBalance: Balance) => {
               assert(newBalance !== initialBalance);
               done();
             });

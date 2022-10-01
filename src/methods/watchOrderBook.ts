@@ -29,17 +29,23 @@ async function watchOrderBook(
     command: 'subscribe',
     books: [
       {
-        taker: this.wallet.classicAddress,
+        // taker: this.wallet.classicAddress,
         taker_gets: quoteAmount,
         taker_pays: baseAmount,
       },
     ],
   } as SubscribeRequest);
 
+  this.client.on('error', async (error: unknown) => {
+    console.error(error as Error);
+    throw error as Error;
+  });
+
   this.client.on('transaction', async (tx: TransactionStream) => {
-    console.log(tx.transaction);
+    if (!tx.validated || tx.transaction.TransactionType !== 'OfferCreate') return;
+
     const orderBook = await this.fetchOrderBook(symbol, limit);
-    if (orderBook) orderBookStream.push(JSON.stringify(orderBook));
+    if (orderBook) orderBookStream.emit('update', orderBook);
   });
 
   return orderBookStream;

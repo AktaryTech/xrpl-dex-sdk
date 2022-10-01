@@ -1,12 +1,15 @@
 import _ from 'lodash';
 import 'mocha';
 
-import { requests, responses, rippled } from '../fixtures';
-import { assertResultMatch } from '../testUtils';
 import { setupLocalSDK, teardownLocalSDK } from '../setupClient';
 import { OrderId } from '../../src/models';
+import { assertResultMatch } from '../testUtils';
+import { requests, responses, rippled } from '../fixtures';
+
+const TIMEOUT = 20000;
 
 describe('fetchOrder', function () {
+  this.timeout(TIMEOUT);
   beforeEach(setupLocalSDK);
   afterEach(teardownLocalSDK);
 
@@ -14,13 +17,24 @@ describe('fetchOrder', function () {
    * Buy Orders
    */
   it('should return an open Buy Order', async function () {
-    const orderId = requests.v2.orders.USD.buy.open as OrderId;
+    // const sellOrder = await this.sdk.fetchOrder('r3xYuG3dNF4oHBLXwEdFmFKGm9TWzqGT7z:31617670');
+    // console.log('\nsellOrder');
+    // console.log(_.omit(sellOrder, ['info']));
 
+    // const buyOrder = await this.sdk.fetchOrder('rLg33RykRFBxoJsTknkE5ekmoVDPmAPJwU:31617724');
+    // console.log('\nbuyOrder');
+    // console.log(_.omit(buyOrder, ['info']));
+
+    // const balance = await this.sdk.fetchBalance();
+    // console.log('\nXRP balance: %s (∆ %s)', balance.balances.XRP.total, balance.balances.XRP.total - 1000);
+    // console.log('\nAKT balance: ', balance.balances['AKT+rMZoAqwRn3BLbmFYL3exNVNVKrceYcNy6B'].total);
+
+    const orderId = requests.v2.orders.USD.buy.open as OrderId;
     this.mockRippled.addResponse('ledger_entry', rippled.v2.ledgerEntry.offers.open[orderId]);
     this.mockRippled.addResponse('tx', rippled.v2.tx.orderId.OfferCreate[orderId]);
     this.mockRippled.addResponse('account_info', rippled.v2.accountInfo.issuers.USD);
 
-    const fetchOrderResponse = await this.buyerSdk.fetchOrder(orderId);
+    const fetchOrderResponse = await this.sellerSdk.fetchOrder(orderId);
     assertResultMatch(fetchOrderResponse, responses.v2.orders.USD.buy.open);
   });
 

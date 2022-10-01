@@ -3,7 +3,7 @@ import { assert } from 'chai';
 import 'mocha';
 import { Readable } from 'stream';
 
-import { XrplNetwork } from '../../src/models';
+import { ExchangeStatus, XrplNetwork } from '../../src/models';
 import { addresses } from '../fixtures';
 import { setupRemoteSDK, teardownRemoteSDK } from '../setupClient';
 
@@ -13,15 +13,17 @@ const NETWORK = XrplNetwork.Mainnet;
 describe('watchStatus', function () {
   this.timeout(TIMEOUT);
 
-  before(_.partial(setupRemoteSDK, NETWORK, addresses.AKT_BUYER_SECRET));
-  after(teardownRemoteSDK);
+  beforeEach(function (done) {
+    setupRemoteSDK.call(this, NETWORK, addresses.AKT_SELLER_SECRET, done);
+  });
+
+  afterEach(teardownRemoteSDK);
 
   it('should subscribe to exchange status updates', function (done) {
     this.sdk
       .watchStatus()
       .then((statusStream: Readable) => {
-        statusStream.on('data', (rawStatus) => {
-          const status = JSON.parse(rawStatus);
+        statusStream.on('update', (status: ExchangeStatus) => {
           assert(typeof status !== 'undefined');
           done();
         });

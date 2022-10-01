@@ -133,13 +133,18 @@ export async function setupRemoteSDK(
   this: Mocha.Context,
   network: XrplNetwork,
   walletSecret?: string,
-  done?: (error?: Error) => void
+  done?: (error?: Error) => void,
+  walletPublicKey?: string,
+  walletPrivateKey?: string
 ): Promise<void> {
   const sdkParams: SDKParams = { network };
 
   let newWallet: Wallet | undefined;
   if (walletSecret) {
     sdkParams.walletSecret = walletSecret;
+  } else if (walletPrivateKey && walletPublicKey) {
+    sdkParams.walletPrivateKey = walletPrivateKey;
+    sdkParams.walletPublicKey = walletPublicKey;
   } else {
     newWallet = Wallet.generate();
     sdkParams.walletPrivateKey = newWallet.privateKey;
@@ -154,9 +159,10 @@ export async function setupRemoteSDK(
         .fundWallet(this.sdk.wallet)
         .then(({ balance }: { balance: number }) => {
           console.log(
-            'Generated wallet:\n  Address: %s\n  Public key: %s\n  Secret: %s\n  Balance: %s',
+            'Generated wallet:\n  Address: %s\n  Public key: %s\n  Private key: %s\n  Secret: %s\n  Balance: %s',
             this.sdk.wallet.classicAddress,
             this.sdk.wallet.publicKey,
+            this.sdk.wallet.privateKey,
             this.sdk.wallet.seed,
             balance
           );

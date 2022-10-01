@@ -13,8 +13,11 @@ const NETWORK = XrplNetwork.Testnet;
 describe('createOrder', function () {
   this.timeout(TIMEOUT);
 
-  before(_.partial(setupRemoteSDK, NETWORK));
-  after(teardownRemoteSDK);
+  beforeEach(function (done) {
+    setupRemoteSDK.call(this, NETWORK, undefined, done);
+  });
+
+  afterEach(teardownRemoteSDK);
 
   it('should create a Buy Order', async function () {
     const { symbol, side, type, amount, price, params } = requests.createOrder.buy;

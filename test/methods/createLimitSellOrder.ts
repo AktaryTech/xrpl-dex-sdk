@@ -13,8 +13,11 @@ const NETWORK = XrplNetwork.Testnet;
 describe('createLimitSellOrder', function () {
   this.timeout(TIMEOUT);
 
-  before(_.partial(setupRemoteSDK, NETWORK));
-  after(teardownRemoteSDK);
+  beforeEach(function (done) {
+    setupRemoteSDK.call(this, NETWORK, undefined, done);
+  });
+
+  afterEach(teardownRemoteSDK);
 
   it('should create a Limit Sell Order', async function () {
     const { symbol, amount, price, params } = requests.createOrder.smallSellOrder;

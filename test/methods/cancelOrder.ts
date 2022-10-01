@@ -13,8 +13,11 @@ const NETWORK = XrplNetwork.Testnet;
 describe('cancelOrder', function () {
   this.timeout(TIMEOUT);
 
-  before(_.partial(setupRemoteSDK, NETWORK));
-  after(teardownRemoteSDK);
+  beforeEach(function (done) {
+    setupRemoteSDK.call(this, NETWORK, undefined, done);
+  });
+
+  afterEach(teardownRemoteSDK);
 
   it('should create and then cancel an Order', async function () {
     const { symbol, side, type, amount, price, params } = requests.createOrder.smallBuyOrder2;

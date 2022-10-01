@@ -3,25 +3,29 @@ import { assert } from 'chai';
 import 'mocha';
 import { Readable } from 'stream';
 
-import { XrplNetwork } from '../../src/models';
+import { Trade, XrplNetwork } from '../../src/models';
 import { addresses } from '../fixtures';
 import { setupRemoteSDK, teardownRemoteSDK } from '../setupClient';
 
 const TIMEOUT = 20000;
-const NETWORK = XrplNetwork.Mainnet;
+const NETWORK = XrplNetwork.Testnet;
 
 describe('watchTrades', function () {
   this.timeout(TIMEOUT);
 
-  before(_.partial(setupRemoteSDK, NETWORK, addresses.AKT_BUYER_SECRET));
-  after(teardownRemoteSDK);
+  beforeEach(function (done) {
+    setupRemoteSDK.call(this, NETWORK, addresses.AKT_BUYER_SECRET, done);
+  });
+
+  afterEach(teardownRemoteSDK);
 
   it('should subscribe to new Trades for a given market symbol', function (done) {
+    const symbol = 'USD+rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B/XRP';
+
     this.sdk
-      .watchTrades('CNY/XRP')
+      .watchTrades(symbol)
       .then((tradeStream: Readable) => {
-        tradeStream.on('data', (rawTrade) => {
-          const trade = JSON.parse(rawTrade);
+        tradeStream.on('update', (trade: Trade) => {
           assert(typeof trade !== 'undefined');
           done();
         });

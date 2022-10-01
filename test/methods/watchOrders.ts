@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import 'mocha';
-import { OrderStream, XrplNetwork } from '../../src/models';
+import { Order, OrderStream, XrplNetwork } from '../../src/models';
 import { responses, rippled } from '../fixtures';
 
 import { assertResultMatch } from '../testUtils';
@@ -23,8 +23,7 @@ describe('watchOrders', function () {
     this.sdk
       .watchOrders()
       .then(async (orderStream: OrderStream) => {
-        orderStream.on('data', (rawOrder) => {
-          const newOrder = JSON.parse(rawOrder);
+        orderStream.on('update', (newOrder: Order) => {
           assertResultMatch(newOrder, responses.v2.orders.byId['rn5umFvUWKXqwrGJSRcV24wz9zZFiG7rsQ:30419151']);
           done();
           orderStream.removeAllListeners();
@@ -52,8 +51,7 @@ describe('watchOrders', function () {
     this.sdk
       .watchOrders(order.symbol)
       .then(async (orderStream: OrderStream) => {
-        orderStream.on('data', (rawOrders) => {
-          const newOrder = JSON.parse(rawOrders);
+        orderStream.on('update', (newOrder: Order) => {
           assertResultMatch(newOrder, order);
           done();
           orderStream.removeAllListeners();

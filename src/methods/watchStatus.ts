@@ -25,7 +25,7 @@ async function watchStatus(this: SDKContext): Promise<WatchStatusResponse> {
     if (isProcessing) return;
     isProcessing = true;
     const newStatus = await this.fetchStatus();
-    if (newStatus) statusStream.push(JSON.stringify(newStatus));
+    if (newStatus) statusStream.emit('update', newStatus);
     isProcessing = false;
   });
 

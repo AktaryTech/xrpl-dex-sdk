@@ -56,8 +56,6 @@ async function watchOrders(
 
   const orderStream = new Readable({ read: () => this });
 
-  // let isProcessing = false;
-
   await this.client.request({
     command: 'subscribe',
     streams: ['transactions'],
@@ -228,7 +226,7 @@ async function watchOrders(
       return;
     }
 
-    orderStream.push(JSON.stringify(order));
+    if (order) orderStream.emit('update', order);
   });
 
   return orderStream;

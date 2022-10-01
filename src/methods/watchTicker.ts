@@ -52,7 +52,7 @@ async function watchTicker(
 
     // TODO: calculate this transaction's impact on the ticker and add it to the existing value
 
-    tickerStream.push(JSON.stringify(ticker));
+    if (ticker) tickerStream.emit('update', ticker);
 
     isProcessing = false;
   });

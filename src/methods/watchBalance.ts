@@ -22,7 +22,6 @@ async function watchBalance(
   const balanceStream = new Readable({ read: () => this });
 
   let balance = await this.fetchBalance(params);
-  let isProcessing = false;
 
   await this.client.request({
     command: 'subscribe',
@@ -32,41 +31,33 @@ async function watchBalance(
 
   const refreshBalance = async () => {
     const newBalance = await this.fetchBalance(params);
-    balanceStream.push(JSON.stringify(newBalance));
+    if (newBalance) balanceStream.emit('update', newBalance);
     balance = newBalance;
   };
 
   this.client.on('ledgerClosed', async (ledger: LedgerStreamResponse) => {
-    if (isProcessing) return;
     if (
       ledger.reserve_base !== balance?.info.validatedLedger.reserve_base ||
       ledger.reserve_inc !== balance?.info.validatedLedger.reserve_inc
     ) {
-      isProcessing = true;
       await refreshBalance();
-      isProcessing = false;
     }
   });
 
   this.client.on('transaction', async (tx: TransactionStream) => {
-    if (isProcessing) return;
     if (tx.transaction.TransactionType === 'Payment') {
       const transaction = tx.transaction as Payment;
-      isProcessing = true;
       if (transaction.Account === params.account || transaction.Destination === params.account) {
         await refreshBalance();
       }
-      isProcessing = false;
     } else if (tx.transaction.TransactionType === 'OfferCreate') {
       const transaction = tx.transaction as OfferCreate;
-      isProcessing = true;
       let shouldRefresh = false;
       if (
         params.code &&
         getAmountCurrencyCode(transaction.TakerGets) !== params.code &&
         getAmountCurrencyCode(transaction.TakerPays) !== params.code
       ) {
-        isProcessing = false;
         return;
       } else if (transaction.Account === params.account) {
         // Did we send this txn?
@@ -78,7 +69,6 @@ async function watchBalance(
 
           if (LedgerEntryType === 'AccountRoot' && (FinalFields || NewFields)) {
             if (params.code && params.code !== 'XRP') {
-              isProcessing = false;
               return;
             } else if ((FinalFields || NewFields).Account === params.account) {
               shouldRefresh = true;
@@ -99,7 +89,6 @@ async function watchBalance(
         }
       }
       if (shouldRefresh) await refreshBalance();
-      isProcessing = false;
     }
   });
 

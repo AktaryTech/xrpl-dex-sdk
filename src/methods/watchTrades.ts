@@ -37,16 +37,12 @@ async function watchTrades(
 
   const tradeStream = new Readable({ read: () => this });
 
-  let isProcessing = false;
-
   await this.client.request({
     command: 'subscribe',
     streams: ['transactions'],
   } as SubscribeRequest);
 
   this.client.on('transaction', async (tx: TransactionStream) => {
-    if (isProcessing) return;
-
     const transaction = tx.transaction;
     if (
       typeof transaction !== 'object' ||
@@ -56,15 +52,12 @@ async function watchTrades(
     )
       return;
 
-    isProcessing = true;
-
     const side =
       typeof transaction.Flags === 'number' && !(transaction.Flags & OfferCreateFlags.tfSell) ? 'buy' : 'sell';
 
     const marketSymbol = getMarketSymbol(transaction[getBaseAmountKey(side)], transaction[getQuoteAmountKey(side)]);
 
     if (marketSymbol !== symbol) {
-      isProcessing = false;
       return;
     }
 
@@ -121,10 +114,8 @@ async function watchTrades(
         };
       }
 
-      tradeStream.push(JSON.stringify(trade));
+      if (trade) tradeStream.emit('update', trade);
     }
-
-    isProcessing = false;
   });
 
   return tradeStream;

@@ -13,7 +13,10 @@ const TIMEOUT = 25000;
 describe('fetchOpenOrders', function () {
   this.timeout(TIMEOUT);
 
-  beforeEach(_.partial(setupRemoteSDK, NETWORK, addresses.AKT_SELLER_SECRET));
+  beforeEach(function (done) {
+    setupRemoteSDK.call(this, NETWORK, undefined, done, addresses.seller.public, addresses.seller.private);
+  });
+
   afterEach(teardownRemoteSDK);
 
   it('should retrieve a list of Open Orders', async function () {

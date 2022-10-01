@@ -24,8 +24,20 @@ async function watchTickers(
   } as SubscribeRequest);
 
   for (const symbol of symbols) {
-    const stream = await this.watchTicker(symbol, params);
-    stream.on('data', (data) => tickersStream.push(data));
+    const tickerStream = await this.watchTicker(symbol, params);
+    tickerStream.on('data', (ticker) => {
+      tickersStream.emit('update', ticker);
+    });
+
+    tickerStream.on('error', (error) => {
+      tickerStream.removeAllListeners();
+      console.error(error);
+      throw error;
+    });
+
+    tickerStream.on('close', () => {
+      tickerStream.removeAllListeners();
+    });
   }
 
   return tickersStream;
