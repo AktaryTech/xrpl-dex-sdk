@@ -53,9 +53,6 @@ async function fetchOrderBook(
     both: true,
   };
 
-  console.log('\norderBookRequest');
-  console.log(orderBookRequest);
-
   if (params.ledgerHash) orderBookRequest.ledger_hash = params.ledgerHash;
   if (params.ledgerIndex) orderBookRequest.ledger_index = params.ledgerIndex;
 
@@ -64,8 +61,6 @@ async function fetchOrderBook(
 
   const bids: OrderBookBid[] = [];
   const asks: OrderBookAsk[] = [];
-
-  console.log('Offers found: ', offers.length);
 
   for (const offer of offers) {
     const side = getOrderSideFromOffer(offer);

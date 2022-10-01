@@ -16,6 +16,9 @@ describe('fetchOrderBooks', function () {
     const { symbols, limit, params } = requests.fetchOrderBooks;
 
     const orderBooks = await this.sellerSdk.fetchOrderBooks(symbols, limit, params);
-    assertResultMatch(orderBooks, responses.fetchOrderBooks);
+
+    _.forEach(orderBooks, (orderBook, i: number) => {
+      assertResultMatch(_.omit(orderBook, ['nonce']), (responses.fetchOrderBooks as any)[orderBook.symbol]);
+    });
   });
 });

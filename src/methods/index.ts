@@ -2,6 +2,7 @@ import cancelOrder from './cancelOrder';
 import createLimitBuyOrder from './createLimitBuyOrder';
 import createLimitSellOrder from './createLimitSellOrder';
 import createOrder from './createOrder';
+import createTrustLine from './createTrustLine';
 import fetchBalance from './fetchBalance';
 import fetchCanceledOrders from './fetchCanceledOrders';
 import fetchClosedOrders from './fetchClosedOrders';
@@ -42,6 +43,7 @@ const methods: Record<string, any> = {
   createLimitBuyOrder,
   createLimitSellOrder,
   createOrder,
+  createTrustLine,
   fetchBalance,
   fetchCanceledOrders,
   fetchClosedOrders,

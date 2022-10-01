@@ -18,6 +18,6 @@ describe('fetchOrderBook', function () {
 
     const { symbol, limit, params } = requests.fetchOrderBook;
     const orderBook = await this.sellerSdk.fetchOrderBook(symbol, limit, params);
-    assertResultMatch(orderBook, responses.fetchOrderBook);
+    assertResultMatch(_.omit(orderBook, ['nonce']), responses.fetchOrderBook);
   });
 });

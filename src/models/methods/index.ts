@@ -2,6 +2,7 @@ export * from './cancelOrder';
 export * from './createLimitBuyOrder';
 export * from './createLimitSellOrder';
 export * from './createOrder';
+export * from './createTrustLine';
 export * from './fetchBalance';
 export * from './fetchCanceledOrders';
 export * from './fetchClosedOrders';
