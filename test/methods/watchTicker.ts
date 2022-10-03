@@ -18,7 +18,7 @@ describe('watchTicker', function () {
 
   afterEach(teardownRemoteSDK);
 
-  it.only('should subscribe to Ticker data for the given symbol', function (done) {
+  it('should subscribe to Ticker data for the given symbol', function (done) {
     this.sdk
       .watchTicker('XRP/USD+rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B')
       .then((tickerStream: TickerStream) => {
