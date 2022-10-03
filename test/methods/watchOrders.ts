@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import 'mocha';
 import { Order, OrderStream, XrplNetwork } from '../../src/models';
-import { responses, rippled } from '../fixtures';
+import { addresses, responses, rippled } from '../fixtures';
 
 import { assertResultMatch } from '../testUtils';
 import { setupRemoteSDK, teardownRemoteSDK } from '../setupClient';
@@ -14,7 +14,7 @@ describe('watchOrders', function () {
   this.timeout(TIMEOUT);
 
   beforeEach(function (done) {
-    setupRemoteSDK.call(this, NETWORK, undefined, done);
+    setupRemoteSDK.call(this, NETWORK, addresses.TST_BUYER_SECRET, done);
   });
 
   afterEach(teardownRemoteSDK);
@@ -22,7 +22,7 @@ describe('watchOrders', function () {
   it('should subscribe to Order updates', function (done) {
     this.sdk
       .watchOrders()
-      .then(async (orderStream: OrderStream) => {
+      .then((orderStream: OrderStream) => {
         orderStream.on('update', (newOrder: Order) => {
           assertResultMatch(newOrder, responses.v2.orders.byId['rn5umFvUWKXqwrGJSRcV24wz9zZFiG7rsQ:30419151']);
           done();

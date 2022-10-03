@@ -2,7 +2,7 @@ import { assert } from 'chai';
 import _ from 'lodash';
 import 'mocha';
 import { Balance, BalanceStream, WatchBalanceParams, XrplNetwork } from '../../src/models';
-import { rippled } from '../fixtures';
+import { addresses, rippled } from '../fixtures';
 
 import { setupRemoteSDK, teardownRemoteSDK } from '../setupClient';
 
@@ -13,7 +13,7 @@ describe('watchBalance', function () {
   this.timeout(TIMEOUT);
 
   beforeEach(function (done) {
-    setupRemoteSDK.call(this, NETWORK, undefined, done);
+    setupRemoteSDK.call(this, NETWORK, addresses.TST_BUYER_SECRET, done);
   });
 
   afterEach(teardownRemoteSDK);

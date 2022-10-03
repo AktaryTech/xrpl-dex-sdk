@@ -22,21 +22,6 @@ async function setupMockRippledConnection(
     try {
       testcase.mockRippled = createMockRippled(port);
       testcase._mockedServerPort = port;
-      testcase.sellerSdk = new SDK({
-        walletSecret: addresses.AKT_SELLER_SECRET,
-        websocketsUrl: `ws://localhost:${port}`,
-      });
-      await testcase.sellerSdk.connect();
-      testcase.buyerSdk = new SDK({
-        walletSecret: addresses.AKT_BUYER_SECRET,
-        websocketsUrl: `ws://localhost:${port}`,
-      });
-      await testcase.buyerSdk.connect();
-      testcase.tstBuyerSdk = new SDK({
-        walletSecret: addresses.TST_BUYER_SECRET,
-        websocketsUrl: `ws://localhost:${port}`,
-      });
-      await testcase.tstBuyerSdk.connect();
       resolve();
     } catch (err: unknown) {
       reject(err);
@@ -159,11 +144,10 @@ export async function setupRemoteSDK(
         .fundWallet(this.sdk.wallet)
         .then(({ balance }: { balance: number }) => {
           console.log(
-            'Generated wallet:\n  Address: %s\n  Public key: %s\n  Private key: %s\n  Secret: %s\n  Balance: %s',
+            'Generated wallet:\n  Address: %s\n  Public key: %s\n  Private key: %s\n  Balance: %s XRP',
             this.sdk.wallet.classicAddress,
             this.sdk.wallet.publicKey,
             this.sdk.wallet.privateKey,
-            this.sdk.wallet.seed,
             balance
           );
           if (done) done();
@@ -182,11 +166,6 @@ export async function setupRemoteSDK(
   });
 
   this.sdk.client.connect();
-
-  // this.sellerSdk = new SDK({ walletSecret: addresses.AKT_SELLER_SECRET, network });
-  // await this.sellerSdk.connect();
-  // this.buyerSdk = new SDK({ walletSecret: addresses.AKT_BUYER_SECRET, network });
-  // await this.buyerSdk.connect();
 }
 
 export function teardownRemoteSDK(this: Mocha.Context, done: (error?: Error) => void): void {
@@ -205,41 +184,39 @@ export function teardownRemoteSDK(this: Mocha.Context, done: (error?: Error) => 
   } else {
     done();
   }
-  // this.sdk.removeAllListeners();
-  // this.sdk
-  //   .disconnect()
-  //   .then(() => {
-  //     if (this.mockRippled) {
-  //       this.mockRippled.close();
-  //     } else if (this.mocks) {
-  //       this.mocks.forEach((mock: { close: () => void }) => mock.close());
-  //     }
-  //     setImmediate(done);
-  //   })
-  //   .catch(done);
-
-  // this.sellerSdk.removeAllListeners();
-  // this.sellerSdk.disconnect();
-
-  // this.buyerSdk.disconnect();
-  // this.buyerSdk.removeAllListeners();
 }
 
 /**
  * SDK with local client
  */
-export async function setupLocalSDK(this: Mocha.Context): Promise<void> {
+export interface SetupLocalSDKParams {
+  walletSecret?: string;
+  walletPublicKey?: string;
+  walletPrivateKey?: string;
+}
+
+export async function setupLocalSDK(this: Mocha.Context, params?: SetupLocalSDKParams): Promise<void> {
   const port = await getFreePort();
-  return await setupMockRippledConnection(this, port);
+  await setupMockRippledConnection(this, port);
+
+  const sdkParams: SDKParams = {
+    websocketsUrl: `ws://localhost:${port}`,
+  };
+
+  if (params) {
+    const { walletPrivateKey, walletPublicKey, walletSecret } = params;
+    if (walletSecret) sdkParams.walletSecret = walletSecret;
+    else if (walletPrivateKey && walletPublicKey) {
+      sdkParams.walletPrivateKey = walletPrivateKey;
+      sdkParams.walletPublicKey = walletPublicKey;
+    } else sdkParams.walletSecret = addresses.TST_BUYER_SECRET;
+  }
+
+  this.sdk = new SDK(sdkParams);
+  await this.sdk.client.connect();
 }
 
 export async function teardownLocalSDK(this: Mocha.Context): Promise<void> {
-  this.sellerSdk.removeAllListeners();
-  this.sellerSdk.disconnect();
-
-  this.buyerSdk.removeAllListeners();
-  this.buyerSdk.disconnect();
-
-  this.tstBuyerSdk.removeAllListeners();
-  this.tstBuyerSdk.disconnect();
+  this.sdk.client.removeAllListeners();
+  await this.sdk.client.disconnect();
 }

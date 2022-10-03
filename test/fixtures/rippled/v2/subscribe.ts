@@ -6,7 +6,14 @@ const subscribe: {
   };
   transactions: any[];
   ledger: any[];
+  bookOffers: any;
 } = {
+  bookOffers: {
+    id: 'XRP/USD+rVnYNK9yuxBz4uP8zC8LEFokM2nqH3poc',
+    result: {},
+    status: 'success',
+    type: 'response',
+  },
   offerCreate: {
     'rn5umFvUWKXqwrGJSRcV24wz9zZFiG7rsQ:30419151': {
       engine_result: 'tesSUCCESS',

@@ -23,14 +23,4 @@ describe('fetchOrders', function () {
     const orders = await this.sdk.fetchOrders(undefined, undefined, 5);
     assert(orders.length === 5);
   });
-
-  // it('should retrieve a list of Orders for a given market symbol', async function () {
-  //   const orders = await this.sdk.fetchOrders('XRP/AKT+rMZoAqwRn3BLbmFYL3exNVNVKrceYcNy6B', undefined, 1);
-  //   assert(orders.length === 1);
-  // });
-
-  // it('should retrieve a list of Orders since a given date', async function () {
-  //   const orders = await this.sdk.fetchOrders('TST+rP9jPyP5kyvFRb6ZiRghAGw5u8SGAmU4bd/XRP', undefined, 2);
-  //   assert(orders.length === 2);
-  // });
 });

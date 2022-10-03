@@ -50,9 +50,6 @@ async function createOrder(
 
   setTransactionFlagsToNumber(offerCreateRequest);
 
-  console.log('\nofferCreateRequest');
-  console.log(offerCreateRequest);
-
   const offerCreateTxResponse = await this.client.submitAndWait(offerCreateRequest, {
     autofill: true,
     wallet: this.wallet,

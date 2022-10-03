@@ -2,10 +2,7 @@ import { assert } from 'chai';
 import _ from 'lodash';
 import 'mocha';
 import { XrplNetwork } from '../../src/models';
-
-// import { responses, rippled } from '../fixtures';
 import { setupRemoteSDK, teardownRemoteSDK } from '../setupClient';
-// import { assertResultMatch } from '../testUtils';
 
 const TIMEOUT = 25000;
 const NETWORK = XrplNetwork.Testnet;
@@ -31,15 +28,10 @@ describe('fetchTrades', function () {
   afterEach(teardownRemoteSDK);
 
   it('return a list of Trades for a given symbol', async function () {
-    // this.mockRippled.addResponse('server_state', () => rippled.server_state.normal);
-
     const trades = await this.sdk.fetchMyTrades('AKT+rMZoAqwRn3BLbmFYL3exNVNVKrceYcNy6B/XRP', undefined, 1, {
       searchLimit: 500,
     });
 
-    console.log('\ntrades');
-    console.log(trades);
-    console.log(JSON.stringify(trades));
     assert(trades.length);
   });
 });

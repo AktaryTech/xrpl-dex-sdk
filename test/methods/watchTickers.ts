@@ -1,11 +1,10 @@
-import _ from 'lodash';
 import { assert } from 'chai';
+import _ from 'lodash';
 import 'mocha';
-import { Ticker, XrplNetwork } from '../../src/models';
-import { addresses } from '../fixtures';
-
+import SDK from '../../src';
+import { Ticker, TickerStream, XrplNetwork } from '../../src/models';
+import { addresses, rippled } from '../fixtures';
 import { setupRemoteSDK, teardownRemoteSDK } from '../setupClient';
-import { Readable } from 'stream';
 
 const TIMEOUT = 25000;
 const NETWORK = XrplNetwork.Mainnet;
@@ -24,11 +23,23 @@ describe('watchTickers', function () {
 
     this.sdk
       .watchTickers(tickers)
-      .then((tickersStream: Readable) => {
-        tickersStream.on('update', (ticker: Ticker) => {
-          assert(tickers.includes(ticker.symbol));
+      .then((tickersStream: TickerStream) => {
+        tickersStream.on('update', (newTicker: Ticker) => {
+          assert(typeof newTicker !== 'undefined');
           done();
+          tickersStream.removeAllListeners();
         });
+
+        tickersStream.on('error', (error) => {
+          console.error(error);
+          done(error);
+          tickersStream.removeAllListeners();
+        });
+
+        (this.sdk as SDK).client.emit(
+          'transaction',
+          rippled.v2.subscribe.offerCreate['rn5umFvUWKXqwrGJSRcV24wz9zZFiG7rsQ:30419151']
+        );
       })
       .catch((err: Error) => {
         console.error(err);

@@ -246,7 +246,7 @@ async function fetchOrder(
 
         if (!source.Sequence) continue;
 
-        const side: OrderSide = source.Flags === OfferFlags.lsfSell ? 'sell' : 'buy';
+        const side: OrderSide = (source.Flags & OfferFlags.lsfSell) === OfferFlags.lsfSell ? 'sell' : 'buy';
 
         const baseAmount = side === 'buy' ? source.TakerPays : source.TakerGets;
         const baseValue = BN(
@@ -302,7 +302,8 @@ async function fetchOrder(
 
         if (!source.Sequence) return;
 
-        const side: OrderSide = source.Flags === OfferCreateFlags.tfSell ? 'sell' : 'buy';
+        const side: OrderSide =
+          (source.Flags as number & OfferCreateFlags.tfSell) === OfferCreateFlags.tfSell ? 'sell' : 'buy';
 
         let orderTimeInForce: OrderTimeInForce = 'GTC';
         if (source.Flags === OfferCreateFlags.tfPassive) orderTimeInForce = 'PO';

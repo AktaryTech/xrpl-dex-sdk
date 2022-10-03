@@ -105,7 +105,7 @@ async function watchOrders(
     for (const offer of tradeOffers) {
       if (!offer.Sequence) continue;
 
-      const side: OrderSide = offer.Flags === OfferFlags.lsfSell ? 'sell' : 'buy';
+      const side: OrderSide = (offer.Flags & OfferFlags.lsfSell) === OfferFlags.lsfSell ? 'sell' : 'buy';
 
       const orderBaseAmount = offer[getBaseAmountKey(side)];
       const quoteAmount = offer[getQuoteAmountKey(side)];

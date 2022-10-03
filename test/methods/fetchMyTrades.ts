@@ -1,12 +1,8 @@
-// import { assert } from 'chai';
 import _ from 'lodash';
 import 'mocha';
 import { XrplNetwork } from '../../src/models';
 import { addresses } from '../fixtures';
-
-// import { responses, rippled } from '../fixtures';
 import { setupRemoteSDK, teardownRemoteSDK } from '../setupClient';
-// import { assertResultMatch } from '../testUtils';
 
 const TIMEOUT = 25000;
 const NETWORK = XrplNetwork.Testnet;
