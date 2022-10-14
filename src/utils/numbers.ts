@@ -27,15 +27,3 @@ export const subtractAmounts = (amount: Amount, subtractor: Amount): Amount => {
         value: resultValue.toString(),
       };
 };
-
-export const subtractAmountValues = (amount: Amount, subtractor: Amount): BigNumber => {
-  const amountValue = BN(parseAmountValue(amount));
-  const subtractorValue = BN(parseAmountValue(subtractor));
-  return amountValue.minus(subtractorValue);
-};
-
-export const divideAmountValues = (amount: Amount, divisor: Amount): BigNumber => {
-  const amountValue = BN(parseAmountValue(amount));
-  const divisorValue = BN(parseAmountValue(divisor));
-  return amountValue.dividedBy(divisorValue);
-};

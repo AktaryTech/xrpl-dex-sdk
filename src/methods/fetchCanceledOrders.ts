@@ -7,6 +7,7 @@ import {
   UnixTimestamp,
   SDKContext,
 } from '../models';
+import { validateMarketSymbol } from '../utils';
 
 async function fetchCanceledOrders(
   this: SDKContext,
@@ -19,6 +20,8 @@ async function fetchCanceledOrders(
   /** eslint-disable-next-line */
   params: FetchCanceledOrdersParams = {}
 ): Promise<FetchCanceledOrdersResponse> {
+  if (symbol) validateMarketSymbol(symbol);
+
   const { searchLimit } = params;
 
   const orders =

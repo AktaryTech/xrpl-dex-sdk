@@ -17,6 +17,4 @@ export interface Market {
   percentage?: true;
 }
 
-type Markets = Record<MarketSymbol, Market>;
-
-export default Markets;
+export type Markets = Record<MarketSymbol, Market>;

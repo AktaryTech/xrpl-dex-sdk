@@ -1,6 +1,8 @@
-import { AccountAddress, MarketSymbol, Sequence, UnixTimestamp } from '../common';
+import { AccountAddress, MarketSymbol, Sequence, UnixTimestamp, XrplTimestamp } from '../common';
 import { Fee, Trade } from '.';
 import { Readable } from 'stream';
+import { Amount } from 'xrpl/dist/npm/models/common';
+import BigNumber from 'bignumber.js';
 
 export type OrderStream = Readable;
 
@@ -20,7 +22,7 @@ export interface Order {
   clientOrderId?: string;
   datetime: string;
   timestamp: UnixTimestamp;
-  lastTradeTimestamp: UnixTimestamp;
+  lastTradeTimestamp?: UnixTimestamp;
   status: OrderStatus;
   symbol: MarketSymbol;
   type: OrderType;
@@ -36,4 +38,18 @@ export interface Order {
   fee?: Fee;
   /** Raw XRPL responses as JSON strings */
   info: Record<string, any>;
+}
+
+export interface OrderSourceData {
+  date: XrplTimestamp;
+  filled: BigNumber;
+  fillPrice: BigNumber;
+  totalFillPrice: BigNumber;
+  trades: Trade[];
+  status: OrderStatus;
+  Flags: number;
+  Account: AccountAddress;
+  Sequence: number;
+  TakerPays: Amount;
+  TakerGets: Amount;
 }

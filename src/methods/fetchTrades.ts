@@ -1,8 +1,6 @@
-import { BadRequest } from 'ccxt';
 import _ from 'lodash';
-import { dropsToXrp, LedgerRequest, OfferCreateFlags, rippleTimeToISOTime, rippleTimeToUnixTime } from 'xrpl';
+import { LedgerRequest, rippleTimeToUnixTime } from 'xrpl';
 import { Offer } from 'xrpl/dist/npm/models/ledger';
-import { parseAmountValue } from 'xrpl/dist/npm/models/transactions/common';
 import { DEFAULT_LIMIT, DEFAULT_SEARCH_LIMIT } from '../constants';
 import {
   FetchTradesParams,
@@ -13,16 +11,7 @@ import {
   Trade,
   AffectedNode,
 } from '../models';
-import {
-  BN,
-  fetchTransferRate,
-  getAmountCurrencyCode,
-  getBaseAmountKey,
-  getMarketSymbol,
-  getOrderOrTradeId,
-  getQuoteAmountKey,
-  getTakerOrMaker,
-} from '../utils';
+import { getMarketSymbol, getTradeFromData, validateMarketSymbol } from '../utils';
 
 /**
  * Fetch Trades for a given market symbol. Returns a {@link FetchTradesResponse}.
@@ -38,15 +27,11 @@ async function fetchTrades(
   /** Total number of Trades to return */
   limit: number = DEFAULT_LIMIT,
   /** eslint-disable-next-line */
-  params: FetchTradesParams = {}
+  params: FetchTradesParams = {
+    searchLimit: DEFAULT_SEARCH_LIMIT,
+  }
 ): Promise<FetchTradesResponse> {
-  if (!symbol) throw new BadRequest('Must provide a market symbol');
-
-  const searchLimit = params.searchLimit || DEFAULT_SEARCH_LIMIT;
-  const sellBaseField = getBaseAmountKey('sell');
-  const sellQuoteField = getQuoteAmountKey('sell');
-  const buyBaseField = getBaseAmountKey('buy');
-  const buyQuoteField = getQuoteAmountKey('buy');
+  validateMarketSymbol(symbol);
 
   const trades: Trade[] = [];
 
@@ -81,15 +66,7 @@ async function fetchTrades(
       if (typeof transaction !== 'object' || !transaction.Sequence || !transaction.metaData) continue;
 
       if (transaction.TransactionType === 'OfferCreate') {
-        const side =
-          typeof transaction.Flags === 'number' && !(transaction.Flags & OfferCreateFlags.tfSell) ? 'buy' : 'sell';
-
-        const marketSymbol = getMarketSymbol(
-          transaction[side === 'buy' ? buyBaseField : sellBaseField],
-          transaction[side === 'buy' ? buyQuoteField : sellQuoteField]
-        );
-
-        if (marketSymbol !== symbol) continue;
+        if (getMarketSymbol(transaction) !== symbol) continue;
 
         for (const affectedNode of transaction.metaData.AffectedNodes) {
           const { LedgerEntryType, FinalFields } = Object.values(affectedNode)[0] as AffectedNode;
@@ -97,63 +74,33 @@ async function fetchTrades(
           if (LedgerEntryType !== 'Offer' || !FinalFields) continue;
 
           const offer = FinalFields as unknown as Offer;
-          const orderId = getOrderOrTradeId(offer.Account, offer.Sequence);
 
-          const baseAmount = offer[getBaseAmountKey(side)];
-          const quoteAmount = offer[getQuoteAmountKey(side)];
+          const trade = await getTradeFromData.call(
+            this,
+            {
+              date: ledgerResponse.result.ledger.close_time,
+              Flags: offer.Flags as number,
+              OrderAccount: offer.Account,
+              OrderSequence: offer.Sequence,
+              Account: transaction.Account,
+              Sequence: transaction.Sequence,
+              TakerPays: offer.TakerPays,
+              TakerGets: offer.TakerGets,
+            },
+            { transaction }
+          );
 
-          const baseRate = await fetchTransferRate(this.client, baseAmount);
-          const quoteRate = await fetchTransferRate(this.client, quoteAmount);
-
-          const baseCurrency = getAmountCurrencyCode(baseAmount);
-          const quoteCurrency = getAmountCurrencyCode(quoteAmount);
-
-          const baseValue =
-            baseCurrency === 'XRP' ? BN(dropsToXrp(parseAmountValue(baseAmount))) : BN(parseAmountValue(baseAmount));
-          const quoteValue =
-            quoteCurrency === 'XRP' ? BN(dropsToXrp(parseAmountValue(quoteAmount))) : BN(parseAmountValue(quoteAmount));
-
-          const amount = baseValue;
-          const price = quoteValue.dividedBy(baseValue);
-          const cost = amount.times(price);
-
-          const feeRate = side === 'buy' ? quoteRate : baseRate;
-          const feeCost = (side === 'buy' ? quoteValue : baseValue).times(feeRate);
-
-          const trade: Trade = {
-            id: getOrderOrTradeId(transaction.Account, transaction.Sequence),
-            order: orderId,
-            datetime: rippleTimeToISOTime(ledgerResponse.result.ledger.close_time || 0),
-            timestamp: rippleTimeToUnixTime(ledgerResponse.result.ledger.close_time || 0),
-            symbol,
-            type: 'limit',
-            side,
-            amount: amount.toString(),
-            price: price.toString(),
-            takerOrMaker: getTakerOrMaker(side),
-            cost: cost.toString(),
-            info: { transaction },
-          };
-
-          if (feeCost.isGreaterThan(0)) {
-            trade.fee = {
-              currency: side === 'buy' ? quoteCurrency : baseCurrency,
-              cost: feeCost.toString(),
-              rate: feeRate.toString(),
-              percentage: true,
-            };
+          if (trade) {
+            trades.push(trade);
+            if (trades.length >= limit) break;
           }
-
-          trades.push(trade);
         }
-
-        if (trades.length >= limit) break;
       }
       txCount += 1;
-      if (txCount >= searchLimit) break;
+      if (txCount >= params.searchLimit) break;
     }
 
-    hasNextPage = trades.length < limit && txCount < searchLimit;
+    hasNextPage = trades.length < limit && txCount < params.searchLimit;
   }
 
   // Sort oldest-to-newest

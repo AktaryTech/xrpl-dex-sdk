@@ -1,6 +1,5 @@
 import _ from 'lodash';
-import { BookOffersRequest, dropsToXrp } from 'xrpl';
-import { parseAmountValue } from 'xrpl/dist/npm/models/transactions/common';
+import { BookOffersRequest } from 'xrpl';
 import { CURRENCY_PRECISION, DEFAULT_LIMIT, DEFAULT_SEARCH_LIMIT } from '../constants';
 import {
   OrderBookAsk,
@@ -11,14 +10,7 @@ import {
   OrderBookBid,
   OrderBook,
 } from '../models';
-import {
-  BN,
-  getBaseAmountKey,
-  getOrderSideFromOffer,
-  getQuoteAmountKey,
-  getTakerAmount,
-  parseMarketSymbol,
-} from '../utils';
+import { getSharedOrderData, getTakerAmount, parseMarketSymbol, validateMarketSymbol } from '../utils';
 
 /**
  * Retrieves order book data for a single market pair. Returns an
@@ -37,6 +29,8 @@ async function fetchOrderBook(
     searchLimit: DEFAULT_SEARCH_LIMIT,
   }
 ): Promise<FetchOrderBookResponse> {
+  validateMarketSymbol(symbol);
+
   const { searchLimit } = params;
 
   const [baseCurrency, quoteCurrency] = parseMarketSymbol(symbol);
@@ -63,18 +57,7 @@ async function fetchOrderBook(
   const asks: OrderBookAsk[] = [];
 
   for (const offer of offers) {
-    const side = getOrderSideFromOffer(offer);
-    const baseAmount = offer[getBaseAmountKey(side)];
-    const baseValue = BN(
-      typeof baseAmount === 'string' ? dropsToXrp(parseAmountValue(baseAmount)) : parseAmountValue(baseAmount)
-    );
-    const quoteAmount = offer[getQuoteAmountKey(side)];
-    const quoteValue = BN(
-      typeof quoteAmount === 'string' ? dropsToXrp(parseAmountValue(quoteAmount)) : parseAmountValue(quoteAmount)
-    );
-
-    const amount = baseValue;
-    const price = quoteValue.dividedBy(amount);
+    const { side, price, amount } = await getSharedOrderData.call(this, offer);
 
     const orderBookEntry = [
       (+price.toPrecision(CURRENCY_PRECISION)).toString(),

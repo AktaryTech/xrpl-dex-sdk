@@ -1,8 +1,8 @@
 import _ from 'lodash';
-import { LedgerRequest, OfferCreateFlags, rippleTimeToUnixTime } from 'xrpl';
+import { LedgerRequest, rippleTimeToUnixTime } from 'xrpl';
 import { DEFAULT_LIMIT, DEFAULT_SEARCH_LIMIT } from '../constants';
 import { FetchOrdersParams, FetchOrdersResponse, MarketSymbol, UnixTimestamp, SDKContext, Order } from '../models';
-import { getBaseAmountKey, getMarketSymbol, getOrderOrTradeId, getQuoteAmountKey } from '../utils';
+import { getMarketSymbol, getOrderId, validateMarketSymbol } from '../utils';
 
 /**
  * Retrieves order book data for mulitple market pairs. Returns a
@@ -21,6 +21,8 @@ async function fetchOrders(
   /** eslint-disable-next-line */
   params: FetchOrdersParams = {}
 ): Promise<FetchOrdersResponse> {
+  if (symbol) validateMarketSymbol(symbol);
+
   const searchLimit = params.searchLimit || DEFAULT_SEARCH_LIMIT;
   const showOpen = params.showOpen || true;
   const showClosed = params.showClosed || true;
@@ -63,20 +65,10 @@ async function fetchOrders(
         //
       } else if (transaction.TransactionType === 'OfferCreate') {
         /** Filter by market symbol if `symbol` is defined */
-        if (symbol) {
-          const txSide =
-            typeof transaction.Flags === 'number' &&
-            (transaction.Flags & OfferCreateFlags.tfSell) === OfferCreateFlags.tfSell
-              ? 'sell'
-              : 'buy';
 
-          const baseAmount = transaction[getBaseAmountKey(txSide)];
-          const quoteAmount = transaction[getQuoteAmountKey(txSide)];
-          const marketSymbol = getMarketSymbol(baseAmount, quoteAmount);
-          if (marketSymbol !== symbol) continue;
-        }
+        if (symbol && getMarketSymbol(transaction) !== symbol) continue;
 
-        const orderId = getOrderOrTradeId(transaction.Account, transaction.Sequence);
+        const orderId = getOrderId(transaction.Account, transaction.Sequence);
 
         const order = await this.fetchOrder(orderId, undefined, { searchLimit });
 

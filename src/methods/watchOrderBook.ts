@@ -3,7 +3,7 @@ import { Readable } from 'stream';
 import { SubscribeRequest, TransactionStream } from 'xrpl';
 import { DEFAULT_LIMIT } from '../constants';
 import { MarketSymbol, WatchOrderBookResponse, SDKContext } from '../models';
-import { getTakerAmount, parseMarketSymbol } from '../utils';
+import { getTakerAmount, parseMarketSymbol, validateMarketSymbol } from '../utils';
 
 /**
  * Retrieves order book data for a single market pair. Returns an
@@ -18,6 +18,8 @@ async function watchOrderBook(
   /** Number of results to return in book */
   limit: number = DEFAULT_LIMIT
 ): Promise<WatchOrderBookResponse> {
+  validateMarketSymbol(symbol);
+
   const orderBookStream = new Readable({ read: () => this });
 
   const [baseCurrency, quoteCurrency] = parseMarketSymbol(symbol);

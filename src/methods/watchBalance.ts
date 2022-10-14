@@ -1,4 +1,3 @@
-import { BadRequest } from 'ccxt';
 import _ from 'lodash';
 import { Readable } from 'stream';
 import { OfferCreate, Payment, SubscribeRequest, TransactionStream } from 'xrpl';
@@ -17,7 +16,7 @@ async function watchBalance(
   /** Parameters specific to the exchange API endpoint */
   params: WatchBalanceParams
 ): Promise<BalanceStream> {
-  if (!params.account) throw new BadRequest('Must include account address in params');
+  const account = this.wallet.classicAddress;
 
   const balanceStream = new Readable({ read: () => this });
 
@@ -26,7 +25,7 @@ async function watchBalance(
   await this.client.request({
     command: 'subscribe',
     streams: ['transactions', 'ledger'],
-    accounts: [params.account],
+    accounts: [account],
   } as SubscribeRequest);
 
   const refreshBalance = async () => {
@@ -47,7 +46,7 @@ async function watchBalance(
   this.client.on('transaction', async (tx: TransactionStream) => {
     if (tx.transaction.TransactionType === 'Payment') {
       const transaction = tx.transaction as Payment;
-      if (transaction.Account === params.account || transaction.Destination === params.account) {
+      if (transaction.Account === account || transaction.Destination === account) {
         await refreshBalance();
       }
     } else if (tx.transaction.TransactionType === 'OfferCreate') {
@@ -59,7 +58,7 @@ async function watchBalance(
         getAmountCurrencyCode(transaction.TakerPays) !== params.code
       ) {
         return;
-      } else if (transaction.Account === params.account) {
+      } else if (transaction.Account === account) {
         // Did we send this txn?
         shouldRefresh = true;
       } else if (tx.meta?.AffectedNodes) {
@@ -70,7 +69,7 @@ async function watchBalance(
           if (LedgerEntryType === 'AccountRoot' && (FinalFields || NewFields)) {
             if (params.code && params.code !== 'XRP') {
               return;
-            } else if ((FinalFields || NewFields).Account === params.account) {
+            } else if ((FinalFields || NewFields).Account === account) {
               shouldRefresh = true;
               break;
             }
@@ -79,8 +78,8 @@ async function watchBalance(
               (params.code &&
                 (FinalFields || NewFields).HighLimit.currency === params.code &&
                 (FinalFields || NewFields).LowLimit.currency === params.code) ||
-              (FinalFields || NewFields).HighLimit.issuer === params.account ||
-              (FinalFields || NewFields).LowLimit.issuer === params.account
+              (FinalFields || NewFields).HighLimit.issuer === account ||
+              (FinalFields || NewFields).LowLimit.issuer === account
             ) {
               shouldRefresh = true;
               break;

@@ -9,6 +9,4 @@ export interface Currency {
   precision?: number;
 }
 
-type Currencies = Record<CurrencyCode, Currency>;
-
-export default Currencies;
+export type Currencies = Record<CurrencyCode, Currency>;

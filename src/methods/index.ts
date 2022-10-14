@@ -26,6 +26,7 @@ import fetchTradingFee from './fetchTradingFee';
 import fetchTradingFees from './fetchTradingFees';
 import fetchTransactionFee from './fetchTransactionFee';
 import fetchTransactionFees from './fetchTransactionFees';
+import fetchTransferRate from './fetchTransferRate';
 import loadCurrencies from './loadCurrencies';
 import loadIssuers from './loadIssuers';
 import loadMarkets from './loadMarkets';
@@ -67,6 +68,7 @@ const methods: Record<string, any> = {
   fetchTradingFees,
   fetchTransactionFee,
   fetchTransactionFees,
+  fetchTransferRate,
   loadCurrencies,
   loadIssuers,
   loadMarkets,

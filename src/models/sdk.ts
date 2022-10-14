@@ -1,7 +1,8 @@
+import BigNumber from 'bignumber.js';
 import { Readable } from 'stream';
 import { BroadcastClient, Client, ClientOptions, Wallet } from 'xrpl';
 import { Currencies, Markets, OrderId, OrderSide, OrderType } from './ccxt';
-import { CurrencyCode, MarketSymbol, UnixTimestamp, XrplNetwork } from './common';
+import { CurrencyCode, IssuerAddress, MarketSymbol, UnixTimestamp, XrplNetwork } from './common';
 import {
   CancelOrderResponse,
   CreateLimitBuyOrderParams,
@@ -59,7 +60,7 @@ import {
   WatchTickersParams,
   WatchTradesResponse,
 } from './methods';
-import { Issuers } from './xrpl';
+import { Issuers, TransferRates } from './xrpl';
 
 export interface SDKParams {
   /** Name of XRPL network to connect to */
@@ -86,6 +87,7 @@ export interface SDKContext {
   markets?: Markets;
   currencies?: Currencies;
   issuers?: Issuers;
+  transferRates?: TransferRates;
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   removeListener(eventName: string, listener: any): void;
@@ -175,6 +177,7 @@ export interface SDKContext {
     codes: CurrencyCode[],
     params: FetchTransactionFeesParams
   ): Promise<FetchTransactionFeesResponse>;
+  fetchTransferRate(issuer: IssuerAddress): Promise<BigNumber>;
   loadCurrencies(reload?: boolean): Promise<LoadCurrenciesResponse>;
   loadIssuers(reload?: boolean): Promise<LoadIssuersResponse>;
   loadMarkets(reload?: boolean): Promise<LoadMarketsResponse>;

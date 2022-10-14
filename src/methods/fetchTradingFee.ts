@@ -1,4 +1,5 @@
 import { SDKContext, FetchTradingFeeResponse, MarketSymbol } from '../models';
+import { validateMarketSymbol } from '../utils';
 
 /**
  * Returns information about the fees incurred while trading on given market.
@@ -11,6 +12,8 @@ async function fetchTradingFee(
   /** Unified Market Symbol to look up */
   symbol: MarketSymbol
 ): Promise<FetchTradingFeeResponse> {
+  validateMarketSymbol(symbol);
+
   const market = await this.fetchMarket(symbol);
 
   // TODO: put proper error handling here

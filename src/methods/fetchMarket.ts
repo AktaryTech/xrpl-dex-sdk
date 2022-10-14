@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import { transferRateToDecimal } from 'xrpl';
 import { markets } from '../data';
 import { FetchMarketResponse, MarketSymbol, SDKContext, XrplNetwork } from '../models';
 import { validateMarketSymbol } from '../utils';
@@ -13,8 +12,6 @@ import { validateMarketSymbol } from '../utils';
 async function fetchMarket(this: SDKContext, symbol: MarketSymbol): Promise<FetchMarketResponse> {
   validateMarketSymbol(symbol);
 
-  if (this.markets && this.markets[symbol]) return this.markets[symbol];
-
   const market = markets[this.params.network || XrplNetwork.Mainnet][symbol];
 
   if (!market) return;
@@ -23,26 +20,14 @@ async function fetchMarket(this: SDKContext, symbol: MarketSymbol): Promise<Fetc
 
   if (market.base !== 'XRP') {
     const baseIssuer = market.base.split('+')[1];
-    const { result: baseIssuerResult } = await this.client.request({
-      command: 'account_info',
-      account: baseIssuer,
-    });
-
-    if (baseIssuerResult.account_data.TransferRate) {
-      response.baseFee = transferRateToDecimal(baseIssuerResult.account_data.TransferRate);
-    }
+    const baseRate = await this.fetchTransferRate(baseIssuer);
+    if (!baseRate.isZero()) response.baseFee = baseRate.toString();
   }
 
   if (market.quote !== 'XRP') {
     const quoteIssuer = market.quote.split('+')[1];
-    const { result: quoteIssuerResult } = await this.client.request({
-      command: 'account_info',
-      account: quoteIssuer,
-    });
-
-    if (quoteIssuerResult.account_data.TransferRate) {
-      response.quoteFee = transferRateToDecimal(quoteIssuerResult.account_data.TransferRate);
-    }
+    const quoteRate = await this.fetchTransferRate(quoteIssuer);
+    if (!quoteRate.isZero()) response.quoteFee = quoteRate.toString();
   }
 
   return response;

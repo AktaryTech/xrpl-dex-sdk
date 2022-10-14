@@ -1,6 +1,6 @@
 import { BroadcastClient, Client, Wallet } from 'xrpl';
 import methods from './methods';
-import { Currencies, Markets, Issuers, SDKContext, SDKParams } from './models';
+import { Currencies, Markets, Issuers, SDKContext, SDKParams, TransferRates } from './models';
 import networks from './networks';
 
 export class SDK implements SDKContext {
@@ -11,6 +11,7 @@ export class SDK implements SDKContext {
   markets?: Markets;
   currencies?: Currencies;
   issuers?: Issuers;
+  transferRates?: TransferRates;
 
   /** Orders */
   cancelOrder = methods.cancelOrder.bind(this);
@@ -51,6 +52,7 @@ export class SDK implements SDKContext {
   fetchTradingFees = methods.fetchTradingFees.bind(this);
   fetchTransactionFee = methods.fetchTransactionFee.bind(this);
   fetchTransactionFees = methods.fetchTransactionFees.bind(this);
+  fetchTransferRate = methods.fetchTransferRate.bind(this);
 
   /** Streaming */
   watchBalance = methods.watchBalance.bind(this);

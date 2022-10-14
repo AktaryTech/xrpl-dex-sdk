@@ -4,7 +4,7 @@ export type ExchangeStatusStream = Readable;
 
 export type ExchangeStatusType = 'ok' | 'shutdown' | 'error' | 'maintenance';
 
-export default interface ExchangeStatus {
+export interface ExchangeStatus {
   /** Status is one of 'ok', 'shutdown', 'error', 'maintenance' */
   status: ExchangeStatusType;
   /** Integer, last updated timestamp in milliseconds if updated via the API */

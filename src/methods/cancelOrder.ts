@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { OfferCancel } from 'xrpl';
 import { OrderId, CancelOrderResponse, SDKContext } from '../models';
-import { parseOrderId } from '../utils';
+import { parseOrderId, validateOrderId } from '../utils';
 
 /**
  * Cancels an Order on the Ripple dEX. Returns an {@link CancelOrderResponse}
@@ -14,6 +14,8 @@ async function cancelOrder(
   /** ID of the Order to cancel */
   id: OrderId
 ): Promise<CancelOrderResponse> {
+  validateOrderId(id);
+
   const { sequence } = parseOrderId(id);
 
   const offerCancel: OfferCancel = {

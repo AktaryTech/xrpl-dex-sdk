@@ -1,5 +1,6 @@
 import { Readable } from 'stream';
-import { MarketSymbol } from '../common';
+import { Amount } from 'xrpl/dist/npm/models/common';
+import { AccountAddress, MarketSymbol, XrplTimestamp } from '../common';
 import { Fee } from './Fees';
 
 export type TradeStream = Readable;
@@ -18,4 +19,15 @@ export interface Trade {
   cost: string; // total cost (including fees), `price * amount`
   fee?: Fee;
   info: Record<string, any>; // the original decoded JSON as is
+}
+
+export interface TradeSourceData {
+  date: XrplTimestamp;
+  Flags: number;
+  Account: AccountAddress;
+  Sequence: number;
+  OrderAccount: AccountAddress;
+  OrderSequence: number;
+  TakerPays: Amount;
+  TakerGets: Amount;
 }

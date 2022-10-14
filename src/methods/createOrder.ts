@@ -1,9 +1,24 @@
-import { BadResponse } from 'ccxt';
 import _ from 'lodash';
 import { OfferCreate, setTransactionFlagsToNumber } from 'xrpl';
 import { CURRENCY_PRECISION } from '../constants';
-import { CreateOrderParams, CreateOrderResponse, MarketSymbol, OrderSide, OrderType, SDKContext } from '../models';
-import { BN, getAmount, getBaseAmountKey, getOrderOrTradeId, handleTxErrors, parseMarketSymbol } from '../utils';
+import {
+  CreateOrderParams,
+  CreateOrderResponse,
+  ExchangeError,
+  MarketSymbol,
+  OrderSide,
+  OrderType,
+  SDKContext,
+} from '../models';
+import {
+  BN,
+  getAmount,
+  getBaseAmountKey,
+  getOrderId,
+  handleTxErrors,
+  parseMarketSymbol,
+  validateMarketSymbol,
+} from '../utils';
 
 /**
  * Creates a new Order on the Ripple dEX. Returns an {@link CreateOrderResponse}
@@ -27,6 +42,8 @@ async function createOrder(
   /** Parameters specific to the exchange API endpoint */
   params: CreateOrderParams = {}
 ): Promise<CreateOrderResponse> {
+  validateMarketSymbol(symbol);
+
   const [baseCurrency, quoteCurrency] = parseMarketSymbol(symbol);
 
   const baseAmount = getAmount(baseCurrency, +BN(amount).toPrecision(CURRENCY_PRECISION));
@@ -60,10 +77,10 @@ async function createOrder(
   const offerCreateTx = offerCreateTxResponse.result;
 
   if (!offerCreateTx.meta || typeof offerCreateTx.meta !== 'object' || !offerCreateTx.Sequence) {
-    throw new BadResponse(`Bad data for OrderCreate Transaction with hash ${offerCreateTx.hash}`);
+    throw new ExchangeError(`Bad data for OrderCreate Transaction with hash ${offerCreateTx.hash}`);
   }
 
-  const orderId = getOrderOrTradeId(offerCreateTx.Account, offerCreateTx.Sequence);
+  const orderId = getOrderId(offerCreateTx.Account, offerCreateTx.Sequence);
 
   return orderId;
 }

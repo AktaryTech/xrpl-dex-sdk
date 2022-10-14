@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { DEFAULT_LIMIT } from '../constants';
 import { FetchOpenOrdersParams, FetchOpenOrdersResponse, MarketSymbol, UnixTimestamp, SDKContext } from '../models';
+import { validateMarketSymbol } from '../utils';
 
 async function fetchOpenOrders(
   this: SDKContext,
@@ -13,6 +14,8 @@ async function fetchOpenOrders(
   /** eslint-disable-next-line */
   params: FetchOpenOrdersParams = {}
 ): Promise<FetchOpenOrdersResponse> {
+  if (symbol) validateMarketSymbol(symbol);
+
   const { searchLimit } = params;
 
   const orders =

@@ -12,6 +12,7 @@ import {
   FetchOrderBookResponse,
   SDKContext,
 } from '../models';
+import { validateMarketSymbol } from '../utils';
 // import { parseCurrencyAmount, parseMarketSymbol } from '../utils';
 
 /**
@@ -29,6 +30,8 @@ async function fetchL2OrderBook(
   /** Parameters specific to the exchange API endpoint */
   params: FetchOrderBookParams
 ): Promise<FetchOrderBookResponse | undefined> {
+  validateMarketSymbol(symbol);
+
   // const [base, quote] = parseMarketSymbol(symbol);
 
   // const { issuers } = params;

@@ -15,7 +15,7 @@ export enum TransactionStatus {
   Canceled = 'canceled',
 }
 
-export default interface Transaction {
+export interface Transaction {
   id: string;
   txid: string;
   timestamp: number;

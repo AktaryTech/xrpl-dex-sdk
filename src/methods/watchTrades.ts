@@ -1,4 +1,3 @@
-import { BadRequest } from 'ccxt';
 import _ from 'lodash';
 import { Readable } from 'stream';
 import {
@@ -14,13 +13,14 @@ import { parseAmountValue } from 'xrpl/dist/npm/models/transactions/common';
 import { MarketSymbol, SDKContext, Trade, AffectedNode, WatchTradesResponse } from '../models';
 import {
   BN,
-  fetchTransferRate,
   getAmountCurrencyCode,
+  getAmountIssuer,
   getBaseAmountKey,
-  getMarketSymbol,
-  getOrderOrTradeId,
+  getMarketSymbolFromAmount,
+  getOrderId,
   getQuoteAmountKey,
   getTakerOrMaker,
+  validateMarketSymbol,
 } from '../utils';
 
 /**
@@ -33,7 +33,7 @@ async function watchTrades(
   /** Filter Trades by market symbol */
   symbol: MarketSymbol
 ): Promise<WatchTradesResponse> {
-  if (!symbol) throw new BadRequest('Must provide a market symbol');
+  validateMarketSymbol(symbol);
 
   const tradeStream = new Readable({ read: () => this });
 
@@ -55,7 +55,10 @@ async function watchTrades(
     const side =
       typeof transaction.Flags === 'number' && !(transaction.Flags & OfferCreateFlags.tfSell) ? 'buy' : 'sell';
 
-    const marketSymbol = getMarketSymbol(transaction[getBaseAmountKey(side)], transaction[getQuoteAmountKey(side)]);
+    const marketSymbol = getMarketSymbolFromAmount(
+      transaction[getBaseAmountKey(side)],
+      transaction[getQuoteAmountKey(side)]
+    );
 
     if (marketSymbol !== symbol) {
       return;
@@ -67,13 +70,16 @@ async function watchTrades(
       if (LedgerEntryType !== 'Offer' || !FinalFields) continue;
 
       const offer = FinalFields as unknown as Offer;
-      const orderId = getOrderOrTradeId(offer.Account, offer.Sequence);
+      const orderId = getOrderId(offer.Account, offer.Sequence);
 
       const baseAmount = offer[getBaseAmountKey(side)];
       const quoteAmount = offer[getQuoteAmountKey(side)];
 
-      const baseRate = await fetchTransferRate(this.client, baseAmount);
-      const quoteRate = await fetchTransferRate(this.client, quoteAmount);
+      const baseIssuer = getAmountIssuer(baseAmount);
+      const baseRate = baseIssuer ? await this.fetchTransferRate(baseIssuer) : BN(0);
+
+      const quoteIssuer = getAmountIssuer(quoteAmount);
+      const quoteRate = quoteIssuer ? await this.fetchTransferRate(quoteIssuer) : BN(0);
 
       const baseCurrency = getAmountCurrencyCode(baseAmount);
       const quoteCurrency = getAmountCurrencyCode(quoteAmount);
@@ -91,7 +97,7 @@ async function watchTrades(
       const feeCost = (side === 'buy' ? quoteValue : baseValue).times(feeRate);
 
       const trade: Trade = {
-        id: getOrderOrTradeId(transaction.Account, transaction.Sequence),
+        id: getOrderId(transaction.Account, transaction.Sequence),
         order: orderId,
         datetime: rippleTimeToISOTime(transaction.date || 0),
         timestamp: rippleTimeToUnixTime(transaction.date || 0),

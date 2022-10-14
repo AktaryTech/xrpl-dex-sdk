@@ -1,13 +1,16 @@
-import { BadResponse } from 'ccxt';
+import BigNumber from 'bignumber.js';
 import {
   AccountTxRequest,
   AccountTxResponse,
   Client,
+  dropsToXrp,
   ErrorResponse,
   LedgerEntryRequest,
   OfferCreate,
   OfferCreateFlags,
   RippledError,
+  rippleTimeToISOTime,
+  rippleTimeToUnixTime,
   TransactionMetadata,
   TxRequest,
   TxResponse,
@@ -15,8 +18,9 @@ import {
 } from 'xrpl';
 import { Amount, LedgerIndex } from 'xrpl/dist/npm/models/common';
 import { Offer, OfferFlags } from 'xrpl/dist/npm/models/ledger';
+import { parseAmountValue } from 'xrpl/dist/npm/models/transactions/common';
 import { hashOfferId } from 'xrpl/dist/npm/utils/hashes';
-import { DEFAULT_LIMIT, DEFAULT_SEARCH_LIMIT } from '../constants';
+import { CURRENCY_PRECISION, DEFAULT_LIMIT, DEFAULT_SEARCH_LIMIT } from '../constants';
 import {
   AccountAddress,
   OrderId,
@@ -29,7 +33,16 @@ import {
   XrplErrorTypes,
   Sequence,
   OrderStatus,
+  Trade,
+  TradeSourceData,
+  SDKContext,
+  OrderSourceData,
+  OrderTimeInForce,
+  Order,
+  BadOrderId,
+  OrderNotFound,
 } from '../models';
+import { getAmountCurrencyCode, getAmountIssuer, getMarketSymbolFromAmount } from './conversions';
 import { BN, subtractAmounts } from './numbers';
 
 /**
@@ -42,31 +55,30 @@ export const parseOrderId = (orderId: OrderId) => {
 };
 
 /**
+ * Validates an OrderId. Throws an error if invalid, otherwise returns nothing.
+ * @param orderId ID to evaluate
+ */
+export const validateOrderId = (orderId: OrderId) => {
+  if (!orderId.includes(':'))
+    throw new BadOrderId(`Invalid OrderId: "${orderId}". OrderIds must be in the form [AccountAddress]/[Sequence]`);
+  const [account, sequenceString] = orderId.split(':');
+  if (!account || !sequenceString) {
+    throw new BadOrderId(`Invalid OrderId: "${orderId}". OrderIds must be in the form [AccountAddress]/[Sequence]`);
+  }
+};
+
+/**
  * Getters
  */
-export const getOrderOrTradeId = (account: AccountAddress, sequence: Sequence): OrderId => `${account}:${sequence}`;
-
-// export const getOrderSideFromTx = (tx: TxResponse['result']): OrderSide =>
-//   tx.Flags === OfferFlags.lsfSell ? 'sell' : 'buy';
-export const getOrderSideFromOffer = (offer: Offer): OrderSide => (offer.Flags === OfferFlags.lsfSell ? 'sell' : 'buy');
-
+export const getOrderId = (account: AccountAddress, sequence: Sequence): OrderId => `${account}:${sequence}`;
+export const getOrderSideFromFlags = (flags: number): OrderSide =>
+  (flags & OfferFlags.lsfSell) === OfferFlags.lsfSell
+    ? 'sell'
+    : (flags & OfferCreateFlags.tfSell) === OfferCreateFlags.tfSell
+    ? 'sell'
+    : 'buy';
 export const getBaseAmountKey = (side: OrderSide) => (side === 'buy' ? 'TakerPays' : 'TakerGets');
 export const getQuoteAmountKey = (side: OrderSide) => (side === 'buy' ? 'TakerGets' : 'TakerPays');
-// export const getAmountKeys = (side: OrderSide): [base: string, quote: string] => [
-//   getBaseAmountKey(side),
-//   getQuoteAmountKey(side),
-// ];
-
-// export const getOrderBaseAmount = (offer: Offer) => offer[getBaseAmountKey(getOrderSideFromOffer(offer))];
-// export const getOrderQuoteAmount = (offer: Offer) => offer[getQuoteAmountKey(getOrderSideFromOffer(offer))];
-
-// export const getOrderAmountValue = (amount: Amount) =>
-//   typeof amount === 'object' ? parseAmountValue(amount) : parseFloat(dropsToXrp(parseAmountValue(amount)));
-
-// export const getOrderPrice = (baseAmount: Amount, quoteAmount: Amount) => divideAmountValues(baseAmount, quoteAmount);
-// export const getOrderCost = (baseAmount: Amount, price: number) => parseAmountValue(baseAmount) * price;
-
-// TODO: verify this result is correct
 export const getTakerOrMaker = (side: OrderSide) => (side === 'buy' ? 'taker' : 'maker');
 
 /**
@@ -119,6 +131,164 @@ export const getOfferFromTransaction = (
     PreviousTxnLgrSeq: 0,
   } as Offer;
 };
+
+/**
+ * Get Base and Quote Currency data
+ * @param source Offer | Transaction
+ * @returns Data object with Base/Quote information
+ */
+export const getBaseQuoteData = (source: Record<string, any>) => {
+  const data: Record<string, any> = {};
+
+  data.side = (source.Flags & OfferFlags.lsfSell) === OfferFlags.lsfSell ? 'sell' : 'buy';
+
+  data.baseAmount = source[getBaseAmountKey(data.side)];
+  data.baseValue = BN(
+    typeof data.baseAmount === 'string'
+      ? dropsToXrp(parseAmountValue(data.baseAmount))
+      : parseAmountValue(data.baseAmount)
+  );
+
+  data.quoteAmount = source[getQuoteAmountKey(data.side)];
+  data.quoteValue = BN(
+    typeof data.quoteAmount === 'string'
+      ? dropsToXrp(parseAmountValue(data.quoteAmount))
+      : parseAmountValue(data.quoteAmount)
+  );
+
+  data.symbol = getMarketSymbolFromAmount(data.baseAmount, data.quoteAmount);
+
+  return data;
+};
+
+/**
+ * Get basic Order data
+ * @param this
+ * @param source
+ * @returns
+ */
+export async function getSharedOrderData(this: SDKContext, source: Record<string, any>) {
+  const data: Record<string, any> = getBaseQuoteData(source);
+
+  data.baseCurrency = getAmountCurrencyCode(data.baseAmount);
+  data.baseIssuer = getAmountIssuer(data.baseAmount);
+  data.baseRate = data.baseIssuer ? await this.fetchTransferRate(data.baseIssuer) : BN(0);
+
+  data.quoteCurrency = getAmountCurrencyCode(data.quoteAmount);
+  data.quoteIssuer = getAmountIssuer(data.quoteAmount);
+  data.quoteRate = data.quoteIssuer ? await this.fetchTransferRate(data.quoteIssuer) : BN(0);
+
+  data.amount = data.baseValue;
+  data.price = data.quoteValue.dividedBy(data.baseValue);
+
+  data.feeCurrency = data.side === 'buy' ? data.quoteCurrency : data.baseCurrency;
+  data.feeRate = data.side === 'buy' ? data.quoteRate : data.baseRate;
+
+  return data;
+}
+
+export const getOrderFeeFromData = (feeCost: BigNumber, data: Record<string, any>) => {
+  if (feeCost.isGreaterThan(0)) {
+    return {
+      currency: data.feeCurrency,
+      cost: (+feeCost.toPrecision(CURRENCY_PRECISION)).toString(),
+      rate: (+data.feeRate.toPrecision(CURRENCY_PRECISION)).toString(),
+      percentage: true,
+    };
+  }
+};
+
+/**
+ * Parse OrderSourceData into a CCXT Order object
+ * @param this SDKContext
+ * @param source OrderSourceData
+ * @param info Record<string, any>
+ * @returns Order
+ */
+export async function getOrderFromData(this: SDKContext, source: OrderSourceData, info: Record<string, any> = {}) {
+  const side: OrderSide =
+    (source.Flags as number & OfferCreateFlags.tfSell) === OfferCreateFlags.tfSell ? 'sell' : 'buy';
+
+  let orderTimeInForce: OrderTimeInForce = 'GTC';
+  if (source.Flags === OfferCreateFlags.tfPassive) orderTimeInForce = 'PO';
+  else if (source.Flags === OfferCreateFlags.tfFillOrKill) orderTimeInForce = 'FOK';
+  else if (source.Flags === OfferCreateFlags.tfImmediateOrCancel) orderTimeInForce = 'IOC';
+
+  const sourceData = await getSharedOrderData.call(this, source);
+
+  const actualPrice = source.fillPrice;
+  const average = source.trades.length ? source.totalFillPrice.dividedBy(source.trades.length) : BN(0);
+  const remaining = sourceData.amount.minus(source.filled);
+  const cost = source.filled.times(actualPrice);
+
+  const feeCost = source.filled.times(sourceData.feeRate);
+
+  const order: Order = {
+    id: getOrderId(source.Account, source.Sequence),
+    clientOrderId: hashOfferId(source.Account, source.Sequence),
+    datetime: rippleTimeToISOTime(source.date),
+    timestamp: rippleTimeToUnixTime(source.date),
+    status: source.status,
+    symbol: getMarketSymbolFromAmount(sourceData.baseAmount, sourceData.quoteAmount),
+    type: 'limit',
+    timeInForce: orderTimeInForce,
+    side: side,
+    amount: (+sourceData.amount.toPrecision(CURRENCY_PRECISION)).toString(),
+    price: (+sourceData.price.toPrecision(CURRENCY_PRECISION)).toString(),
+    average: (+average.toPrecision(CURRENCY_PRECISION)).toString(),
+    filled: (+source.filled.toPrecision(CURRENCY_PRECISION)).toString(),
+    remaining: (+remaining.toPrecision(CURRENCY_PRECISION)).toString(),
+    cost: (+cost.toPrecision(CURRENCY_PRECISION)).toString(),
+    trades: source.trades,
+    info: { ...info },
+  };
+
+  if (source.trades.length) order.lastTradeTimestamp = source.trades[source.trades.length - 1].timestamp;
+
+  const fee = getOrderFeeFromData(feeCost, sourceData);
+  if (fee) order.fee = fee;
+
+  return order;
+}
+
+/**
+ * Parse TradeSourceData into a CCXT Trade object
+ * @param this SDKContext
+ * @param source TradeSourceData
+ * @param info Record<string, any>
+ * @returns Trade
+ */
+export async function getTradeFromData(this: SDKContext, source: TradeSourceData, info: Record<string, any> = {}) {
+  const side: OrderSide = (source.Flags & OfferFlags.lsfSell) === OfferFlags.lsfSell ? 'sell' : 'buy';
+
+  const tradeId = getOrderId(source.Account, source.Sequence);
+  const orderId = getOrderId(source.OrderAccount, source.OrderSequence);
+
+  const sourceData = await getSharedOrderData.call(this, source);
+
+  const cost = sourceData.amount.times(sourceData.price);
+  const feeCost = (side === 'buy' ? sourceData.quoteValue : sourceData.baseValue).times(sourceData.feeRate);
+
+  const trade: Trade = {
+    id: tradeId,
+    order: orderId,
+    datetime: rippleTimeToISOTime(source.date || 0),
+    timestamp: rippleTimeToUnixTime(source.date || 0),
+    symbol: getMarketSymbolFromAmount(sourceData.baseAmount, sourceData.quoteAmount),
+    type: 'limit',
+    side,
+    amount: (+sourceData.amount.toPrecision(CURRENCY_PRECISION)).toString(),
+    price: (+sourceData.price.toPrecision(CURRENCY_PRECISION)).toString(),
+    takerOrMaker: getTakerOrMaker(side),
+    cost: (+cost.toPrecision(CURRENCY_PRECISION)).toString(),
+    info: { ...info },
+  };
+
+  const fee = getOrderFeeFromData(feeCost, sourceData);
+  if (fee) trade.fee = fee;
+
+  return trade;
+}
 
 /**
  * Fetchers
@@ -192,6 +362,7 @@ export const fetchAccountTxns = async (
       binary: false,
       limit,
       marker,
+      validated: true,
     } as AccountTxRequest);
     return accountTxResponse;
   } catch (err: unknown) {
@@ -296,48 +467,6 @@ export const parseTransaction = (
 };
 
 /**
- * Get the ID of the most recent Transaction to affect an Order
- */
-export const getMostRecentTxId = async (
-  client: Client,
-  id: OrderId,
-  /** This is to prevent us spending forever searching through an account's Transactions for an Order */
-  searchLimit: number = DEFAULT_SEARCH_LIMIT
-) => {
-  const ledgerOffer = await fetchOfferEntry(client, id);
-  if (ledgerOffer) {
-    return ledgerOffer.PreviousTxnID;
-  } else {
-    const { account } = parseOrderId(id);
-
-    const limit = DEFAULT_LIMIT;
-    let marker: unknown;
-    let hasNextPage = true;
-    let page = 1;
-
-    while (hasNextPage) {
-      const accountTxResponse = await fetchAccountTxns(client, account, limit, marker);
-      if (!accountTxResponse) return;
-      marker = accountTxResponse.result.marker;
-
-      accountTxResponse.result.transactions.sort((a, b) => (b.tx?.date ?? 0) - (a.tx?.date ?? 0));
-
-      for (const transaction of accountTxResponse.result.transactions) {
-        const previousTxnData = parseTransaction(id, transaction);
-        if (previousTxnData) return previousTxnData?.previousTxnId;
-      }
-
-      if (!marker ?? limit * page >= searchLimit) hasNextPage = false;
-      else {
-        page += 1;
-      }
-    }
-
-    throw new BadResponse(`Could not find Transaction history for Order ${id}`);
-  }
-};
-
-/**
  * Get data for the most recent Transaction to affect an Order
  */
 export const getMostRecentTx = async (
@@ -386,8 +515,8 @@ export const getMostRecentTx = async (
       }
     }
 
-    throw new BadResponse(
-      `Could not find Transaction data for Order ${orderId}. Try increasing the searchLimit parameter or using a full history XRPL server.`
+    throw new OrderNotFound(
+      `Could not find data for Order ${orderId}. Try increasing the searchLimit parameter or using a full history XRPL server.`
     );
   }
 };

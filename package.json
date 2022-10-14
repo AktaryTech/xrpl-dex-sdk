@@ -45,7 +45,7 @@
   "dependencies": {
     "@commitlint/cli": "^17.0.3",
     "bignumber.js": "^9.0.2",
-    "ccxt": "^1.91.6",
+    "ccxt": "^2.0.19",
     "debug": "^4.3.4",
     "lodash": "^4.17.21",
     "ws": "^8.8.1",

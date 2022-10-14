@@ -28,7 +28,7 @@ describe('fetchTrades', function () {
   afterEach(teardownRemoteSDK);
 
   it('return a list of Trades for a given symbol', async function () {
-    const trades = await this.sdk.fetchMyTrades('AKT+rMZoAqwRn3BLbmFYL3exNVNVKrceYcNy6B/XRP', undefined, 1, {
+    const trades = await this.sdk.fetchTrades('AKT+rMZoAqwRn3BLbmFYL3exNVNVKrceYcNy6B/XRP', undefined, 1, {
       searchLimit: 500,
     });
 

@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { issuers } from '../data';
-import { FetchIssuersResponse, SDKContext, XrplNetwork } from '../models';
+import { issuers as issuersData } from '../data';
+import { BadRequest, FetchIssuersResponse, SDKContext, XrplNetwork } from '../models';
 
 /**
  * Retrieves a list of trusted issuers
@@ -9,7 +9,11 @@ import { FetchIssuersResponse, SDKContext, XrplNetwork } from '../models';
  * @category Methods
  */
 async function fetchIssuers(this: SDKContext): Promise<FetchIssuersResponse> {
-  return this.issuers || issuers[this.params.network || XrplNetwork.Mainnet];
+  const issuers = issuersData[this.params.network || XrplNetwork.Mainnet];
+
+  if (!issuers) throw new BadRequest(`No Issuers data found for network "${this.params.network}"`);
+
+  return issuers;
 }
 
 export default fetchIssuers;

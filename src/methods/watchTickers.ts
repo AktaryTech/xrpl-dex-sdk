@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import { Readable } from 'stream';
-import { OfferCreateFlags, SubscribeRequest, TransactionStream } from 'xrpl';
+import { SubscribeRequest, TransactionStream } from 'xrpl';
 import { MarketSymbol, WatchTickersParams, SDKContext, WatchTickersResponse, Ticker } from '../models';
-import { getBaseAmountKey, getMarketSymbol, getQuoteAmountKey } from '../utils';
+import { getMarketSymbol, validateMarketSymbol } from '../utils';
 
 /**
  * Retrieves order book data for a single market pair. Returns an
@@ -29,13 +29,8 @@ async function watchTickers(
   this.client.on('transaction', async (tx: TransactionStream) => {
     if (!tx.validated || tx.transaction.TransactionType !== 'OfferCreate') return;
 
-    const txSide =
-      tx.transaction.Flags && (tx.transaction.Flags as number & OfferCreateFlags.tfSell) === OfferCreateFlags.tfSell
-        ? 'sell'
-        : 'buy';
-    const baseAmount = tx.transaction[getBaseAmountKey(txSide)];
-    const quoteAmount = tx.transaction[getQuoteAmountKey(txSide)];
-    const symbol = getMarketSymbol(baseAmount, quoteAmount);
+    const symbol = getMarketSymbol(tx.transaction);
+    validateMarketSymbol(symbol);
 
     if (!symbols.includes(symbol)) return;
 

@@ -1,7 +1,6 @@
-import { BadRequest } from 'ccxt';
 import _ from 'lodash';
 import { TrustSet } from 'xrpl';
-import { CreateTrustLineResponse, CurrencyCode, SDKContext } from '../models';
+import { BadRequest, BadSymbol, CreateTrustLineResponse, CurrencyCode, SDKContext } from '../models';
 import { handleTxErrors, parseCurrencyCode } from '../utils';
 /**
  * Creates a new Order on the Ripple dEX. Returns an {@link CreateOrderResponse}
@@ -20,7 +19,7 @@ async function createTrustLine(
 
   const { currency, issuer } = parseCurrencyCode(code);
   if (!issuer)
-    throw new BadRequest(
+    throw new BadSymbol(
       'Invalid currency code! Non-XRP currencies must have an issuer appended with a plus sign, e.g. TST+r1234'
     );
 

@@ -14,19 +14,14 @@ import { WatchStatusResponse } from '../models';
 async function watchStatus(this: SDKContext): Promise<WatchStatusResponse> {
   const statusStream = new Readable({ read: () => this });
 
-  let isProcessing = false;
-
   await this.client.request({
     command: 'subscribe',
     streams: ['ledger'],
   } as SubscribeRequest);
 
   this.client.on('ledgerClosed', async (ledger: LedgerStream) => {
-    if (isProcessing) return;
-    isProcessing = true;
     const newStatus = await this.fetchStatus();
     if (newStatus) statusStream.emit('update', newStatus);
-    isProcessing = false;
   });
 
   return statusStream;

@@ -1,5 +1,5 @@
 import { BalanceStream } from '../ccxt';
-import { AccountAddress, CurrencyCode } from '../common';
+import { CurrencyCode } from '../common';
 
 /**
  * Request parameters for a watchBalance call
@@ -7,8 +7,6 @@ import { AccountAddress, CurrencyCode } from '../common';
  * @category Parameters
  */
 export interface WatchBalanceParams {
-  /** The account to fetch balances for */
-  account: AccountAddress;
   /** Currency code to filter balances by */
   code?: CurrencyCode;
 }

@@ -4,7 +4,7 @@ import { BookOffer, BookOffersRequest } from 'xrpl';
 import { parseAmountValue } from 'xrpl/dist/npm/models/transactions/common';
 import { DEFAULT_TICKER_SEARCH_LIMIT } from '../constants';
 import { MarketSymbol, FetchTickerParams, Ticker, FetchTickerResponse, SDKContext } from '../models';
-import { BN, getTakerAmount, parseMarketSymbol } from '../utils';
+import { BN, getTakerAmount, parseMarketSymbol, validateMarketSymbol } from '../utils';
 
 /**
  * Retrieves order book data for a single market pair. Returns an
@@ -19,6 +19,8 @@ async function fetchTicker(
   /** Parameters specific to the exchange API endpoint */
   params: FetchTickerParams = {}
 ): Promise<FetchTickerResponse> {
+  validateMarketSymbol(symbol);
+
   const [base, quote] = parseMarketSymbol(symbol);
 
   const limit = params.searchLimit || DEFAULT_TICKER_SEARCH_LIMIT;

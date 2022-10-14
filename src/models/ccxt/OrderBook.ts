@@ -9,7 +9,7 @@ export type OrderBookBid = PriceAmountTuple;
 export type OrderBookAsk = PriceAmountTuple;
 
 export type OrderBookLevel = 'L1' | 'L2' | 'L3';
-export default interface OrderBook {
+export interface OrderBook {
   symbol: MarketSymbol;
   timestamp?: number;
   datetime?: string;

@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { MarketSymbol, FetchTickersParams, Ticker, FetchTickersResponse, SDKContext } from '../models';
+import { validateMarketSymbol } from '../utils';
 
 /**
  * Retrieves order book data for a single market pair. Returns an
@@ -17,6 +18,7 @@ async function fetchTickers(
   const tickers: Ticker[] = [];
 
   for (const symbol of symbols) {
+    validateMarketSymbol(symbol);
     const ticker = await this.fetchTicker(symbol, params);
     if (ticker) tickers.push(ticker);
   }
