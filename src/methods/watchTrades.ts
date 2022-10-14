@@ -10,7 +10,7 @@ import {
 } from 'xrpl';
 import { Offer } from 'xrpl/dist/npm/models/ledger';
 import { parseAmountValue } from 'xrpl/dist/npm/models/transactions/common';
-import { MarketSymbol, SDKContext, Trade, AffectedNode, WatchTradesResponse } from '../models';
+import { MarketSymbol, SDKContext, Trade, AffectedNode, WatchTradesResponse, ArgumentsRequired } from '../models';
 import {
   BN,
   getAmountCurrencyCode,
@@ -33,6 +33,7 @@ async function watchTrades(
   /** Filter Trades by market symbol */
   symbol: MarketSymbol
 ): Promise<WatchTradesResponse> {
+  if (!symbol) throw new ArgumentsRequired('Missing required arguments for watchTrades call');
   validateMarketSymbol(symbol);
 
   const tradeStream = new Readable({ read: () => this });

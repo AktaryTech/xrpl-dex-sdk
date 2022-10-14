@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import _ from 'lodash';
 import { BookOffersRequest } from 'xrpl';
 import { CURRENCY_PRECISION, DEFAULT_LIMIT, DEFAULT_SEARCH_LIMIT } from '../constants';
@@ -9,6 +10,7 @@ import {
   SDKContext,
   OrderBookBid,
   OrderBook,
+  ArgumentsRequired,
 } from '../models';
 import { getSharedOrderData, getTakerAmount, parseMarketSymbol, validateMarketSymbol } from '../utils';
 
@@ -29,6 +31,7 @@ async function fetchOrderBook(
     searchLimit: DEFAULT_SEARCH_LIMIT,
   }
 ): Promise<FetchOrderBookResponse> {
+  if (!symbol) throw new ArgumentsRequired('Missing required arguments for fetchOrderBook call');
   validateMarketSymbol(symbol);
 
   const { searchLimit } = params;
@@ -39,7 +42,7 @@ async function fetchOrderBook(
   const quoteAmount = getTakerAmount(quoteCurrency);
 
   const orderBookRequest: BookOffersRequest = {
-    id: symbol,
+    id: randomUUID(),
     command: 'book_offers',
     taker_pays: baseAmount,
     taker_gets: quoteAmount,

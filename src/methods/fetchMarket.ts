@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { markets } from '../data';
-import { FetchMarketResponse, MarketSymbol, SDKContext, XrplNetwork } from '../models';
+import { ArgumentsRequired, FetchMarketResponse, MarketSymbol, SDKContext, XrplNetwork } from '../models';
 import { validateMarketSymbol } from '../utils';
 
 /**
@@ -10,6 +10,7 @@ import { validateMarketSymbol } from '../utils';
  * @category Methods
  */
 async function fetchMarket(this: SDKContext, symbol: MarketSymbol): Promise<FetchMarketResponse> {
+  if (!symbol) throw new ArgumentsRequired('Missing required arguments for fetchMarket call');
   validateMarketSymbol(symbol);
 
   const market = markets[this.params.network || XrplNetwork.Mainnet][symbol];

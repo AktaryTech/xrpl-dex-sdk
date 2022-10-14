@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { BookOffer, BookOffersRequest } from 'xrpl';
 import { parseAmountValue } from 'xrpl/dist/npm/models/transactions/common';
 import { DEFAULT_TICKER_SEARCH_LIMIT } from '../constants';
-import { MarketSymbol, FetchTickerParams, Ticker, FetchTickerResponse, SDKContext } from '../models';
+import { MarketSymbol, FetchTickerParams, Ticker, FetchTickerResponse, SDKContext, ArgumentsRequired } from '../models';
 import { BN, getTakerAmount, parseMarketSymbol, validateMarketSymbol } from '../utils';
 
 /**
@@ -19,6 +19,7 @@ async function fetchTicker(
   /** Parameters specific to the exchange API endpoint */
   params: FetchTickerParams = {}
 ): Promise<FetchTickerResponse> {
+  if (!symbol) throw new ArgumentsRequired('Missing required arguments for fetchTicker call');
   validateMarketSymbol(symbol);
 
   const [base, quote] = parseMarketSymbol(symbol);

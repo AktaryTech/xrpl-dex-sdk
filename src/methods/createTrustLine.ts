@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { TrustSet } from 'xrpl';
-import { BadRequest, BadSymbol, CreateTrustLineResponse, CurrencyCode, SDKContext } from '../models';
+import { ArgumentsRequired, BadRequest, BadSymbol, CreateTrustLineResponse, CurrencyCode, SDKContext } from '../models';
 import { handleTxErrors, parseCurrencyCode } from '../utils';
 /**
  * Creates a new Order on the Ripple dEX. Returns an {@link CreateOrderResponse}
@@ -15,6 +15,8 @@ async function createTrustLine(
   /** Max amount of this currency you can receive */
   amount: string
 ): Promise<CreateTrustLineResponse> {
+  if (!code || !amount) throw new ArgumentsRequired('Missing required arguments for createTrustLine call');
+
   if (code === 'XRP') throw new BadRequest('No Trust Line needed for XRP');
 
   const { currency, issuer } = parseCurrencyCode(code);

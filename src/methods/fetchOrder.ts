@@ -10,6 +10,7 @@ import {
   Order,
   Trade,
   SDKContext,
+  ArgumentsRequired,
 } from '../models';
 import {
   BN,
@@ -34,6 +35,7 @@ async function fetchOrder(
     searchLimit: DEFAULT_SEARCH_LIMIT,
   }
 ): Promise<FetchOrderResponse> {
+  if (!id) throw new ArgumentsRequired('Missing required arguments for fetchOrder call');
   validateOrderId(id);
   if (symbol) validateMarketSymbol(symbol);
 

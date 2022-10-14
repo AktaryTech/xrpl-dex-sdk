@@ -19,7 +19,7 @@ describe('watchOrders', function () {
 
   afterEach(teardownRemoteSDK);
 
-  it.only('should subscribe to Order updates', function (done) {
+  it('should subscribe to Order updates', function (done) {
     this.sdk
       .watchOrders()
       .then((orderStream: OrderStream) => {

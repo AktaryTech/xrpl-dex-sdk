@@ -1,4 +1,4 @@
-import { SDKContext, CurrencyCode, FetchTransactionFeesParams, FetchTransactionFeesResponse } from '../models';
+import { SDKContext, CurrencyCode, FetchTransactionFeesResponse } from '../models';
 
 /**
  * Returns information about fees incurred for performing transactions with a
@@ -9,9 +9,7 @@ import { SDKContext, CurrencyCode, FetchTransactionFeesParams, FetchTransactionF
 async function fetchTransactionFees(
   this: SDKContext,
   /** Currency codes to get fees for */
-  codes: CurrencyCode[],
-  /** Parameters specific to the exchange API endpoint */
-  params: FetchTransactionFeesParams = {}
+  codes: CurrencyCode[]
 ): Promise<FetchTransactionFeesResponse> {
   const response: FetchTransactionFeesResponse = [];
 

@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { AccountInfoRequest, transferRateToDecimal } from 'xrpl';
-import { FetchTransferRateResponse, IssuerAddress, SDKContext } from '../models';
+import { ArgumentsRequired, FetchTransferRateResponse, IssuerAddress, SDKContext } from '../models';
 import { BN } from '../utils';
 
 /**
@@ -10,6 +10,7 @@ import { BN } from '../utils';
  * @category Methods
  */
 async function fetchTransferRate(this: SDKContext, issuer: IssuerAddress): Promise<FetchTransferRateResponse> {
+  if (!issuer) throw new ArgumentsRequired('Missing required arguments for fetchTransferRate call');
   if (this.transferRates && this.transferRates[issuer]) return this.transferRates[issuer];
   const accountInfoResponse = await this.client.request({
     command: 'account_info',

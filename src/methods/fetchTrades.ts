@@ -10,6 +10,7 @@ import {
   SDKContext,
   Trade,
   AffectedNode,
+  ArgumentsRequired,
 } from '../models';
 import { getMarketSymbol, getTradeFromData, validateMarketSymbol } from '../utils';
 
@@ -31,6 +32,7 @@ async function fetchTrades(
     searchLimit: DEFAULT_SEARCH_LIMIT,
   }
 ): Promise<FetchTradesResponse> {
+  if (!symbol) throw new ArgumentsRequired('Missing required arguments for fetchTrades call');
   validateMarketSymbol(symbol);
 
   const trades: Trade[] = [];

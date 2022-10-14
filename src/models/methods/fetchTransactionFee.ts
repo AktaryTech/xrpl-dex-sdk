@@ -1,14 +1,4 @@
-import { TransactionFee, TransactionType } from '../ccxt';
-
-/**
- * Request parameters for a fetchTransactionFee call
- *
- * @category Parameters
- */
-export interface FetchTransactionFeeParams {
-  /** Transaction type */
-  type?: TransactionType;
-}
+import { TransactionFee } from '../ccxt';
 
 /**
  * Expected response from a fetchTransactionFee call

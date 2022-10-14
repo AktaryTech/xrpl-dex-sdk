@@ -1,5 +1,12 @@
 import _ from 'lodash';
-import { MarketSymbol, FetchTickersParams, Ticker, FetchTickersResponse, SDKContext } from '../models';
+import {
+  MarketSymbol,
+  FetchTickersParams,
+  Ticker,
+  FetchTickersResponse,
+  SDKContext,
+  ArgumentsRequired,
+} from '../models';
 import { validateMarketSymbol } from '../utils';
 
 /**
@@ -15,6 +22,7 @@ async function fetchTickers(
   /** Parameters specific to the exchange API endpoint */
   params: FetchTickersParams = {}
 ): Promise<FetchTickersResponse> {
+  if (!symbols) throw new ArgumentsRequired('Missing required arguments for fetchTickers call');
   const tickers: Ticker[] = [];
 
   for (const symbol of symbols) {

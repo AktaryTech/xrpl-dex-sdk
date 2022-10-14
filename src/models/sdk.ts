@@ -45,9 +45,7 @@ import {
   FetchTradesResponse,
   FetchTradingFeeResponse,
   FetchTradingFeesResponse,
-  FetchTransactionFeeParams,
   FetchTransactionFeeResponse,
-  FetchTransactionFeesParams,
   FetchTransactionFeesResponse,
   LoadCurrenciesResponse,
   LoadIssuersResponse,
@@ -172,11 +170,8 @@ export interface SDKContext {
   ): Promise<FetchTradesResponse>;
   fetchTradingFee(symbol: MarketSymbol): Promise<FetchTradingFeeResponse>;
   fetchTradingFees(): Promise<FetchTradingFeesResponse>;
-  fetchTransactionFee(code: CurrencyCode, params?: FetchTransactionFeeParams): Promise<FetchTransactionFeeResponse>;
-  fetchTransactionFees(
-    codes: CurrencyCode[],
-    params: FetchTransactionFeesParams
-  ): Promise<FetchTransactionFeesResponse>;
+  fetchTransactionFee(code: CurrencyCode): Promise<FetchTransactionFeeResponse>;
+  fetchTransactionFees(codes: CurrencyCode[]): Promise<FetchTransactionFeesResponse>;
   fetchTransferRate(issuer: IssuerAddress): Promise<BigNumber>;
   loadCurrencies(reload?: boolean): Promise<LoadCurrenciesResponse>;
   loadIssuers(reload?: boolean): Promise<LoadIssuersResponse>;

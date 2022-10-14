@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { OfferCreate, setTransactionFlagsToNumber } from 'xrpl';
 import { CURRENCY_PRECISION } from '../constants';
 import {
+  ArgumentsRequired,
   CreateOrderParams,
   CreateOrderResponse,
   ExchangeError,
@@ -42,6 +43,8 @@ async function createOrder(
   /** Parameters specific to the exchange API endpoint */
   params: CreateOrderParams = {}
 ): Promise<CreateOrderResponse> {
+  if (!symbol || !side || !amount || !price || !params)
+    throw new ArgumentsRequired('Missing required arguments for createOrder call');
   validateMarketSymbol(symbol);
 
   const [baseCurrency, quoteCurrency] = parseMarketSymbol(symbol);

@@ -1,4 +1,4 @@
-import { SDKContext, FetchTradingFeeResponse, MarketSymbol } from '../models';
+import { SDKContext, FetchTradingFeeResponse, MarketSymbol, ArgumentsRequired } from '../models';
 import { validateMarketSymbol } from '../utils';
 
 /**
@@ -12,6 +12,7 @@ async function fetchTradingFee(
   /** Unified Market Symbol to look up */
   symbol: MarketSymbol
 ): Promise<FetchTradingFeeResponse> {
+  if (!symbol) throw new ArgumentsRequired('Missing required arguments for fetchTradingFee call');
   validateMarketSymbol(symbol);
 
   const market = await this.fetchMarket(symbol);

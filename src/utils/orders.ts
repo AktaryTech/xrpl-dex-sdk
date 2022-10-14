@@ -1,4 +1,6 @@
 import BigNumber from 'bignumber.js';
+import { randomUUID } from 'crypto';
+import _ from 'lodash';
 import {
   AccountTxRequest,
   AccountTxResponse,
@@ -41,6 +43,7 @@ import {
   Order,
   BadOrderId,
   OrderNotFound,
+  DeletedNode,
 } from '../models';
 import { getAmountCurrencyCode, getAmountIssuer, getMarketSymbolFromAmount } from './conversions';
 import { BN, subtractAmounts } from './numbers';
@@ -305,7 +308,7 @@ export const fetchOfferEntry = async (
   const { account, sequence } = parseOrderId(orderId);
   try {
     const offerResult = await client.request({
-      id: orderId,
+      id: randomUUID(),
       command: 'ledger_entry',
       ledger_index: ledgerIndex,
       offer: {
@@ -329,7 +332,7 @@ export const fetchOfferEntry = async (
 export const fetchTxn = async (client: Client, txnHash: string): Promise<TxResponse | undefined> => {
   try {
     const txResponse = await client.request({
-      id: txnHash,
+      id: randomUUID(),
       command: 'tx',
       transaction: txnHash,
     } as TxRequest);
@@ -354,7 +357,7 @@ export const fetchAccountTxns = async (
 ): Promise<AccountTxResponse | undefined> => {
   try {
     const accountTxResponse = await client.request({
-      id: account,
+      id: randomUUID(),
       command: 'account_tx',
       account,
       ledger_index_min: -1,
@@ -448,7 +451,7 @@ export const parseTransaction = (
   }
 
   // Strip out the `meta` prop in case the transaction is of type TxResponse['result']
-  const { meta, ...txData } = tx;
+  const txData = tx.meta ? _.omit(tx, ['meta']) : tx;
 
   const transactionData = {
     transaction: {
@@ -489,7 +492,7 @@ export const getMostRecentTx = async (
   } else {
     orderStatus = 'closed';
 
-    const { account } = parseOrderId(orderId);
+    const { account, sequence } = parseOrderId(orderId);
 
     const limit = DEFAULT_LIMIT;
     let marker: unknown;
@@ -505,6 +508,26 @@ export const getMostRecentTx = async (
       accountTxResponse.result.transactions.sort((a, b) => (b.tx?.date ?? 0) - (a.tx?.date ?? 0));
 
       for (const transaction of accountTxResponse.result.transactions) {
+        if (typeof transaction.meta === 'string') continue;
+
+        if (transaction.tx?.TransactionType === 'OfferCancel') {
+          for (const node of transaction.meta.AffectedNodes) {
+            if (node.hasOwnProperty('DeletedNode')) {
+              const finalFields = (node as DeletedNode).DeletedNode.FinalFields;
+              if (finalFields.Account === account && finalFields.Sequence === sequence) {
+                orderStatus = 'canceled';
+                const previousTxResponse = await fetchTxn(client, finalFields.PreviousTxnID as string);
+                if (previousTxResponse) {
+                  const previousTxnData = parseTransaction(orderId, previousTxResponse);
+                  if (previousTxnData)
+                    return { previousTxnData, previousTxnId: previousTxnData?.previousTxnId, orderStatus };
+                }
+              }
+            }
+          }
+          continue;
+        }
+
         const previousTxnData = parseTransaction(orderId, transaction);
         if (previousTxnData) return { previousTxnData, previousTxnId: previousTxnData?.previousTxnId, orderStatus };
       }

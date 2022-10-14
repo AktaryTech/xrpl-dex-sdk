@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { DEFAULT_LIMIT } from '../constants';
-import { SDKContext, FetchOrderBooksParams, FetchOrderBooksResponse, MarketSymbol } from '../models';
+import { SDKContext, FetchOrderBooksParams, FetchOrderBooksResponse, MarketSymbol, ArgumentsRequired } from '../models';
 import { validateMarketSymbol } from '../utils';
 
 /**
@@ -18,6 +18,7 @@ async function fetchOrderBooks(
   /** Parameters specific to the exchange API endpoint */
   params: FetchOrderBooksParams
 ): Promise<FetchOrderBooksResponse> {
+  if (!symbols) throw new ArgumentsRequired('Missing required arguments for fetchOrderBooks call');
   const orderBooks: FetchOrderBooksResponse = {};
 
   for (let s = 0, sl = symbols.length; s < sl; s += 1) {

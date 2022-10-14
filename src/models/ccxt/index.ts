@@ -8,4 +8,3 @@ export * from './Order';
 export * from './OrderBook';
 export * from './Ticker';
 export * from './Trade';
-export * from './Transaction';

@@ -1,5 +1,11 @@
 import _ from 'lodash';
-import { CreateLimitSellOrderParams, CreateLimitSellOrderResponse, MarketSymbol, SDKContext } from '../models';
+import {
+  ArgumentsRequired,
+  CreateLimitSellOrderParams,
+  CreateLimitSellOrderResponse,
+  MarketSymbol,
+  SDKContext,
+} from '../models';
 import { validateMarketSymbol } from '../utils';
 
 /**
@@ -19,6 +25,8 @@ async function createLimitSellOrder(
   /** Parameters specific to the exchange API endpoint */
   params: CreateLimitSellOrderParams
 ): Promise<CreateLimitSellOrderResponse> {
+  if (!symbol || !amount || !price || !params)
+    throw new ArgumentsRequired('Missing required arguments for createLimitSellOrder call');
   validateMarketSymbol(symbol);
 
   const newOrderId = await this.createOrder(symbol, 'sell', 'limit', amount, price, params);

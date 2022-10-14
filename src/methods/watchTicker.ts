@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { Readable } from 'stream';
 import { SubscribeRequest, TransactionStream } from 'xrpl';
-import { MarketSymbol, WatchTickerParams, SDKContext, Ticker, WatchTickerResponse } from '../models';
+import { MarketSymbol, WatchTickerParams, SDKContext, Ticker, WatchTickerResponse, ArgumentsRequired } from '../models';
 import { validateMarketSymbol } from '../utils';
 
 /**
@@ -17,6 +17,7 @@ async function watchTicker(
   /** Parameters specific to the exchange API endpoint */
   params: WatchTickerParams
 ): Promise<WatchTickerResponse> {
+  if (!symbol) throw new ArgumentsRequired('Missing required arguments for watchTicker call');
   validateMarketSymbol(symbol);
 
   const tickerStream = new Readable({ read: () => this });

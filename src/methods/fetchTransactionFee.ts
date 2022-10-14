@@ -1,5 +1,5 @@
 import { FeeRequest } from 'xrpl';
-import { SDKContext, CurrencyCode, FetchTransactionFeeParams, FetchTransactionFeeResponse } from '../models';
+import { SDKContext, CurrencyCode, FetchTransactionFeeResponse, ArgumentsRequired } from '../models';
 
 /**
  * Returns information about fees incurred for performing transactions with a given
@@ -10,10 +10,10 @@ import { SDKContext, CurrencyCode, FetchTransactionFeeParams, FetchTransactionFe
 async function fetchTransactionFee(
   this: SDKContext,
   /** Currency code to get fees for */
-  code: CurrencyCode,
-  /** Parameters specific to the exchange API endpoint */
-  params: FetchTransactionFeeParams = {}
+  code: CurrencyCode
 ): Promise<FetchTransactionFeeResponse> {
+  if (!code) throw new ArgumentsRequired('Missing required arguments for fetchTransactionFee call');
+
   const { result: feesResult } = await this.client.request({ command: 'fee' } as FeeRequest);
 
   const currencies = await this.fetchCurrencies();

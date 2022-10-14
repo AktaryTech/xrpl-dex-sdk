@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { Readable } from 'stream';
 import { SubscribeRequest, TransactionStream } from 'xrpl';
 import { DEFAULT_LIMIT } from '../constants';
-import { MarketSymbol, WatchOrderBookResponse, SDKContext } from '../models';
+import { MarketSymbol, WatchOrderBookResponse, SDKContext, ArgumentsRequired } from '../models';
 import { getTakerAmount, parseMarketSymbol, validateMarketSymbol } from '../utils';
 
 /**
@@ -18,6 +18,7 @@ async function watchOrderBook(
   /** Number of results to return in book */
   limit: number = DEFAULT_LIMIT
 ): Promise<WatchOrderBookResponse> {
+  if (!symbol) throw new ArgumentsRequired('Missing required arguments for watchOrderBook call');
   validateMarketSymbol(symbol);
 
   const orderBookStream = new Readable({ read: () => this });

@@ -11,9 +11,9 @@ export interface FetchL2OrderBookParams {
   /** Filter order book by taker address */
   taker?: AccountAddress;
   /** Get order book from the given ledger */
-  ledger_index?: LedgerIndex;
+  ledgerIndex?: LedgerIndex;
   /** Get order book from the provided hash */
-  ledger_hash?: string;
+  ledgerHash?: string;
 }
 
 /**

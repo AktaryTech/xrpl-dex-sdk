@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { OfferCancel } from 'xrpl';
-import { OrderId, CancelOrderResponse, SDKContext } from '../models';
+import { OrderId, CancelOrderResponse, SDKContext, ArgumentsRequired } from '../models';
 import { parseOrderId, validateOrderId } from '../utils';
 
 /**
@@ -14,6 +14,8 @@ async function cancelOrder(
   /** ID of the Order to cancel */
   id: OrderId
 ): Promise<CancelOrderResponse> {
+  if (!id) throw new ArgumentsRequired('Missing required arguments for cancelOrder call');
+
   validateOrderId(id);
 
   const { sequence } = parseOrderId(id);

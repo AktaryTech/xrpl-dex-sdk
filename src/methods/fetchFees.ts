@@ -8,7 +8,7 @@ import { FetchFeesResponse, SDKContext } from '../models';
  */
 async function fetchFees(this: SDKContext): Promise<FetchFeesResponse> {
   const currencies = await this.fetchCurrencies();
-  const transactions = currencies ? (await this.fetchTransactionFees(Object.keys(currencies), {})) || [] : [];
+  const transactions = currencies ? (await this.fetchTransactionFees(Object.keys(currencies))) || [] : [];
   const trading = (await this.fetchTradingFees()) || [];
 
   const response: FetchFeesResponse = {

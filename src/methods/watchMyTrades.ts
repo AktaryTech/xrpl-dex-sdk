@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { Readable } from 'stream';
 import { SubscribeRequest, TransactionStream } from 'xrpl';
 import { Offer } from 'xrpl/dist/npm/models/ledger';
-import { MarketSymbol, SDKContext, AffectedNode, TradeStream } from '../models';
+import { MarketSymbol, SDKContext, AffectedNode, TradeStream, ArgumentsRequired } from '../models';
 import { getMarketSymbol, getTradeFromData, validateMarketSymbol } from '../utils';
 
 /**
@@ -16,6 +16,7 @@ async function watchMyTrades(
   /** Filter Trades by market symbol */
   symbol: MarketSymbol
 ): Promise<TradeStream> {
+  if (!symbol) throw new ArgumentsRequired('Missing required arguments for watchMyTrades call');
   validateMarketSymbol(symbol);
 
   const tradeStream = new Readable({ read: () => this });
