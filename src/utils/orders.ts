@@ -16,11 +16,10 @@ import {
   TransactionMetadata,
   TxRequest,
   TxResponse,
-  unixTimeToRippleTime,
 } from 'xrpl';
 import { Amount, LedgerIndex } from 'xrpl/dist/npm/models/common';
 import { Offer, OfferFlags } from 'xrpl/dist/npm/models/ledger';
-import { parseAmountValue } from 'xrpl/dist/npm/models/transactions/common';
+// import { parseAmountValue } from 'xrpl/dist/npm/models/transactions/common';
 import { hashOfferId } from 'xrpl/dist/npm/utils/hashes';
 import { CURRENCY_PRECISION, DEFAULT_LIMIT, DEFAULT_SEARCH_LIMIT } from '../constants';
 import {
@@ -40,17 +39,57 @@ import {
   SDKContext,
   OrderSourceData,
   OrderTimeInForce,
+  LedgerEntryType,
   Order,
   BadOrderId,
   OrderNotFound,
   DeletedNode,
+  AffectedNode,
 } from '../models';
-import { getAmountCurrencyCode, getAmountIssuer, getMarketSymbolFromAmount } from './conversions';
-import { BN, subtractAmounts } from './numbers';
+import { getAmountCurrencyCode, getAmountIssuer, getMarketSymbol, getMarketSymbolFromAmount } from './conversions';
+import { BN, parseAmountValue, subtractAmounts } from './numbers';
 
 /**
  * Parsers
  */
+export const parseAffectedNode = (
+  affectedNode: Record<string, any>,
+  entryType: LedgerEntryType = LedgerEntryType.Offer
+) => {
+  if (affectedNode.hasOwnProperty('CreatedNode')) {
+    const nodeData: Record<string, any> = affectedNode.CreatedNode;
+    if ((nodeData.LedgerEntryType as LedgerEntryType) === entryType)
+      return {
+        type: 'CreatedNode',
+        LedgerEntryType: nodeData.LedgerEntryType,
+        LedgerIndex: nodeData.LedgerIndex,
+        NewFields: nodeData.NewFields,
+      } as AffectedNode;
+  } else if (affectedNode.hasOwnProperty('ModifiedNode')) {
+    const nodeData: Record<string, any> = affectedNode.ModifiedNode;
+    if ((nodeData.LedgerEntryType as LedgerEntryType) === entryType)
+      return {
+        type: 'ModifiedNode',
+        LedgerEntryType: nodeData.LedgerEntryType,
+        LedgerIndex: nodeData.LedgerIndex,
+        FinalFields: nodeData.FinalFields,
+        PreviousFields: nodeData.PreviousFields,
+        PreviousTxnID: nodeData.PreviousTxnID,
+        PreviouTxnLgrSeq: nodeData.PreviouTxnLgrSeq,
+      } as AffectedNode;
+  } else if (affectedNode.hasOwnProperty('DeletedNode')) {
+    const nodeData: Record<string, any> = affectedNode.DeletedNode;
+    if ((nodeData.LedgerEntryType as LedgerEntryType) === entryType)
+      return {
+        type: 'DeletedNode',
+        LedgerEntryType: nodeData.LedgerEntryType,
+        LedgerIndex: nodeData.LedgerIndex,
+        FinalFields: nodeData.FinalFields,
+        PreviousFields: nodeData.PreviousFields,
+      } as AffectedNode;
+  }
+};
+
 export const parseOrderId = (orderId: OrderId) => {
   const [account, sequenceString] = orderId.split(':');
   const sequence = BN(sequenceString);
@@ -80,6 +119,13 @@ export const getOrderSideFromFlags = (flags: number): OrderSide =>
     : (flags & OfferCreateFlags.tfSell) === OfferCreateFlags.tfSell
     ? 'sell'
     : 'buy';
+export const getOrderTimeInForce = (order: Record<string, any>): OrderTimeInForce => {
+  let orderTimeInForce: OrderTimeInForce = 'GTC';
+  if (order.Flags === OfferCreateFlags.tfPassive) orderTimeInForce = 'PO';
+  else if (order.Flags === OfferCreateFlags.tfFillOrKill) orderTimeInForce = 'FOK';
+  else if (order.Flags === OfferCreateFlags.tfImmediateOrCancel) orderTimeInForce = 'IOC';
+  return orderTimeInForce;
+};
 export const getBaseAmountKey = (side: OrderSide) => (side === 'buy' ? 'TakerPays' : 'TakerGets');
 export const getQuoteAmountKey = (side: OrderSide) => (side === 'buy' ? 'TakerGets' : 'TakerPays');
 export const getTakerOrMaker = (side: OrderSide) => (side === 'buy' ? 'taker' : 'maker');
@@ -88,51 +134,109 @@ export const getTakerOrMaker = (side: OrderSide) => (side === 'buy' ? 'taker' : 
  * Returns an Offer Ledger object from an AffectedNode
  */
 export const getOfferFromNode = (node: Node): Offer | undefined => {
-  const { PreviousTxnID, LedgerIndex, LedgerEntryType, FinalFields, PreviousFields } = Object.values(node)[0];
+  const affectedNode = parseAffectedNode(node, LedgerEntryType.Offer);
 
-  if (LedgerEntryType !== 'Offer' || !FinalFields) return;
+  if (!affectedNode || !affectedNode.FinalFields) return;
+
+  const LedgerIndex = affectedNode.LedgerIndex;
+  const FinalFields = affectedNode.FinalFields;
+  const PreviousTxnID = affectedNode.PreviousTxnID || (FinalFields.PreviousTxnID as string);
+  const PreviousFields = affectedNode.PreviousFields;
+
+  const offerIndex = LedgerIndex;
+
+  const TakerGets = PreviousFields
+    ? subtractAmounts(PreviousFields.TakerGets as Amount, FinalFields.TakerGets as Amount)
+    : (FinalFields.TakerGets as Amount);
+  const TakerPays = PreviousFields
+    ? subtractAmounts(PreviousFields.TakerPays as Amount, FinalFields.TakerPays as Amount)
+    : (FinalFields.TakerPays as Amount);
 
   const offer: Offer = {
-    ...FinalFields,
-    index: LedgerIndex,
-    PreviousTxnID: FinalFields.PreviousTxnID ?? PreviousTxnID,
-    TakerGets: PreviousFields
-      ? subtractAmounts(PreviousFields.TakerGets as Amount, FinalFields.TakerGets as Amount)
-      : FinalFields.TakerGets,
-    TakerPays: PreviousFields
-      ? subtractAmounts(PreviousFields.TakerPays as Amount, FinalFields.TakerPays as Amount)
-      : FinalFields.TakerPays,
+    Account: FinalFields.Account as string,
+    BookDirectory: '',
+    BookNode: '0',
+    Flags: FinalFields.Flags as number,
+    LedgerEntryType: LedgerEntryType.Offer,
+    OwnerNode: '0',
+    PreviousTxnID,
+    PreviousTxnLgrSeq: 0,
+    Sequence: FinalFields.Sequence as number,
+    TakerGets,
+    TakerPays,
+    index: offerIndex,
   };
 
   return offer;
+
+  // const { PreviousTxnID, LedgerIndex, LedgerEntryType, FinalFields, PreviousFields } = Object.values(node)[0];
+
+  // if (LedgerEntryType !== 'Offer' || !FinalFields) return;
+
+  // const offer: Offer = {
+  //   ...FinalFields,
+  //   index: LedgerIndex,
+  //   PreviousTxnID: FinalFields.PreviousTxnID ?? PreviousTxnID,
+  //   TakerGets: PreviousFields
+  //     ? subtractAmounts(PreviousFields.TakerGets as Amount, FinalFields.TakerGets as Amount)
+  //     : FinalFields.TakerGets,
+  //   TakerPays: PreviousFields
+  //     ? subtractAmounts(PreviousFields.TakerPays as Amount, FinalFields.TakerPays as Amount)
+  //     : FinalFields.TakerPays,
+  // };
+
+  // return offer;
 };
 
 /**
  * Returns an Offer Ledger object from a Transaction
  */
 export const getOfferFromTransaction = (
-  transaction: TransactionData<OfferCreate>['transaction']
+  transaction: Record<string, any>,
+  // transaction: TransactionData<OfferCreate>['transaction'],
+  overrides: Record<string, any> = {}
 ): Offer | undefined => {
   if (transaction.TransactionType !== 'OfferCreate') return;
 
-  const { Account, Flags, Sequence, TakerGets, TakerPays } = transaction;
+  const tx = { ...transaction, ...overrides };
 
-  if (!Sequence) return;
+  if (!tx.Sequence) return;
 
-  return {
-    Account,
+  const offer: Offer = {
+    Account: tx.Account,
     BookDirectory: '',
     BookNode: '0',
-    LedgerEntryType: 'Offer',
-    Flags: Flags as OfferCreateFlags,
+    Flags: tx.Flags,
+    LedgerEntryType: LedgerEntryType.Offer,
     OwnerNode: '0',
-    Sequence,
-    TakerGets,
-    TakerPays,
-    index: hashOfferId(Account, Sequence),
-    PreviousTxnID: '',
+    PreviousTxnID: tx.PreviousTxnID,
     PreviousTxnLgrSeq: 0,
-  } as Offer;
+    Sequence: tx.Sequence,
+    TakerGets: tx.TakerGets,
+    TakerPays: tx.TakerPays,
+    index: hashOfferId(tx.Account, tx.Sequence),
+  };
+
+  return offer;
+
+  //   const { Account, Flags, Sequence, TakerGets, TakerPays } = transaction;
+
+  //   if (!Sequence) return;
+
+  //   return {
+  //     Account,
+  //     BookDirectory: '',
+  //     BookNode: '0',
+  //     LedgerEntryType: 'Offer',
+  //     Flags: Flags as OfferCreateFlags,
+  //     OwnerNode: '0',
+  //     Sequence,
+  //     TakerGets,
+  //     TakerPays,
+  //     index: hashOfferId(Account, Sequence),
+  //     PreviousTxnID: '',
+  //     PreviousTxnLgrSeq: 0,
+  //   } as Offer;
 };
 
 /**
@@ -140,7 +244,7 @@ export const getOfferFromTransaction = (
  * @param source Offer | Transaction
  * @returns Data object with Base/Quote information
  */
-export const getBaseQuoteData = (source: Record<string, any>) => {
+export const getBaseAndQuoteData = (source: Record<string, any>) => {
   const data: Record<string, any> = {};
 
   data.side = (source.Flags & OfferFlags.lsfSell) === OfferFlags.lsfSell ? 'sell' : 'buy';
@@ -158,8 +262,10 @@ export const getBaseQuoteData = (source: Record<string, any>) => {
       ? dropsToXrp(parseAmountValue(data.quoteAmount))
       : parseAmountValue(data.quoteAmount)
   );
+  if (data.quoteValue.isZero()) return;
 
-  data.symbol = getMarketSymbolFromAmount(data.baseAmount, data.quoteAmount);
+  // data.symbol = getMarketSymbolFromAmount(data.baseAmount, data.quoteAmount);
+  data.symbol = getMarketSymbol(source);
 
   return data;
 };
@@ -171,7 +277,9 @@ export const getBaseQuoteData = (source: Record<string, any>) => {
  * @returns
  */
 export async function getSharedOrderData(this: SDKContext, source: Record<string, any>) {
-  const data: Record<string, any> = getBaseQuoteData(source);
+  const data = getBaseAndQuoteData(source);
+
+  if (!data) return;
 
   data.baseCurrency = getAmountCurrencyCode(data.baseAmount);
   data.baseIssuer = getAmountIssuer(data.baseAmount);
@@ -190,12 +298,13 @@ export async function getSharedOrderData(this: SDKContext, source: Record<string
   return data;
 }
 
-export const getOrderFeeFromData = (feeCost: BigNumber, data: Record<string, any>) => {
+export const getOrderFeeFromData = (feeCost: BigNumber, source: Record<string, any>) => {
   if (feeCost.isGreaterThan(0)) {
     return {
-      currency: data.feeCurrency,
+      // currency: source.feeCurrency,
+      currency: source.quoteCurrency,
       cost: (+feeCost.toPrecision(CURRENCY_PRECISION)).toString(),
-      rate: (+data.feeRate.toPrecision(CURRENCY_PRECISION)).toString(),
+      rate: (+source.feeRate.toPrecision(CURRENCY_PRECISION)).toString(),
       percentage: true,
     };
   }
@@ -208,46 +317,41 @@ export const getOrderFeeFromData = (feeCost: BigNumber, data: Record<string, any
  * @param info Record<string, any>
  * @returns Order
  */
-export async function getOrderFromData(this: SDKContext, source: OrderSourceData, info: Record<string, any> = {}) {
-  const side: OrderSide =
-    (source.Flags as number & OfferCreateFlags.tfSell) === OfferCreateFlags.tfSell ? 'sell' : 'buy';
+export async function getOrderFromData(this: SDKContext, inputData: OrderSourceData, info: Record<string, any> = {}) {
+  const sourceData = await getSharedOrderData.call(this, inputData);
 
-  let orderTimeInForce: OrderTimeInForce = 'GTC';
-  if (source.Flags === OfferCreateFlags.tfPassive) orderTimeInForce = 'PO';
-  else if (source.Flags === OfferCreateFlags.tfFillOrKill) orderTimeInForce = 'FOK';
-  else if (source.Flags === OfferCreateFlags.tfImmediateOrCancel) orderTimeInForce = 'IOC';
+  if (!sourceData) return;
 
-  const sourceData = await getSharedOrderData.call(this, source);
+  const data = _.merge(inputData, sourceData);
 
-  const actualPrice = source.fillPrice;
-  const average = source.trades.length ? source.totalFillPrice.dividedBy(source.trades.length) : BN(0);
-  const remaining = sourceData.amount.minus(source.filled);
-  const cost = source.filled.times(actualPrice);
-
-  const feeCost = source.filled.times(sourceData.feeRate);
+  const actualPrice = data.fillPrice;
+  const average = data.trades.length ? data.totalFillPrice.dividedBy(data.trades.length) : BN(0);
+  const remaining = data.amount.minus(data.filled);
+  const cost = data.filled.times(actualPrice);
 
   const order: Order = {
-    id: getOrderId(source.Account, source.Sequence),
-    clientOrderId: hashOfferId(source.Account, source.Sequence),
-    datetime: rippleTimeToISOTime(source.date),
-    timestamp: rippleTimeToUnixTime(source.date),
-    status: source.status,
-    symbol: getMarketSymbolFromAmount(sourceData.baseAmount, sourceData.quoteAmount),
+    id: getOrderId(data.Account, data.Sequence),
+    clientOrderId: hashOfferId(data.Account, data.Sequence),
+    datetime: rippleTimeToISOTime(data.date),
+    timestamp: rippleTimeToUnixTime(data.date),
+    status: data.status,
+    symbol: data.symbol,
     type: 'limit',
-    timeInForce: orderTimeInForce,
-    side: side,
-    amount: (+sourceData.amount.toPrecision(CURRENCY_PRECISION)).toString(),
-    price: (+sourceData.price.toPrecision(CURRENCY_PRECISION)).toString(),
+    timeInForce: getOrderTimeInForce(data),
+    side: data.side,
+    amount: (+data.amount.toPrecision(CURRENCY_PRECISION)).toString(),
+    price: (+data.price.toPrecision(CURRENCY_PRECISION)).toString(),
     average: (+average.toPrecision(CURRENCY_PRECISION)).toString(),
-    filled: (+source.filled.toPrecision(CURRENCY_PRECISION)).toString(),
+    filled: (+data.filled.toPrecision(CURRENCY_PRECISION)).toString(),
     remaining: (+remaining.toPrecision(CURRENCY_PRECISION)).toString(),
     cost: (+cost.toPrecision(CURRENCY_PRECISION)).toString(),
-    trades: source.trades,
-    info: { ...info },
+    trades: data.trades,
+    info,
   };
 
-  if (source.trades.length) order.lastTradeTimestamp = source.trades[source.trades.length - 1].timestamp;
+  if (data.trades.length) order.lastTradeTimestamp = data.trades[data.trades.length - 1].timestamp;
 
+  const feeCost = data.filled.times(data.feeRate);
   const fee = getOrderFeeFromData(feeCost, sourceData);
   if (fee) order.fee = fee;
 
@@ -261,33 +365,38 @@ export async function getOrderFromData(this: SDKContext, source: OrderSourceData
  * @param info Record<string, any>
  * @returns Trade
  */
-export async function getTradeFromData(this: SDKContext, source: TradeSourceData, info: Record<string, any> = {}) {
-  const side: OrderSide = (source.Flags & OfferFlags.lsfSell) === OfferFlags.lsfSell ? 'sell' : 'buy';
+export async function getTradeFromData(this: SDKContext, inputData: TradeSourceData, info: Record<string, any> = {}) {
+  const sourceData = await getSharedOrderData.call(this, inputData);
 
-  const tradeId = getOrderId(source.Account, source.Sequence);
-  const orderId = getOrderId(source.OrderAccount, source.OrderSequence);
+  if (!sourceData) return;
 
-  const sourceData = await getSharedOrderData.call(this, source);
+  const data: Record<string, any> = _.merge({
+    ...inputData,
+    ...sourceData,
+  });
 
-  const cost = sourceData.amount.times(sourceData.price);
-  const feeCost = (side === 'buy' ? sourceData.quoteValue : sourceData.baseValue).times(sourceData.feeRate);
+  const tradeId = getOrderId(data.Account, data.Sequence);
+  const orderId = getOrderId(data.OrderAccount, data.OrderSequence);
+
+  const cost = data.amount.times(data.price);
+  const feeCost = (data.side === 'buy' ? data.quoteValue : data.baseValue).times(data.feeRate);
+  const fee = getOrderFeeFromData(feeCost, data);
 
   const trade: Trade = {
     id: tradeId,
     order: orderId,
-    datetime: rippleTimeToISOTime(source.date || 0),
-    timestamp: rippleTimeToUnixTime(source.date || 0),
-    symbol: getMarketSymbolFromAmount(sourceData.baseAmount, sourceData.quoteAmount),
+    datetime: rippleTimeToISOTime(data.date || 0),
+    timestamp: rippleTimeToUnixTime(data.date || 0),
+    symbol: getMarketSymbolFromAmount(data.baseAmount, data.quoteAmount),
     type: 'limit',
-    side,
-    amount: (+sourceData.amount.toPrecision(CURRENCY_PRECISION)).toString(),
-    price: (+sourceData.price.toPrecision(CURRENCY_PRECISION)).toString(),
-    takerOrMaker: getTakerOrMaker(side),
+    side: data.side,
+    amount: (+data.amount.toPrecision(CURRENCY_PRECISION)).toString(),
+    price: (+data.price.toPrecision(CURRENCY_PRECISION)).toString(),
+    takerOrMaker: getTakerOrMaker(data.side),
     cost: (+cost.toPrecision(CURRENCY_PRECISION)).toString(),
-    info: { ...info },
+    info,
   };
 
-  const fee = getOrderFeeFromData(feeCost, sourceData);
   if (fee) trade.fee = fee;
 
   return trade;
@@ -382,18 +491,18 @@ export const fetchAccountTxns = async (
  */
 export const parseTransaction = (
   orderId: OrderId,
-  transaction:
-    | TxResponse
-    | AccountTransaction
-    | (OfferCreate & {
-        metaData?: TransactionMetadata | undefined;
-      })
+  transaction: Record<string, any>
+  // transaction:
+  //   | TxResponse
+  //   | AccountTransaction
+  //   | (OfferCreate & {
+  //       metaData?: TransactionMetadata | undefined;
+  //     })
 ): TransactionData<OfferCreate> | undefined => {
   const { account, sequence } = parseOrderId(orderId);
   const offerLedgerIndex = hashOfferId(account, sequence);
 
   let previousTxnHash: string | undefined;
-
   let tx: TxResult<OfferCreate>;
   let metadata: string | TransactionMetadata | undefined;
 
@@ -414,59 +523,94 @@ export const parseTransaction = (
 
   if (!tx.hash ?? tx?.TransactionType !== 'OfferCreate' ?? typeof metadata !== 'object') return;
 
-  const parsedNodes: Node[] = [];
   const tradeOffers: Offer[] = [];
 
   if (tx.Account === account && tx.Sequence === sequence) {
-    metadata.AffectedNodes.forEach((affectedNode: Node) => {
+    for (const affectedNode of metadata.AffectedNodes) {
       const offer = getOfferFromNode(affectedNode);
-      if (offer && offer.Account !== account) {
-        tradeOffers.push(offer);
-        parsedNodes.push(affectedNode);
-      }
-    });
+      if (offer && offer.Account !== account) tradeOffers.push(offer);
+    }
+    // metadata.AffectedNodes.forEach((affectedNode: Node) => {
+    //   const offer = getOfferFromNode(affectedNode);
+    //   if (offer && offer.Account !== account) {
+    //     tradeOffers.push(offer);
+    //     parsedNodes.push(affectedNode);
+    //   }
+    // });
 
     previousTxnHash = undefined;
-  } else {
-    if (tx.Account !== account) {
-      metadata.AffectedNodes.forEach((affectedNode: Node) => {
-        const offer = getOfferFromNode(affectedNode);
-        if (offer && offer.index === offerLedgerIndex) {
-          previousTxnHash = offer.PreviousTxnID;
+  } else if (tx.Account !== account) {
+    for (const affectedNode of metadata.AffectedNodes) {
+      const offer = getOfferFromNode(affectedNode);
+      if (offer && offer.index === offerLedgerIndex) {
+        previousTxnHash = offer.PreviousTxnID;
 
-          // In this case, the Transaction is the Trade data, with the Offer's amounts
-          const tradeOffer = {
-            ...getOfferFromTransaction(tx),
-            PreviousTxnID: offer.PreviousTxnID,
-            TakerGets: offer.TakerGets,
-            TakerPays: offer.TakerPays,
-          } as Offer;
-          if (!tradeOffer) return;
+        // In this case, the Transaction is the Trade data, with the Offer's amounts
+        // const tradeOffer = {
+        //   ...getOfferFromTransaction(tx),
+        //   PreviousTxnID: offer.PreviousTxnID,
+        //   TakerGets: offer.TakerGets,
+        //   TakerPays: offer.TakerPays,
+        // } as Offer;
 
-          tradeOffers.push(tradeOffer);
-          parsedNodes.push(affectedNode);
-        }
-      });
+        const tradeOffer = getOfferFromTransaction(tx, {
+          PreviousTxnID: offer.PreviousTxnID,
+          TakerGets: offer.TakerGets,
+          TakerPays: offer.TakerPays,
+        });
+
+        if (!tradeOffer) continue;
+
+        tradeOffers.push(tradeOffer);
+      }
     }
+    // metadata.AffectedNodes.forEach((affectedNode: Node) => {
+    //   const offer = getOfferFromNode(affectedNode);
+    //   if (offer && offer.index === offerLedgerIndex) {
+    //     previousTxnHash = offer.PreviousTxnID;
+
+    //     // In this case, the Transaction is the Trade data, with the Offer's amounts
+    //     const tradeOffer = {
+    //       ...getOfferFromTransaction(tx),
+    //       PreviousTxnID: offer.PreviousTxnID,
+    //       TakerGets: offer.TakerGets,
+    //       TakerPays: offer.TakerPays,
+    //     } as Offer;
+    //     if (!tradeOffer) return;
+
+    //     tradeOffers.push(tradeOffer);
+    //     parsedNodes.push(affectedNode);
+    //   }
+    // });
   }
 
   // Strip out the `meta` prop in case the transaction is of type TxResponse['result']
-  const txData = tx.meta ? _.omit(tx, ['meta']) : tx;
+  // const txData = tx.meta ? _.omit(tx, ['meta']) : tx;
 
-  const transactionData = {
-    transaction: {
-      ...txData,
-    },
-    metadata: {
-      ...metadata,
-      AffectedNodes: parsedNodes,
-    } as TransactionMetadata,
+  const parsedTransaction = {
+    transaction: tx,
+    metadata,
     offers: tradeOffers,
     previousTxnId: previousTxnHash,
-    date: tx.date ?? txData.date ?? unixTimeToRippleTime(0),
+    date: tx.date ?? 0,
   };
 
-  return transactionData;
+  return parsedTransaction;
+
+  // const transactionData = {
+  //   transaction: {
+  //     ...txData,
+  //   },
+  //   metadata: {
+  //     ...metadata,
+  //     AffectedNodes: parsedNodes,
+  //   } as TransactionMetadata,
+  //   offers: tradeOffers,
+  //   previousTxnId: previousTxnHash,
+  //   date: tx.date ?? txData.date ?? unixTimeToRippleTime(0),
+  // };
+
+  // return transactionData;
 };
 
 /**
@@ -483,12 +627,21 @@ export const getMostRecentTx = async (
   let orderStatus: OrderStatus = 'open';
 
   const ledgerOffer = await fetchOfferEntry(client, orderId);
+
   if (ledgerOffer) {
     const txResponse = await fetchTxn(client, ledgerOffer.PreviousTxnID);
-    if (txResponse) {
-      const previousTxnData = parseTransaction(orderId, txResponse);
-      if (previousTxnData) return { previousTxnData, previousTxnId: previousTxnData?.previousTxnId, orderStatus };
-    }
+    const tx = txResponse?.result;
+
+    if (!tx) throw new Error(`Couldn\'t look up data for Order "${orderId}"`);
+
+    const previousTxnData = parseTransaction(orderId, tx);
+
+    if (previousTxnData) return { previousTxnData, previousTxnId: previousTxnData.previousTxnId, orderStatus };
+    // if (txResponse) {
+    //   const previousTxnData = parseTransaction(orderId, txResponse);
+
+    //   if (previousTxnData) return { previousTxnData, previousTxnId: previousTxnData?.previousTxnId, orderStatus };
+    // }
   } else {
     orderStatus = 'closed';
 
@@ -497,17 +650,23 @@ export const getMostRecentTx = async (
     const limit = DEFAULT_LIMIT;
     let marker: unknown;
     let hasNextPage = true;
-    let page = 1;
+    let page = 0;
 
     while (hasNextPage) {
       const accountTxResponse = await fetchAccountTxns(client, account, limit, marker);
-      if (!accountTxResponse) return { orderStatus };
+      const accountTx = accountTxResponse?.result;
 
-      marker = accountTxResponse.result.marker;
+      if (!accountTx) return { orderStatus };
 
-      accountTxResponse.result.transactions.sort((a, b) => (b.tx?.date ?? 0) - (a.tx?.date ?? 0));
+      marker = accountTx.marker;
 
-      for (const transaction of accountTxResponse.result.transactions) {
+      const transactions = accountTx.transactions;
+
+      transactions.sort((a, b) => (b.tx?.date ?? 0) - (a.tx?.date ?? 0));
+
+      // accountTxResponse.result.transactions.sort((a, b) => (b.tx?.date ?? 0) - (a.tx?.date ?? 0));
+
+      for (const transaction of transactions) {
         if (typeof transaction.meta === 'string') continue;
 
         if (transaction.tx?.TransactionType === 'OfferCancel') {

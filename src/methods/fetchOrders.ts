@@ -1,7 +1,15 @@
 import _ from 'lodash';
 import { LedgerRequest, rippleTimeToUnixTime } from 'xrpl';
 import { DEFAULT_LIMIT, DEFAULT_SEARCH_LIMIT } from '../constants';
-import { FetchOrdersParams, FetchOrdersResponse, MarketSymbol, UnixTimestamp, SDKContext, Order } from '../models';
+import {
+  FetchOrdersParams,
+  FetchOrdersResponse,
+  MarketSymbol,
+  UnixTimestamp,
+  SDKContext,
+  Order,
+  DeletedNode,
+} from '../models';
 import { getMarketSymbol, getOrderId, validateMarketSymbol } from '../utils';
 
 /**
@@ -59,33 +67,52 @@ async function fetchOrders(
     let txCount = 0;
 
     for (const transaction of transactions) {
-      if (typeof transaction !== 'object' || !transaction.Sequence) continue;
+      if (
+        typeof transaction !== 'object' ||
+        !transaction.metaData ||
+        !transaction.Sequence ||
+        (transaction.TransactionType !== 'OfferCancel' && transaction.TransactionType !== 'OfferCreate')
+      )
+        continue;
 
-      if (transaction.TransactionType === 'OfferCancel') {
-        //
-      } else if (transaction.TransactionType === 'OfferCreate') {
-        /** Filter by market symbol if `symbol` is defined */
+      /** Filter by market symbol if `symbol` is defined */
 
-        if (symbol && getMarketSymbol(transaction) !== symbol) continue;
-
-        const orderId = getOrderId(transaction.Account, transaction.Sequence);
-
-        const order = await this.fetchOrder(orderId, undefined, { searchLimit });
-
-        if (!order) continue;
-
-        /** Filter by status if `showOpen`, `showClosed`, or `showCanceled` is defined */
-        if (
-          (order.status === 'open' && !showOpen) ||
-          (order.status === 'closed' && !showClosed) ||
-          (order.status === 'canceled' && !showCanceled)
-        )
-          continue;
-
-        orders.push(order);
-
-        if (orders.length >= limit) break;
+      if (symbol) {
+        let txSymbol;
+        if (transaction.TransactionType === 'OfferCancel') {
+          for (const node of transaction.metaData.AffectedNodes) {
+            if (node.hasOwnProperty('DeletedNode')) {
+              const affectedOffer = (node as DeletedNode).DeletedNode.FinalFields;
+              if (affectedOffer.Account === transaction.Account && affectedOffer.Sequence === transaction.Sequence) {
+                txSymbol = getMarketSymbol(affectedOffer);
+                break;
+              }
+            }
+          }
+        } else {
+          txSymbol = getMarketSymbol(transaction);
+        }
+        if (txSymbol !== symbol) continue;
       }
+
+      const orderId = getOrderId(transaction.Account, transaction.Sequence);
+
+      const order = await this.fetchOrder(orderId, undefined, { searchLimit });
+
+      if (!order) continue;
+
+      /** Filter by status if `showOpen`, `showClosed`, or `showCanceled` is defined */
+      if (
+        (order.status === 'open' && !showOpen) ||
+        (order.status === 'closed' && !showClosed) ||
+        (order.status === 'canceled' && !showCanceled)
+      )
+        continue;
+
+      orders.push(order);
+
+      if (orders.length >= limit) break;
+
       txCount += 1;
       if (txCount >= searchLimit) break;
     }

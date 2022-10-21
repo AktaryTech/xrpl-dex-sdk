@@ -59,7 +59,7 @@ async function createOrder(
     Account: this.wallet.classicAddress,
     Flags: {
       ...params.flags,
-      tfSell: side === 'sell' ? true : false,
+      tfSell: side === 'sell',
     },
     TakerGets: baseAmountKey === 'TakerGets' ? baseAmount : quoteAmount,
     TakerPays: baseAmountKey === 'TakerPays' ? baseAmount : quoteAmount,
@@ -85,7 +85,12 @@ async function createOrder(
 
   const orderId = getOrderId(offerCreateTx.Account, offerCreateTx.Sequence);
 
-  return orderId;
+  return {
+    id: orderId,
+    info: {
+      OfferCreate: offerCreateTxResponse,
+    },
+  };
 }
 
 export default createOrder;

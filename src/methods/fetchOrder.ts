@@ -11,6 +11,7 @@ import {
   Trade,
   SDKContext,
   ArgumentsRequired,
+  // OrderNotFound,
 } from '../models';
 import {
   BN,
@@ -66,6 +67,9 @@ async function fetchOrder(
         }
       }
     }
+
+    // if (!transactions.length) throw new OrderNotFound(`Couldn't find data for OrderId ${id}`);
+    if (!transactions.length) return;
 
     /**
      * Parse the Transaction history for Trade and Order objects

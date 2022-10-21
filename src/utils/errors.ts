@@ -1,4 +1,4 @@
-import { BadRequest, OrderNotFound } from 'ccxt';
+import { BadRequest, OrderNotFound, InsufficientFunds } from 'ccxt';
 import { ErrorResponse, LedgerEntryResponse } from 'xrpl';
 import { TxResponse, XrplErrorTypes, XrplTransactionErrorTypes } from '../models';
 
@@ -25,7 +25,7 @@ export const handleTxErrors = (txResponse: TxResponse) => {
     if (txResponse.result.meta.TransactionResult === XrplTransactionErrorTypes.NoIssuer) {
       throw new BadRequest('Issuer not found');
     } else if (txResponse.result.meta.TransactionResult === XrplTransactionErrorTypes.UnfundedOffer) {
-      throw new BadRequest('Unfunded offer');
+      throw new InsufficientFunds('Insufficient balance to fund created offer');
     }
   }
 };

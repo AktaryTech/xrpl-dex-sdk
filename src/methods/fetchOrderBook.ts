@@ -60,7 +60,11 @@ async function fetchOrderBook(
   const asks: OrderBookAsk[] = [];
 
   for (const offer of offers) {
-    const { side, price, amount } = await getSharedOrderData.call(this, offer);
+    const sharedData = await getSharedOrderData.call(this, offer);
+
+    if (!sharedData) continue;
+
+    const { side, price, amount } = sharedData;
 
     const orderBookEntry = [
       (+price.toPrecision(CURRENCY_PRECISION)).toString(),

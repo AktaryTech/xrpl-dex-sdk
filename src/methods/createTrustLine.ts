@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { TrustSet } from 'xrpl';
 import { ArgumentsRequired, BadRequest, BadSymbol, CreateTrustLineResponse, CurrencyCode, SDKContext } from '../models';
 import { handleTxErrors, parseCurrencyCode } from '../utils';
+
 /**
  * Creates a new Order on the Ripple dEX. Returns an {@link CreateOrderResponse}
  * with the newly created Order object.

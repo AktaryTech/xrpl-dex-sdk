@@ -12,6 +12,8 @@ export type RippleUrl = string;
 export type CurrencyCode = `${string}+${IssuerAddress}` | string;
 export type MarketSymbol = `${CurrencyCode | string}/${CurrencyCode | string}`;
 
+export type ResponseInfo = Record<string, any>;
+
 /**
  * Datetime
  */

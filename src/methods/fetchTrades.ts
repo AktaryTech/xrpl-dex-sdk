@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { LedgerRequest, rippleTimeToUnixTime } from 'xrpl';
-import { Offer } from 'xrpl/dist/npm/models/ledger';
+import { Amount } from 'xrpl/dist/npm/models/common';
 import { DEFAULT_LIMIT, DEFAULT_SEARCH_LIMIT } from '../constants';
 import {
   FetchTradesParams,
@@ -9,10 +9,11 @@ import {
   UnixTimestamp,
   SDKContext,
   Trade,
-  AffectedNode,
   ArgumentsRequired,
+  AccountAddress,
+  Sequence,
 } from '../models';
-import { getMarketSymbol, getTradeFromData, validateMarketSymbol } from '../utils';
+import { getMarketSymbol, getTradeFromData, parseAffectedNode, validateMarketSymbol } from '../utils';
 
 /**
  * Fetch Trades for a given market symbol. Returns a {@link FetchTradesResponse}.
@@ -65,41 +66,47 @@ async function fetchTrades(
     if (!transactions) continue;
 
     for (const transaction of transactions) {
-      if (typeof transaction !== 'object' || !transaction.Sequence || !transaction.metaData) continue;
+      txCount += 1;
+      if (trades.length >= limit || txCount >= params.searchLimit) break;
 
-      if (transaction.TransactionType === 'OfferCreate') {
-        if (getMarketSymbol(transaction) !== symbol) continue;
+      if (
+        typeof transaction !== 'object' ||
+        !transaction.Sequence ||
+        !transaction.metaData ||
+        transaction.TransactionType !== 'OfferCreate' ||
+        getMarketSymbol(transaction) !== symbol
+      )
+        continue;
 
-        for (const affectedNode of transaction.metaData.AffectedNodes) {
-          const { LedgerEntryType, FinalFields } = Object.values(affectedNode)[0] as AffectedNode;
+      for (const affectedNode of transaction.metaData.AffectedNodes) {
+        const node = parseAffectedNode(affectedNode);
+        if (!node) continue;
+        // const { LedgerEntryType, FinalFields } = Object.values(affectedNode)[0] as AffectedNode;
 
-          if (LedgerEntryType !== 'Offer' || !FinalFields) continue;
+        // if (LedgerEntryType !== 'Offer' || !FinalFields) continue;
 
-          const offer = FinalFields as unknown as Offer;
+        const offerFields = node.FinalFields;
+        if (!offerFields) continue;
 
-          const trade = await getTradeFromData.call(
-            this,
-            {
-              date: ledgerResponse.result.ledger.close_time,
-              Flags: offer.Flags as number,
-              OrderAccount: offer.Account,
-              OrderSequence: offer.Sequence,
-              Account: transaction.Account,
-              Sequence: transaction.Sequence,
-              TakerPays: offer.TakerPays,
-              TakerGets: offer.TakerGets,
-            },
-            { transaction }
-          );
+        const trade = await getTradeFromData.call(
+          this,
+          {
+            date: ledgerResponse.result.ledger.close_time,
+            Flags: offerFields.Flags as number,
+            OrderAccount: offerFields.Account as AccountAddress,
+            OrderSequence: offerFields.Sequence as Sequence,
+            Account: transaction.Account,
+            Sequence: transaction.Sequence,
+            TakerPays: offerFields.TakerPays as Amount,
+            TakerGets: offerFields.TakerGets as Amount,
+          },
+          { transaction }
+        );
 
-          if (trade) {
-            trades.push(trade);
-            if (trades.length >= limit) break;
-          }
+        if (trade) {
+          trades.push(trade);
         }
       }
-      txCount += 1;
-      if (txCount >= params.searchLimit) break;
     }
 
     hasNextPage = trades.length < limit && txCount < params.searchLimit;

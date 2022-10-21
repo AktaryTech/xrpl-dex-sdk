@@ -23,15 +23,15 @@ async function createLimitSellOrder(
   /** The price at which the order is to be fullfilled in units of the quote currency (ignored in market orders) */
   price: string,
   /** Parameters specific to the exchange API endpoint */
-  params: CreateLimitSellOrderParams
+  params: CreateLimitSellOrderParams = {}
 ): Promise<CreateLimitSellOrderResponse> {
   if (!symbol || !amount || !price || !params)
     throw new ArgumentsRequired('Missing required arguments for createLimitSellOrder call');
   validateMarketSymbol(symbol);
 
-  const newOrderId = await this.createOrder(symbol, 'sell', 'limit', amount, price, params);
+  const newOrder = await this.createOrder(symbol, 'sell', 'limit', amount, price, params);
 
-  return newOrderId;
+  return newOrder;
 }
 
 export default createLimitSellOrder;

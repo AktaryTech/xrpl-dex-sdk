@@ -1,6 +1,7 @@
 import { OfferCreateFlagsInterface } from 'xrpl';
 import { Memo } from 'xrpl/dist/npm/models/common';
 import { OrderId } from '../ccxt';
+import { ResponseInfo } from '../common';
 
 /**
  * Request parameters for a createOrder call
@@ -21,4 +22,7 @@ export interface CreateOrderParams {
  *
  * @category Responses
  */
-export type CreateOrderResponse = OrderId | undefined;
+export interface CreateOrderResponse {
+  id: OrderId;
+  info: ResponseInfo;
+}

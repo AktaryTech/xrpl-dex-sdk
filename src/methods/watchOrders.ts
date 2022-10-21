@@ -126,9 +126,9 @@ async function watchOrders(
 
     /** Filter by status if `showOpen`, `showClosed`, or `showCanceled` is defined */
     if (
-      (order.status === 'open' && !showOpen) ||
-      (order.status === 'closed' && !showClosed) ||
-      (order.status === 'canceled' && !showCanceled)
+      (order?.status === 'open' && !showOpen) ||
+      (order?.status === 'closed' && !showClosed) ||
+      (order?.status === 'canceled' && !showCanceled)
     ) {
       return;
     }

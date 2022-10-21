@@ -39,7 +39,10 @@ export interface DeletedNode {
   };
 }
 
+export type AffectedNodeType = 'CreatedNode' | 'ModifiedNode' | 'DeletedNode';
+
 export interface AffectedNode {
+  type: AffectedNodeType;
   LedgerEntryType: string;
   LedgerIndex: string;
   NewFields?: {

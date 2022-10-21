@@ -45,27 +45,36 @@ async function fetchMyTrades(
   while (hasNextPage) {
     const accountTxResponse = await fetchAccountTxns(this.client, this.wallet.classicAddress, requestLimit, marker);
     if (!accountTxResponse) break;
+
+    // console.log('[fetchMyTrades] accountTxResponse \n%s\n', JSON.stringify(accountTxResponse));
+
     marker = accountTxResponse.result.marker;
 
     const transactions = accountTxResponse.result.transactions;
 
+    // console.log('[fetchMyTrades] transactions \n%s\n', JSON.stringify(transactions));
+
     if (!transactions) continue;
 
     for (const transaction of transactions) {
+      txCount += 1;
+      if (trades.length >= limit || txCount >= params.searchLimit) break;
+
       if (
         !transaction.tx?.Sequence ||
         typeof transaction.meta !== 'object' ||
         transaction.tx.TransactionType !== 'OfferCreate' ||
-        !transaction.tx.date
+        !transaction.tx.date ||
+        getMarketSymbol(transaction.tx) !== symbol
       )
         continue;
+
+      // if (getMarketSymbol(transaction.tx) !== symbol) continue;
 
       /** Filter by date if `since` is defined */
       if (since && rippleTimeToUnixTime(transaction.tx.date) < since) {
         continue;
       }
-
-      if (getMarketSymbol(transaction.tx) !== symbol) continue;
 
       for (const affectedNode of transaction.meta.AffectedNodes) {
         const { LedgerEntryType, FinalFields } = Object.values(affectedNode)[0] as AffectedNode;
@@ -91,11 +100,8 @@ async function fetchMyTrades(
 
         if (trade) {
           trades.push(trade);
-          if (trades.length >= limit) break;
         }
       }
-      txCount += 1;
-      if (txCount >= params.searchLimit) break;
     }
 
     hasNextPage = trades.length < limit && txCount < params.searchLimit;

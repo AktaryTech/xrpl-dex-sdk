@@ -17,7 +17,7 @@ describe('fetchOrder', function () {
   /**
    * Buy Orders
    */
-  it.only('should return an open Buy Order', async function () {
+  it('should return an open Buy Order', async function () {
     const orderId = requests.v2.orders.USD.buy.open as OrderId;
     this.mockRippled.addResponse('ledger_entry', rippled.v2.ledgerEntry.offers.open[orderId]);
     this.mockRippled.addResponse('tx', rippled.v2.tx.orderId.OfferCreate[orderId]);

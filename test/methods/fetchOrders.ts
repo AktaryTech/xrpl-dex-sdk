@@ -6,7 +6,7 @@ import { setupRemoteSDK, teardownRemoteSDK } from '../setupClient';
 import { assert } from 'chai';
 import { addresses } from '../fixtures';
 
-const NETWORK = XrplNetwork.Testnet;
+const NETWORK = XrplNetwork.Mainnet;
 
 const TIMEOUT = 25000;
 
@@ -20,7 +20,7 @@ describe('fetchOrders', function () {
   afterEach(teardownRemoteSDK);
 
   it('should retrieve a list of Orders', async function () {
-    const orders = await this.sdk.fetchOrders(undefined, undefined, 5);
-    assert(orders.length === 5);
+    const orders = await this.sdk.fetchOrders('XRP/USD+rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq', undefined, 2);
+    assert(orders.length === 2);
   });
 });

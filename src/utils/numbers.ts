@@ -1,9 +1,11 @@
 import BigNumber from 'bignumber.js';
 import { Amount } from 'xrpl/dist/npm/models/common';
-import { parseAmountValue } from 'xrpl/dist/npm/models/transactions/common';
+// import { parseAmountValue } from 'xrpl/dist/npm/models/transactions/common';
 import { BigNumberish } from '../models';
 
 export const BN = (amount: BigNumberish) => new BigNumber(amount);
+
+export const parseAmountValue = (amount: Amount): BigNumber => BN(typeof amount === 'string' ? amount : amount.value);
 
 export const parseCurrencyAmount = (amount: Amount, subtractor?: Amount): BigNumber => {
   const amountValue = typeof amount === 'object' ? BN(amount.value) : BN(amount);

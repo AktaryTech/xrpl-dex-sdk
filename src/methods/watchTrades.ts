@@ -1,25 +1,13 @@
 import _ from 'lodash';
 import { Readable } from 'stream';
-import {
-  dropsToXrp,
-  OfferCreateFlags,
-  rippleTimeToISOTime,
-  rippleTimeToUnixTime,
-  SubscribeRequest,
-  TransactionStream,
-} from 'xrpl';
+import { OfferCreateFlags, SubscribeRequest, TransactionStream } from 'xrpl';
 import { Offer } from 'xrpl/dist/npm/models/ledger';
-import { parseAmountValue } from 'xrpl/dist/npm/models/transactions/common';
 import { MarketSymbol, SDKContext, Trade, AffectedNode, WatchTradesResponse, ArgumentsRequired } from '../models';
 import {
-  BN,
-  getAmountCurrencyCode,
-  getAmountIssuer,
   getBaseAmountKey,
   getMarketSymbolFromAmount,
-  getOrderId,
   getQuoteAmountKey,
-  getTakerOrMaker,
+  getTradeFromData,
   validateMarketSymbol,
 } from '../utils';
 
@@ -65,64 +53,34 @@ async function watchTrades(
       return;
     }
 
+    const trades: Trade[] = [];
+
     for (const affectedNode of tx.meta.AffectedNodes) {
       const { LedgerEntryType, FinalFields } = Object.values(affectedNode)[0] as AffectedNode;
 
       if (LedgerEntryType !== 'Offer' || !FinalFields) continue;
 
       const offer = FinalFields as unknown as Offer;
-      const orderId = getOrderId(offer.Account, offer.Sequence);
 
-      const baseAmount = offer[getBaseAmountKey(side)];
-      const quoteAmount = offer[getQuoteAmountKey(side)];
+      const trade = await getTradeFromData.call(
+        this,
+        {
+          date: transaction.date ?? 0,
+          Flags: offer.Flags as number,
+          OrderAccount: offer.Account,
+          OrderSequence: offer.Sequence,
+          Account: transaction.Account,
+          Sequence: transaction.Sequence,
+          TakerPays: offer.TakerPays,
+          TakerGets: offer.TakerGets,
+        },
+        { transaction }
+      );
 
-      const baseIssuer = getAmountIssuer(baseAmount);
-      const baseRate = baseIssuer ? await this.fetchTransferRate(baseIssuer) : BN(0);
-
-      const quoteIssuer = getAmountIssuer(quoteAmount);
-      const quoteRate = quoteIssuer ? await this.fetchTransferRate(quoteIssuer) : BN(0);
-
-      const baseCurrency = getAmountCurrencyCode(baseAmount);
-      const quoteCurrency = getAmountCurrencyCode(quoteAmount);
-
-      const baseValue =
-        baseCurrency === 'XRP' ? BN(dropsToXrp(parseAmountValue(baseAmount))) : BN(parseAmountValue(baseAmount));
-      const quoteValue =
-        quoteCurrency === 'XRP' ? BN(dropsToXrp(parseAmountValue(quoteAmount))) : BN(parseAmountValue(quoteAmount));
-
-      const amount = baseValue;
-      const price = quoteValue.dividedBy(baseValue);
-      const cost = amount.times(price);
-
-      const feeRate = side === 'buy' ? quoteRate : baseRate;
-      const feeCost = (side === 'buy' ? quoteValue : baseValue).times(feeRate);
-
-      const trade: Trade = {
-        id: getOrderId(transaction.Account, transaction.Sequence),
-        order: orderId,
-        datetime: rippleTimeToISOTime(transaction.date || 0),
-        timestamp: rippleTimeToUnixTime(transaction.date || 0),
-        symbol,
-        type: 'limit',
-        side,
-        amount: amount.toString(),
-        price: price.toString(),
-        takerOrMaker: getTakerOrMaker(side),
-        cost: cost.toString(),
-        info: { transaction },
-      };
-
-      if (feeCost.isGreaterThan(0)) {
-        trade.fee = {
-          currency: side === 'buy' ? quoteCurrency : baseCurrency,
-          cost: feeCost.toString(),
-          rate: feeRate.toString(),
-          percentage: true,
-        };
-      }
-
-      if (trade) tradeStream.emit('update', trade);
+      if (trade) trades.push(trade);
     }
+
+    if (trades.length) tradeStream.emit('update', trades);
   });
 
   return tradeStream;
