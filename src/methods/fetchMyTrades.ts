@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { rippleTimeToUnixTime } from 'xrpl';
-import { Offer } from 'xrpl/dist/npm/models/ledger';
+import { Amount } from 'xrpl/dist/npm/models/common';
 import { DEFAULT_LIMIT, DEFAULT_SEARCH_LIMIT } from '../constants';
 import {
   FetchMyTradesParams,
@@ -9,10 +9,11 @@ import {
   UnixTimestamp,
   SDKContext,
   Trade,
-  AffectedNode,
   ArgumentsRequired,
+  AccountAddress,
+  Sequence,
 } from '../models';
-import { fetchAccountTxns, getMarketSymbol, getTradeFromData, validateMarketSymbol } from '../utils';
+import { fetchAccountTxns, getMarketSymbol, getOfferFromNode, getTradeFromData, validateMarketSymbol } from '../utils';
 
 /**
  * Fetch Trades for a given market symbol. Returns a {@link FetchMyTradesResponse}.
@@ -46,13 +47,9 @@ async function fetchMyTrades(
     const accountTxResponse = await fetchAccountTxns(this.client, this.wallet.classicAddress, requestLimit, marker);
     if (!accountTxResponse) break;
 
-    // console.log('[fetchMyTrades] accountTxResponse \n%s\n', JSON.stringify(accountTxResponse));
-
     marker = accountTxResponse.result.marker;
 
     const transactions = accountTxResponse.result.transactions;
-
-    // console.log('[fetchMyTrades] transactions \n%s\n', JSON.stringify(transactions));
 
     if (!transactions) continue;
 
@@ -69,38 +66,32 @@ async function fetchMyTrades(
       )
         continue;
 
-      // if (getMarketSymbol(transaction.tx) !== symbol) continue;
-
       /** Filter by date if `since` is defined */
       if (since && rippleTimeToUnixTime(transaction.tx.date) < since) {
         continue;
       }
 
       for (const affectedNode of transaction.meta.AffectedNodes) {
-        const { LedgerEntryType, FinalFields } = Object.values(affectedNode)[0] as AffectedNode;
+        const offer = getOfferFromNode(affectedNode);
 
-        if (LedgerEntryType !== 'Offer' || !FinalFields) continue;
-
-        const offer = FinalFields as unknown as Offer;
+        if (!offer) continue;
 
         const trade = await getTradeFromData.call(
           this,
           {
             date: transaction.tx.date,
             Flags: offer.Flags as number,
-            OrderAccount: offer.Account,
-            OrderSequence: offer.Sequence,
+            OrderAccount: offer.Account as AccountAddress,
+            OrderSequence: offer.Sequence as Sequence,
             Account: transaction.tx.Account,
             Sequence: transaction.tx.Sequence,
-            TakerPays: offer.TakerPays,
-            TakerGets: offer.TakerGets,
+            TakerPays: offer.TakerPays as Amount,
+            TakerGets: offer.TakerGets as Amount,
           },
           { transaction }
         );
 
-        if (trade) {
-          trades.push(trade);
-        }
+        if (trade) trades.push(trade);
       }
     }
 

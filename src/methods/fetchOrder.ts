@@ -54,11 +54,15 @@ async function fetchOrder(
     let previousTxnData = previousTxn?.previousTxnData;
     if (previousTxnData) transactions.push(previousTxnData);
 
+    // console.log('1');
+    // console.log(previousTxn);
     /**
      * Build a Transaction history for this Order
      */
     while (previousTxnId) {
       const previousTxnResponse = await fetchTxn(this.client, previousTxnId);
+      // console.log('2');
+      // console.log(previousTxnId);
       if (previousTxnResponse) {
         previousTxnData = parseTransaction(id, previousTxnResponse);
         if (previousTxnData) {

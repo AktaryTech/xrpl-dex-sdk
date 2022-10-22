@@ -492,12 +492,6 @@ export const fetchAccountTxns = async (
 export const parseTransaction = (
   orderId: OrderId,
   transaction: Record<string, any>
-  // transaction:
-  //   | TxResponse
-  //   | AccountTransaction
-  //   | (OfferCreate & {
-  //       metaData?: TransactionMetadata | undefined;
-  //     })
 ): TransactionData<OfferCreate> | undefined => {
   const { account, sequence } = parseOrderId(orderId);
   const offerLedgerIndex = hashOfferId(account, sequence);
@@ -530,13 +524,6 @@ export const parseTransaction = (
       const offer = getOfferFromNode(affectedNode);
       if (offer && offer.Account !== account) tradeOffers.push(offer);
     }
-    // metadata.AffectedNodes.forEach((affectedNode: Node) => {
-    //   const offer = getOfferFromNode(affectedNode);
-    //   if (offer && offer.Account !== account) {
-    //     tradeOffers.push(offer);
-    //     parsedNodes.push(affectedNode);
-    //   }
-    // });
 
     previousTxnHash = undefined;
   } else if (tx.Account !== account) {
@@ -544,14 +531,6 @@ export const parseTransaction = (
       const offer = getOfferFromNode(affectedNode);
       if (offer && offer.index === offerLedgerIndex) {
         previousTxnHash = offer.PreviousTxnID;
-
-        // In this case, the Transaction is the Trade data, with the Offer's amounts
-        // const tradeOffer = {
-        //   ...getOfferFromTransaction(tx),
-        //   PreviousTxnID: offer.PreviousTxnID,
-        //   TakerGets: offer.TakerGets,
-        //   TakerPays: offer.TakerPays,
-        // } as Offer;
 
         const tradeOffer = getOfferFromTransaction(tx, {
           PreviousTxnID: offer.PreviousTxnID,
@@ -564,28 +543,9 @@ export const parseTransaction = (
         tradeOffers.push(tradeOffer);
       }
     }
-    // metadata.AffectedNodes.forEach((affectedNode: Node) => {
-    //   const offer = getOfferFromNode(affectedNode);
-    //   if (offer && offer.index === offerLedgerIndex) {
-    //     previousTxnHash = offer.PreviousTxnID;
-
-    //     // In this case, the Transaction is the Trade data, with the Offer's amounts
-    //     const tradeOffer = {
-    //       ...getOfferFromTransaction(tx),
-    //       PreviousTxnID: offer.PreviousTxnID,
-    //       TakerGets: offer.TakerGets,
-    //       TakerPays: offer.TakerPays,
-    //     } as Offer;
-    //     if (!tradeOffer) return;
-
-    //     tradeOffers.push(tradeOffer);
-    //     parsedNodes.push(affectedNode);
-    //   }
-    // });
+  } else {
+    return;
   }
-
-  // Strip out the `meta` prop in case the transaction is of type TxResponse['result']
-  // const txData = tx.meta ? _.omit(tx, ['meta']) : tx;
 
   const parsedTransaction = {
     transaction: tx,
@@ -596,21 +556,6 @@ export const parseTransaction = (
   };
 
   return parsedTransaction;
-
-  // const transactionData = {
-  //   transaction: {
-  //     ...txData,
-  //   },
-  //   metadata: {
-  //     ...metadata,
-  //     AffectedNodes: parsedNodes,
-  //   } as TransactionMetadata,
-  //   offers: tradeOffers,
-  //   previousTxnId: previousTxnHash,
-  //   date: tx.date ?? txData.date ?? unixTimeToRippleTime(0),
-  // };
-
-  // return transactionData;
 };
 
 /**
@@ -627,7 +572,6 @@ export const getMostRecentTx = async (
   let orderStatus: OrderStatus = 'open';
 
   const ledgerOffer = await fetchOfferEntry(client, orderId);
-
   if (ledgerOffer) {
     const txResponse = await fetchTxn(client, ledgerOffer.PreviousTxnID);
     const tx = txResponse?.result;
@@ -637,11 +581,6 @@ export const getMostRecentTx = async (
     const previousTxnData = parseTransaction(orderId, tx);
 
     if (previousTxnData) return { previousTxnData, previousTxnId: previousTxnData.previousTxnId, orderStatus };
-    // if (txResponse) {
-    //   const previousTxnData = parseTransaction(orderId, txResponse);
-
-    //   if (previousTxnData) return { previousTxnData, previousTxnId: previousTxnData?.previousTxnId, orderStatus };
-    // }
   } else {
     orderStatus = 'closed';
 
@@ -654,6 +593,7 @@ export const getMostRecentTx = async (
 
     while (hasNextPage) {
       const accountTxResponse = await fetchAccountTxns(client, account, limit, marker);
+
       const accountTx = accountTxResponse?.result;
 
       if (!accountTx) return { orderStatus };
@@ -663,8 +603,6 @@ export const getMostRecentTx = async (
       const transactions = accountTx.transactions;
 
       transactions.sort((a, b) => (b.tx?.date ?? 0) - (a.tx?.date ?? 0));
-
-      // accountTxResponse.result.transactions.sort((a, b) => (b.tx?.date ?? 0) - (a.tx?.date ?? 0));
 
       for (const transaction of transactions) {
         if (typeof transaction.meta === 'string') continue;
@@ -684,11 +622,10 @@ export const getMostRecentTx = async (
               }
             }
           }
-          continue;
+        } else {
+          const previousTxnData = parseTransaction(orderId, transaction);
+          if (previousTxnData) return { previousTxnData, previousTxnId: previousTxnData?.previousTxnId, orderStatus };
         }
-
-        const previousTxnData = parseTransaction(orderId, transaction);
-        if (previousTxnData) return { previousTxnData, previousTxnId: previousTxnData?.previousTxnId, orderStatus };
       }
 
       if (!marker ?? limit * page >= searchLimit) hasNextPage = false;

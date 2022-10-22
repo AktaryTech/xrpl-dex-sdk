@@ -13,7 +13,7 @@ import {
   AccountAddress,
   Sequence,
 } from '../models';
-import { getMarketSymbol, getTradeFromData, parseAffectedNode, validateMarketSymbol } from '../utils';
+import { getMarketSymbol, getOfferFromNode, getTradeFromData, validateMarketSymbol } from '../utils';
 
 /**
  * Fetch Trades for a given market symbol. Returns a {@link FetchTradesResponse}.
@@ -79,33 +79,26 @@ async function fetchTrades(
         continue;
 
       for (const affectedNode of transaction.metaData.AffectedNodes) {
-        const node = parseAffectedNode(affectedNode);
-        if (!node) continue;
-        // const { LedgerEntryType, FinalFields } = Object.values(affectedNode)[0] as AffectedNode;
+        const offer = getOfferFromNode(affectedNode);
 
-        // if (LedgerEntryType !== 'Offer' || !FinalFields) continue;
-
-        const offerFields = node.FinalFields;
-        if (!offerFields) continue;
+        if (!offer) continue;
 
         const trade = await getTradeFromData.call(
           this,
           {
             date: ledgerResponse.result.ledger.close_time,
-            Flags: offerFields.Flags as number,
-            OrderAccount: offerFields.Account as AccountAddress,
-            OrderSequence: offerFields.Sequence as Sequence,
+            Flags: offer.Flags as number,
+            OrderAccount: offer.Account as AccountAddress,
+            OrderSequence: offer.Sequence as Sequence,
             Account: transaction.Account,
             Sequence: transaction.Sequence,
-            TakerPays: offerFields.TakerPays as Amount,
-            TakerGets: offerFields.TakerGets as Amount,
+            TakerPays: offer.TakerPays as Amount,
+            TakerGets: offer.TakerGets as Amount,
           },
           { transaction }
         );
 
-        if (trade) {
-          trades.push(trade);
-        }
+        if (trade) trades.push(trade);
       }
     }
 
