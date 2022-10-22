@@ -11,6 +11,8 @@ import {
   Trade,
   SDKContext,
   ArgumentsRequired,
+  OrderNotFound,
+  UnixTimestamp,
   // OrderNotFound,
 } from '../models';
 import {
@@ -45,24 +47,24 @@ async function fetchOrder(
      * Set things up
      */
     const { account, sequence } = parseOrderId(id);
-
     const transactions: TransactionData<OfferCreate>[] = [];
 
     const previousTxn = await getMostRecentTx(this.client, id, params.searchLimit);
+
+    if (!previousTxn) throw new OrderNotFound(`Couldn't find data for Order ID: "${id}"`);
+
     let orderStatus = previousTxn?.orderStatus ?? 'open';
     let previousTxnId = previousTxn?.previousTxnId;
     let previousTxnData = previousTxn?.previousTxnData;
+
     if (previousTxnData) transactions.push(previousTxnData);
 
-    // console.log('1');
-    // console.log(previousTxn);
     /**
      * Build a Transaction history for this Order
      */
     while (previousTxnId) {
       const previousTxnResponse = await fetchTxn(this.client, previousTxnId);
-      // console.log('2');
-      // console.log(previousTxnId);
+
       if (previousTxnResponse) {
         previousTxnData = parseTransaction(id, previousTxnResponse);
         if (previousTxnData) {
@@ -80,6 +82,7 @@ async function fetchOrder(
      */
     const trades: Trade[] = [];
     let order: Order | undefined;
+    let lastTradeTimestamp: UnixTimestamp | undefined;
     let filled = BN(0);
     let fillPrice = BN(0);
     let totalFillPrice = fillPrice;
@@ -113,6 +116,7 @@ async function fetchOrder(
           filled = filled.plus(trade.amount);
           fillPrice = BN(trade.price);
           totalFillPrice = totalFillPrice.plus(fillPrice);
+          if (!lastTradeTimestamp) lastTradeTimestamp = date;
         }
       }
 
@@ -124,6 +128,7 @@ async function fetchOrder(
           {
             status: orderStatus,
             date,
+            lastTradeTimestamp,
             filled,
             fillPrice,
             totalFillPrice,

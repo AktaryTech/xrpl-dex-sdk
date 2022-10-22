@@ -68,6 +68,7 @@ async function fetchMyTrades(
 
       /** Filter by date if `since` is defined */
       if (since && rippleTimeToUnixTime(transaction.tx.date) < since) {
+        hasNextPage = false;
         continue;
       }
 

@@ -52,21 +52,26 @@ async function fetchOrders(
 
     const ledgerResponse = await this.client.request(ledgerRequest);
 
+    const ledger = ledgerResponse.result.ledger;
+
     /** Filter by date if `since` is defined */
-    if (since && rippleTimeToUnixTime(ledgerResponse.result.ledger.close_time) < since) {
+    if (since && rippleTimeToUnixTime(ledger.close_time) < since) {
       hasNextPage = false;
       continue;
     }
 
-    previousLedgerHash = ledgerResponse.result.ledger.parent_hash;
+    previousLedgerHash = ledger.parent_hash;
 
-    const transactions = ledgerResponse.result.ledger.transactions;
+    const transactions = ledger.transactions;
 
     if (!transactions) continue;
 
     let txCount = 0;
 
     for (const transaction of transactions) {
+      txCount += 1;
+      if (orders.length >= limit || txCount >= searchLimit) break;
+
       if (
         typeof transaction !== 'object' ||
         !transaction.metaData ||
@@ -110,11 +115,6 @@ async function fetchOrders(
         continue;
 
       orders.push(order);
-
-      if (orders.length >= limit) break;
-
-      txCount += 1;
-      if (txCount >= searchLimit) break;
     }
 
     hasNextPage = orders.length < limit && txCount < searchLimit;
