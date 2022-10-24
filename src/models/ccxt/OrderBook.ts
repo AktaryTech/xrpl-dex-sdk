@@ -1,3 +1,8 @@
+/**
+ * CCXT Order Book
+ *
+ * https://docs.ccxt.com/en/latest/manual.html?#order-book-structure
+ */
 import { Readable } from 'stream';
 import { BigNumberish, MarketSymbol } from '../common';
 

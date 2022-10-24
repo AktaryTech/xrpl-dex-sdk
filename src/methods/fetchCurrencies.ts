@@ -9,6 +9,8 @@ import { parseCurrencyCode } from '../utils';
  * a {@link FetchCurrenciesResponse}.
  *
  * @category Methods
+ *
+ * @returns A FetchCurrenciesResponse object
  */
 async function fetchCurrencies(this: SDKContext): Promise<FetchCurrenciesResponse> {
   const response = currencies[this.params.network || XrplNetwork.Mainnet];

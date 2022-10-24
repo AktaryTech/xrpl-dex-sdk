@@ -6,6 +6,7 @@ import { getBaseAmountKey, getOrderSideFromFlags, getQuoteAmountKey } from './or
 
 /**
  * Given a MarketSymbol string, returns its Base and Quote currencies.
+ *
  * @param symbol MarketSymbol to parse
  * @returns
  */
@@ -16,6 +17,7 @@ export const parseMarketSymbol = (symbol: MarketSymbol): [base: CurrencyCode, qu
 
 /**
  * Gets a MarketSymbol from an Offer or Transaction.
+ *
  * @param source The Offer or Transaction object to parse
  * @returns
  */
@@ -26,6 +28,7 @@ export const getMarketSymbol = (source: Record<string, any>) => {
 
 /**
  * Gets a MarketSymbol from Base and Quote XRPL Amounts.
+ *
  * @param base Base currency as Amount object
  * @param quote Quote currency as Amount object
  * @returns
@@ -41,6 +44,7 @@ export const getMarketSymbolFromAmount = (base: Amount, quote: Amount): MarketSy
 
 /**
  * Validates a MarketSymbol string. Throws an error if invalid, otherwise returns nothing.
+ *
  * @param symbol MarketSymbol to evaluate
  */
 export const validateMarketSymbol = (symbol: MarketSymbol) => {
@@ -66,6 +70,12 @@ export const validateMarketSymbol = (symbol: MarketSymbol) => {
 /**
  * Currencies
  */
+
+/**
+ * Parses a currency code into its `currency` and `issuer` values.
+ *
+ * @param currencyCode Code to parse
+ */
 export const parseCurrencyCode = (currencyCode: CurrencyCode): { currency: string; issuer?: IssuerAddress } => {
   const [currency, issuer] = currencyCode.split('+');
   if (issuer) {
@@ -75,20 +85,47 @@ export const parseCurrencyCode = (currencyCode: CurrencyCode): { currency: strin
   }
 };
 
+/**
+ * Creates a CurrencyCode from `currency` and `issuer` values.
+ *
+ * @param code Currency code (usually three characters)
+ * @param issuer Issuer address
+ */
 export const getCurrencyCode = (code: string, issuer?: IssuerAddress): CurrencyCode =>
   code === 'XRP' ? code : `${code}+${issuer}`;
 
+/**
+ * Parses an Amount object and returns the issuer adddress.
+ *
+ * @param amount Amount to parse
+ */
 export const getAmountIssuer = (amount: Amount): AccountAddress | undefined =>
   typeof amount === 'object' ? amount.issuer : undefined;
 
+/**
+ * Parses an Amount object and returns the currency code.
+ *
+ * @param amount Amount to parse
+ */
 export const getAmountCurrencyCode = (amount: Amount): CurrencyCode =>
   typeof amount === 'object' ? amount.currency : 'XRP';
 
+/**
+ * Creates an Amount from a `CurrencyCode` and value.
+ *
+ * @param code Amount CurrencyCode
+ * @param value Amount value
+ */
 export const getAmount = (code: CurrencyCode, value: BigNumberish): Amount => {
   const { currency, issuer } = parseCurrencyCode(code);
   return issuer ? { currency, issuer, value: value.toString() } : xrpToDrops(value);
 };
 
+/**
+ * Creates an Amount object without a value.
+ *
+ * @param code Amount CurrencyCode
+ */
 export const getTakerAmount = (code: CurrencyCode): TakerAmount => {
   const { currency, issuer } = parseCurrencyCode(code);
   return issuer ? { currency, issuer } : { currency };

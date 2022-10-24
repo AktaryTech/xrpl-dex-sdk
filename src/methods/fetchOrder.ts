@@ -13,7 +13,6 @@ import {
   ArgumentsRequired,
   OrderNotFound,
   UnixTimestamp,
-  // OrderNotFound,
 } from '../models';
 import {
   BN,
@@ -27,11 +26,21 @@ import {
   validateOrderId,
 } from '../utils';
 
+/**
+ * Fetches an Order from the dEX. Returns a {@link FetchOrderResponse} with the Order,
+ * or undefined if the Order was not found.
+ *
+ * @category Methods
+ *
+ * @param this SDKContext
+ * @param id ID of the Order to fetch
+ * @param symbol (Optional) The symbol of the Order to fetch
+ * @param params (Optional) Additional request parameters
+ * @returns A FetchOrderResponse object
+ */
 async function fetchOrder(
   this: SDKContext,
-  /** The Order's Account and Sequence number, separated by a colon */
   id: OrderId,
-  /** Symbol field is not used */
   /* eslint-disable-next-line */
   symbol?: MarketSymbol,
   params: FetchOrderParams = {

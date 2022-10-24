@@ -1,3 +1,8 @@
+/**
+ * CCXT Exchange Status
+ *
+ * https://docs.ccxt.com/en/latest/manual.html?#exchange-status-structure
+ */
 import { Readable } from 'stream';
 
 export type ExchangeStatusStream = Readable;

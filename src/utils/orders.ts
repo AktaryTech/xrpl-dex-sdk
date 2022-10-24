@@ -19,7 +19,6 @@ import {
 } from 'xrpl';
 import { Amount, LedgerIndex } from 'xrpl/dist/npm/models/common';
 import { Offer, OfferFlags } from 'xrpl/dist/npm/models/ledger';
-// import { parseAmountValue } from 'xrpl/dist/npm/models/transactions/common';
 import { hashOfferId } from 'xrpl/dist/npm/utils/hashes';
 import { CURRENCY_PRECISION, DEFAULT_LIMIT, DEFAULT_SEARCH_LIMIT } from '../constants';
 import {
@@ -51,6 +50,14 @@ import { BN, parseAmountValue, subtractAmounts } from './numbers';
 
 /**
  * Parsers
+ */
+
+/**
+ * Returns Node data in an agnostic format.
+ *
+ * @param affectedNode Node object to parse
+ * @param entryType LedgerEntry type to filter by (defaults to Offer)
+ * @returns An object with the Node's data
  */
 export const parseAffectedNode = (
   affectedNode: Record<string, any>,
@@ -90,6 +97,12 @@ export const parseAffectedNode = (
   }
 };
 
+/**
+ * Parses an OrderId and returns its Account and Sequence values.
+ *
+ * @param orderId ID to parse
+ * @returns An object with the Order's Account and Sequence.
+ */
 export const parseOrderId = (orderId: OrderId) => {
   const [account, sequenceString] = orderId.split(':');
   const sequence = BN(sequenceString);
@@ -98,6 +111,7 @@ export const parseOrderId = (orderId: OrderId) => {
 
 /**
  * Validates an OrderId. Throws an error if invalid, otherwise returns nothing.
+ *
  * @param orderId ID to evaluate
  */
 export const validateOrderId = (orderId: OrderId) => {
@@ -110,15 +124,33 @@ export const validateOrderId = (orderId: OrderId) => {
 };
 
 /**
- * Getters
+ * Creates an OrderId from an Account and Sequence.
+ *
+ * @param account Account address
+ * @param sequence Sequence number
+ * @returns OrderId
  */
 export const getOrderId = (account: AccountAddress, sequence: Sequence): OrderId => `${account}:${sequence}`;
+
+/**
+ * Parses an Offer's flags and returns its side (buy or sell).
+ *
+ * @param flags XRPL flags to evaluate
+ * @returns OrderSide
+ */
 export const getOrderSideFromFlags = (flags: number): OrderSide =>
   (flags & OfferFlags.lsfSell) === OfferFlags.lsfSell
     ? 'sell'
     : (flags & OfferCreateFlags.tfSell) === OfferCreateFlags.tfSell
     ? 'sell'
     : 'buy';
+
+/**
+ * Parses an Order and returns its Time In Force.
+ *
+ * @param order Order data to evaluate
+ * @returns OrderTimeInForce
+ */
 export const getOrderTimeInForce = (order: Record<string, any>): OrderTimeInForce => {
   let orderTimeInForce: OrderTimeInForce = 'GTC';
   if (order.Flags === OfferCreateFlags.tfPassive) orderTimeInForce = 'PO';
@@ -126,12 +158,36 @@ export const getOrderTimeInForce = (order: Record<string, any>): OrderTimeInForc
   else if (order.Flags === OfferCreateFlags.tfImmediateOrCancel) orderTimeInForce = 'IOC';
   return orderTimeInForce;
 };
+
+/**
+ * Gets the key of an Offer's base currency.
+ *
+ * @param side Offer side (buy or sell)
+ * @returns Either `TakerPays` or `TakerGets`
+ */
 export const getBaseAmountKey = (side: OrderSide) => (side === 'buy' ? 'TakerPays' : 'TakerGets');
+
+/**
+ * Gets the key of an Offer's quote currency.
+ *
+ * @param side Offer side (buy or sell)
+ * @returns Either `TakerPays` or `TakerGets`
+ */
 export const getQuoteAmountKey = (side: OrderSide) => (side === 'buy' ? 'TakerGets' : 'TakerPays');
+
+/**
+ * Gets whether a Trade was from a taker or maker.
+ *
+ * @param side Offer side (buy or sell)
+ * @returns Either `taker` or `maker`
+ */
 export const getTakerOrMaker = (side: OrderSide) => (side === 'buy' ? 'taker' : 'maker');
 
 /**
- * Returns an Offer Ledger object from an AffectedNode
+ * Returns an Offer object from an AffectedNode.
+ *
+ * @param node Node object to parse
+ * @returns An Offer object
  */
 export const getOfferFromNode = (node: Node): Offer | undefined => {
   const affectedNode = parseAffectedNode(node, LedgerEntryType.Offer);
@@ -168,32 +224,17 @@ export const getOfferFromNode = (node: Node): Offer | undefined => {
   };
 
   return offer;
-
-  // const { PreviousTxnID, LedgerIndex, LedgerEntryType, FinalFields, PreviousFields } = Object.values(node)[0];
-
-  // if (LedgerEntryType !== 'Offer' || !FinalFields) return;
-
-  // const offer: Offer = {
-  //   ...FinalFields,
-  //   index: LedgerIndex,
-  //   PreviousTxnID: FinalFields.PreviousTxnID ?? PreviousTxnID,
-  //   TakerGets: PreviousFields
-  //     ? subtractAmounts(PreviousFields.TakerGets as Amount, FinalFields.TakerGets as Amount)
-  //     : FinalFields.TakerGets,
-  //   TakerPays: PreviousFields
-  //     ? subtractAmounts(PreviousFields.TakerPays as Amount, FinalFields.TakerPays as Amount)
-  //     : FinalFields.TakerPays,
-  // };
-
-  // return offer;
 };
 
 /**
  * Returns an Offer Ledger object from a Transaction
+ *
+ * @param transaction Transaction to parse
+ * @param overrides Object of values to override transaction defaults with
+ * @returns Offer
  */
 export const getOfferFromTransaction = (
   transaction: Record<string, any>,
-  // transaction: TransactionData<OfferCreate>['transaction'],
   overrides: Record<string, any> = {}
 ): Offer | undefined => {
   if (transaction.TransactionType !== 'OfferCreate') return;
@@ -218,30 +259,12 @@ export const getOfferFromTransaction = (
   };
 
   return offer;
-
-  //   const { Account, Flags, Sequence, TakerGets, TakerPays } = transaction;
-
-  //   if (!Sequence) return;
-
-  //   return {
-  //     Account,
-  //     BookDirectory: '',
-  //     BookNode: '0',
-  //     LedgerEntryType: 'Offer',
-  //     Flags: Flags as OfferCreateFlags,
-  //     OwnerNode: '0',
-  //     Sequence,
-  //     TakerGets,
-  //     TakerPays,
-  //     index: hashOfferId(Account, Sequence),
-  //     PreviousTxnID: '',
-  //     PreviousTxnLgrSeq: 0,
-  //   } as Offer;
 };
 
 /**
- * Get Base and Quote Currency data
- * @param source Offer | Transaction
+ * Get Base and Quote Currency data.
+ *
+ * @param source Offer or Transaction data to parse
  * @returns Data object with Base/Quote information
  */
 export const getBaseAndQuoteData = (source: Record<string, any>) => {
@@ -272,9 +295,8 @@ export const getBaseAndQuoteData = (source: Record<string, any>) => {
 
 /**
  * Get basic Order data
- * @param this
- * @param source
- * @returns
+ *
+ * @param source Order data object to parse
  */
 export async function getSharedOrderData(this: SDKContext, source: Record<string, any>) {
   const data = getBaseAndQuoteData(source);
@@ -298,10 +320,15 @@ export async function getSharedOrderData(this: SDKContext, source: Record<string
   return data;
 }
 
+/**
+ * Get Order fee data.
+ *
+ * @param feeCost Fee costs as a BigNumber
+ * @param source Order data object to parse
+ */
 export const getOrderFeeFromData = (feeCost: BigNumber, source: Record<string, any>) => {
   if (feeCost.isGreaterThan(0)) {
     return {
-      // currency: source.feeCurrency,
       currency: source.quoteCurrency,
       cost: (+feeCost.toPrecision(CURRENCY_PRECISION)).toString(),
       rate: (+source.feeRate.toPrecision(CURRENCY_PRECISION)).toString(),
@@ -311,10 +338,10 @@ export const getOrderFeeFromData = (feeCost: BigNumber, source: Record<string, a
 };
 
 /**
- * Parse OrderSourceData into a CCXT Order object
- * @param this SDKContext
- * @param source OrderSourceData
- * @param info Record<string, any>
+ * Parse OrderSourceData into a CCXT Order object.
+ *
+ * @param inputData OrderSourceData to parse
+ * @param info Info object with raw exchange responses
  * @returns Order
  */
 export async function getOrderFromData(this: SDKContext, inputData: OrderSourceData, info: Record<string, any> = {}) {
@@ -360,9 +387,9 @@ export async function getOrderFromData(this: SDKContext, inputData: OrderSourceD
 
 /**
  * Parse TradeSourceData into a CCXT Trade object
- * @param this SDKContext
- * @param source TradeSourceData
- * @param info Record<string, any>
+ *
+ * @param inputData TradeSourceData data to parse
+ * @param info Info object with raw exchange responses
  * @returns Trade
  */
 export async function getTradeFromData(this: SDKContext, inputData: TradeSourceData, info: Record<string, any> = {}) {
@@ -403,11 +430,12 @@ export async function getTradeFromData(this: SDKContext, inputData: TradeSourceD
 }
 
 /**
- * Fetchers
- */
-
-/**
- * Fetches an Offer's Ledger entry, or returns undefined if not found
+ * Fetches an Offer's Ledger entry.
+ *
+ * @param client Async JSON-RPC client
+ * @param orderId OrderId associated with this Offer
+ * @param ledgerIndex (Optional) Ledger index to use when looking up Offer data.
+ * @returns The Offer's LedgerEntry, or undefined if not found
  */
 export const fetchOfferEntry = async (
   client: Client,
@@ -436,7 +464,11 @@ export const fetchOfferEntry = async (
 };
 
 /**
- * Fetches a Transaction, or returns undefined if not found
+ * Fetches a Transaction.
+ *
+ * @param client Async JSON-RPC client
+ * @param txnHash Transaction hash to look up
+ * @returns The Transaction, or undefined if not found
  */
 export const fetchTxn = async (client: Client, txnHash: string): Promise<TxResponse | undefined> => {
   try {
@@ -456,7 +488,13 @@ export const fetchTxn = async (client: Client, txnHash: string): Promise<TxRespo
 };
 
 /**
- * Fetches a list of AccountTransactions, or returns undefined if not found
+ * Fetches a list of AccountTransactions.
+ *
+ * @param client Async JSON-RPC client
+ * @param account Account to get transactions for
+ * @param limit (Optional) Max number of responses to return
+ * @param marker (Optional) Marker returned by XRPL ledger. Used for pagination
+ * @returns The AccountTransactions, or undefined if none found
  */
 export const fetchAccountTxns = async (
   client: Client,
@@ -487,7 +525,11 @@ export const fetchAccountTxns = async (
 };
 
 /**
- * Filter out irrelevant Transactions, parse AffectedNodes, and normalize results
+ * Filter out irrelevant Transactions, parse AffectedNodes, and normalize results.
+ *
+ * @param orderId OrderId to filter with when parsing
+ * @param transaction Transaction to parse
+ * @return TransactionData object
  */
 export const parseTransaction = (
   orderId: OrderId,
@@ -559,7 +601,11 @@ export const parseTransaction = (
 };
 
 /**
- * Get data for the most recent Transaction to affect an Order
+ * Get data for the most recent Transaction to affect an Order.
+ *
+ * @param orderId OrderId to filter with when parsing
+ * @param searchLimit Max total transactions to search through looking for matching ones.
+ * @return Object with the previous transaction's data and ID
  */
 export const getMostRecentTx = async (
   client: Client,

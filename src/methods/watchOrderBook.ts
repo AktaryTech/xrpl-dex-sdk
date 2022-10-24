@@ -6,16 +6,18 @@ import { MarketSymbol, WatchOrderBookResponse, SDKContext, ArgumentsRequired } f
 import { getTakerAmount, parseMarketSymbol, validateMarketSymbol } from '../utils';
 
 /**
- * Retrieves order book data for a single market pair. Returns an
+ * Listens for new order book data for a single market pair. Returns a
  * {@link WatchOrderBookResponse}.
  *
  * @category Methods
+ *
+ * @param symbol Market symbol to get order book for
+ * @param limit (Optional) Total number of entries to return (default is 20)
+ * @returns A WatchOrderBookResponse object
  */
 async function watchOrderBook(
   this: SDKContext,
-  /** Token pair (called Unified Market Symbol in CCXT) */
   symbol: MarketSymbol,
-  /** Number of results to return in book */
   limit: number = DEFAULT_LIMIT
 ): Promise<WatchOrderBookResponse> {
   if (!symbol) throw new ArgumentsRequired('Missing required arguments for watchOrderBook call');

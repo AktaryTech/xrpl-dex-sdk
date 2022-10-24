@@ -3,10 +3,12 @@ import { markets } from '../data';
 import { FetchMarketsResponse, SDKContext, XrplNetwork } from '../models';
 
 /**
- * Retrieves a list of markets being traded on the dEX. Returns
+ * Retrieves info for all markets being traded on the dEX. Returns
  * a {@link FetchMarketsResponse}.
  *
  * @category Methods
+ *
+ * @returns FetchMarketsResponse
  */
 async function fetchMarkets(this: SDKContext): Promise<FetchMarketsResponse> {
   const response = markets[this.params.network || XrplNetwork.Mainnet];

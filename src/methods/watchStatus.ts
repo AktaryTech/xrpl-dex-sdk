@@ -7,7 +7,7 @@ import { WatchStatusResponse } from '../models';
 /**
  * Streams information regarding {@link ExchangeStatus} from either the info
  * hardcoded in the exchange instance or the API, if available. Returns a
- * {@link Readable} stream.
+ * {@link WatchStatusResponse} object.
  *
  * @category Methods
  */

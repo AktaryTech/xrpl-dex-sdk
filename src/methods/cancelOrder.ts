@@ -8,12 +8,11 @@ import { parseOrderId, validateOrderId } from '../utils';
  * with the canceled Order object.
  *
  * @category Methods
+ *
+ * @param id ID of the Order to cancel
+ * @returns A CancelOrderResponse object
  */
-async function cancelOrder(
-  this: SDKContext,
-  /** ID of the Order to cancel */
-  id: OrderId
-): Promise<CancelOrderResponse> {
+async function cancelOrder(this: SDKContext, id: OrderId): Promise<CancelOrderResponse> {
   if (!id) throw new ArgumentsRequired('Missing required arguments for cancelOrder call');
 
   validateOrderId(id);

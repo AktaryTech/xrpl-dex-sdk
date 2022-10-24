@@ -1,3 +1,8 @@
+/**
+ * CCXT Currencies
+ *
+ * https://docs.ccxt.com/en/latest/manual.html?#currency-structure
+ */
 import { CurrencyCode, PercentDecimal } from '../common';
 
 export interface Currency {

@@ -16,19 +16,21 @@ import {
 import { fetchAccountTxns, getMarketSymbol, getOfferFromNode, getTradeFromData, validateMarketSymbol } from '../utils';
 
 /**
- * Fetch Trades for a given market symbol. Returns a {@link FetchMyTradesResponse}.
+ * Fetch the SDK user's Trades for a given market symbol. Returns a {@link FetchMyTradesResponse}.
  *
  * @category Methods
+ *
+ * @param symbol Market symbol to filter Trades by
+ * @param since (Optional) Only return Trades since this date
+ * @param limit (Optional) Total number of Trades to return (default is 20)
+ * @param params (Optional) Additional request parameters
+ * @returns A FetchMyTradesResponse object
  */
 async function fetchMyTrades(
   this: SDKContext,
-  /** Filter Trades by market symbol */
   symbol: MarketSymbol,
-  /** Only return Trades since this date */
   since?: UnixTimestamp,
-  /** Total number of Trades to return */
   limit: number = DEFAULT_LIMIT,
-  /** eslint-disable-next-line */
   params: FetchMyTradesParams = {
     searchLimit: DEFAULT_SEARCH_LIMIT,
   }

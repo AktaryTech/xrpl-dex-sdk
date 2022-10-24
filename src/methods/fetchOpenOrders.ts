@@ -3,15 +3,22 @@ import { DEFAULT_LIMIT } from '../constants';
 import { FetchOpenOrdersParams, FetchOpenOrdersResponse, MarketSymbol, UnixTimestamp, SDKContext } from '../models';
 import { validateMarketSymbol } from '../utils';
 
+/**
+ * Fetches a list of open Orders from the dEX. Returns a {@link FetchOpenOrdersResponse}.
+ *
+ * @category Methods
+ *
+ * @param symbol (Optional) Market symbol to filter Orders by
+ * @param since (Optional) Only return Orders since this date
+ * @param limit (Optional) Total number of Orders to return (default is 20)
+ * @param params (Optional) Additional request parameters
+ * @returns A FetchOpenOrdersResponse object
+ */
 async function fetchOpenOrders(
   this: SDKContext,
-  /** Filter Orders by market symbol */
   symbol?: MarketSymbol,
-  /** Only return Orders since this date */
   since?: UnixTimestamp,
-  /** Total number of Orders to return */
   limit: number = DEFAULT_LIMIT,
-  /** eslint-disable-next-line */
   params: FetchOpenOrdersParams = {}
 ): Promise<FetchOpenOrdersResponse> {
   if (symbol) validateMarketSymbol(symbol);

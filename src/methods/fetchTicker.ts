@@ -7,16 +7,17 @@ import { MarketSymbol, FetchTickerParams, Ticker, FetchTickerResponse, SDKContex
 import { BN, getTakerAmount, parseMarketSymbol, validateMarketSymbol } from '../utils';
 
 /**
- * Retrieves order book data for a single market pair. Returns an
- * {@link FetchTickerResponse}.
+ * Retrieves price ticker data for a single market pair. Returns a {@link FetchTickerResponse}.
  *
  * @category Methods
+ *
+ * @param symbol Market symbol to get price ticker data for
+ * @param params (Optional) Additional request parameters
+ * @returns A FetchTickerResponse object
  */
 async function fetchTicker(
   this: SDKContext,
-  /** Token pair (called Unified Market Symbol in CCXT) */
   symbol: MarketSymbol,
-  /** Parameters specific to the exchange API endpoint */
   params: FetchTickerParams = {}
 ): Promise<FetchTickerResponse> {
   if (!symbol) throw new ArgumentsRequired('Missing required arguments for fetchTicker call');

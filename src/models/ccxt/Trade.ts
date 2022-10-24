@@ -1,3 +1,8 @@
+/**
+ * CCXT Trades
+ *
+ * https://docs.ccxt.com/en/latest/manual.html?#trade-structure
+ */
 import { Readable } from 'stream';
 import { Amount } from 'xrpl/dist/npm/models/common';
 import { AccountAddress, MarketSymbol, XrplTimestamp } from '../common';

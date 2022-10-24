@@ -6,6 +6,10 @@ import { validateMarketSymbol } from '../utils';
  * Returns a {@link FetchTradingFeeResponse}.
  *
  * @category Methods
+ *
+ * @param symbol (Optional) Market symbol to get trading fees for
+ * @returns A FetchTradingFeeResponse object
+ *
  */
 async function fetchTradingFee(
   this: SDKContext,

@@ -4,10 +4,15 @@ import { ArgumentsRequired, BadRequest, BadSymbol, CreateTrustLineResponse, Curr
 import { handleTxErrors, parseCurrencyCode } from '../utils';
 
 /**
- * Creates a new Order on the Ripple dEX. Returns an {@link CreateOrderResponse}
- * with the newly created Order object.
+ * Creates a Trust Line to a currency Issuer on the XRPL ledger. Returns a
+ * {@link CreateTrustLineResponse} with the newly created Trust Line.
  *
  * @category Methods
+ *
+ * @param this SDKContext
+ * @param code Code for an issued (non-XRP) currency
+ * @param amount Max amount of this currency you can receive
+ * @returns A CreateTrustLineResponse object
  */
 async function createTrustLine(
   this: SDKContext,

@@ -1,3 +1,8 @@
+/**
+ * CCXT Orders
+ *
+ * https://docs.ccxt.com/en/latest/manual.html?#order-structure
+ */
 import { AccountAddress, MarketSymbol, Sequence, UnixTimestamp, XrplTimestamp } from '../common';
 import { Fee, Trade } from '.';
 import { Readable } from 'stream';

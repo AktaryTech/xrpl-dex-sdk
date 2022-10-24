@@ -9,15 +9,23 @@ import {
 } from '../models';
 import { validateMarketSymbol } from '../utils';
 
+/**
+ * Fetches a list of canceled Orders from the dEX. Returns a {@link FetchCanceledOrderResponse}.
+ *
+ * @category Methods
+ *
+ * @param this SDKContext
+ * @param symbol (Optional) Market symbol to filter Orders by
+ * @param since (Optional) Only return Orders since this date
+ * @param limit (Optional) Total number of Orders to return (default is 20)
+ * @param params (Optional) Additional request parameters
+ * @returns A FetchCanceledOrdersResponse object
+ */
 async function fetchCanceledOrders(
   this: SDKContext,
-  /** Filter Orders by market symbol */
   symbol?: MarketSymbol,
-  /** Only return Orders since this date */
   since?: UnixTimestamp,
-  /** Total number of Orders to return */
   limit: number = DEFAULT_LIMIT,
-  /** eslint-disable-next-line */
   params: FetchCanceledOrdersParams = {}
 ): Promise<FetchCanceledOrdersResponse> {
   if (symbol) validateMarketSymbol(symbol);

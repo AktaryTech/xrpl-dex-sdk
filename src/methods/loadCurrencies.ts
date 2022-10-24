@@ -6,6 +6,8 @@ import { LoadCurrenciesResponse, SDKContext } from '../models';
  * Returns a {@link LoadCurrenciesResponse}.
  *
  * @category Methods
+ *
+ * @param reload (Optional) Whether to refresh the cache
  */
 async function loadCurrencies(this: SDKContext, reload = false): Promise<LoadCurrenciesResponse> {
   if (!this.currencies || reload) {

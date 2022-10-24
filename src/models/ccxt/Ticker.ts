@@ -1,3 +1,8 @@
+/**
+ * CCXT Price Ticker
+ *
+ * https://docs.ccxt.com/en/latest/manual.html?#ticker-structure
+ */
 import { Readable } from 'stream';
 import { MarketSymbol, PercentDecimal, UnixTimestamp } from '../common';
 

@@ -23,16 +23,17 @@ import {
 } from '../utils';
 
 /**
- * Retrieves order book data for mulitple market pairs. Returns a
- * {@link WatchOrdersResponse}.
+ * Listens for new Orders for a single market pair. Returns a {@link WatchOrdersResponse}.
  *
  * @category Methods
+ *
+ * @param symbol (Optional) Market symbol to filter Orders by
+ * @param params (Optional) Additional request parameters
+ * @returns A WatchOrdersResponse object
  */
 async function watchOrders(
   this: SDKContext,
-  /** Filter Orders by market symbol */
   symbol?: MarketSymbol,
-  /** eslint-disable-next-line */
   params: WatchOrdersParams = {}
 ): Promise<WatchOrdersResponse> {
   if (symbol) validateMarketSymbol(symbol);

@@ -1,3 +1,8 @@
+/**
+ * CCXT Balances
+ *
+ * https://docs.ccxt.com/en/latest/manual.html?#balance-structure
+ */
 import { Readable } from 'stream';
 import { CurrencyCode } from '../common';
 

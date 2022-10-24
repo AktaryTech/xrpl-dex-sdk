@@ -22,25 +22,28 @@ import {
 } from '../utils';
 
 /**
- * Creates a new Order on the Ripple dEX. Returns an {@link CreateOrderResponse}
- * with the newly created Order object.
+ * Places an Order on the Ripple dEX. Returns an {@link CreateOrderResponse} with the
+ * newly created Order object.
  *
  * @category Methods
+ *
+ * @param this SDKContext
+ * @param symbol Market symbol for new Order
+ * @param side Order direction (buy or sell)
+ * @param type Order type (only limit is supported)
+ * @param amount How much currency you want to trade (in units of base currency)
+ * @param price Price at which the order is to be fullfilled (in units of quote currency)
+ * @param params (Optional) Additional request parameters
+ * @returns A CreateOrderResponse object
  */
 async function createOrder(
   this: SDKContext,
-  /** Token pair (called Unified Market Symbol in CCXT) */
   symbol: MarketSymbol,
-  /** Order direction (buy or sell) */
   side: OrderSide,
-  /** Order type (limit only) */
   /* eslint-disable-next-line */
   type: OrderType,
-  /** How much currency you want to trade (usually, but not always) in units of the base currency) */
   amount: string,
-  /** The price at which the order is to be fullfilled in units of the quote currency (ignored in market orders) */
   price: string,
-  /** Parameters specific to the exchange API endpoint */
   params: CreateOrderParams = {}
 ): Promise<CreateOrderResponse> {
   if (!symbol || !side || !amount || !price || !params)

@@ -5,6 +5,8 @@ import { FetchFeesResponse, SDKContext } from '../models';
  * list of currencies. Returns a {@link FetchFeesResponse}.
  *
  * @category Methods
+ *
+ * @returns A FetchFeesResponse object
  */
 async function fetchFees(this: SDKContext): Promise<FetchFeesResponse> {
   const currencies = await this.fetchCurrencies();

@@ -8,14 +8,16 @@ import { validateMarketSymbol } from '../utils';
  * {@link FetchOrderBooksResponse}.
  *
  * @category Methods
+ *
+ * @param symbols Array of Market symbols to get order books for
+ * @param limit (Optional) Total number of entries to return (default is 20)
+ * @param params (Optional) Additional request parameters
+ * @returns A FetchOrderBooksResponse object
  */
 async function fetchOrderBooks(
   this: SDKContext,
-  /** Array of token pairs (called Unified Market Symbols in CCXT) */
   symbols: MarketSymbol[],
-  /** Number of results to return */
   limit: number = DEFAULT_LIMIT,
-  /** Parameters specific to the exchange API endpoint */
   params: FetchOrderBooksParams
 ): Promise<FetchOrderBooksResponse> {
   if (!symbols) throw new ArgumentsRequired('Missing required arguments for fetchOrderBooks call');

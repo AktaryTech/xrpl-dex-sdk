@@ -5,16 +5,17 @@ import { MarketSymbol, WatchTickerParams, SDKContext, Ticker, WatchTickerRespons
 import { validateMarketSymbol } from '../utils';
 
 /**
- * Retrieves order book data for a single market pair. Returns an
- * {@link WatchTickerResponse}.
+ * Listens for new price ticker data for a single market pair. Returns a {@link WatchTickerResponse}.
  *
  * @category Methods
+ *
+ * @param symbol Market symbol to get price ticker data for
+ * @param params (Optional) Additional request parameters
+ * @returns A WatchTickerResponse object
  */
 async function watchTicker(
   this: SDKContext,
-  /** Token pair (called Unified Market Symbol in CCXT) */
   symbol: MarketSymbol,
-  /** Parameters specific to the exchange API endpoint */
   params: WatchTickerParams
 ): Promise<WatchTickerResponse> {
   if (!symbol) throw new ArgumentsRequired('Missing required arguments for watchTicker call');

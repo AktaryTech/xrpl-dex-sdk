@@ -2,6 +2,11 @@ import { BadRequest, OrderNotFound, InsufficientFunds } from 'ccxt';
 import { ErrorResponse, LedgerEntryResponse } from 'xrpl';
 import { TxResponse, XrplErrorTypes, XrplTransactionErrorTypes } from '../models';
 
+/**
+ * Evaluates a LedgerEntry response and throws any errors found.
+ *
+ * @param offerResult LedgerEntryResponse to check
+ */
 export const handleLedgerEntryErrors = (offerResult: LedgerEntryResponse) => {
   if (offerResult.status === 'error') {
     const { error, error_message, error_code } = offerResult as unknown as ErrorResponse;
@@ -13,6 +18,11 @@ export const handleLedgerEntryErrors = (offerResult: LedgerEntryResponse) => {
   }
 };
 
+/**
+ * Evaluates a Transaction response and throws any errors found.
+ *
+ * @param txResponse TxResponse to check
+ */
 export const handleTxErrors = (txResponse: TxResponse) => {
   if (txResponse.status === 'error') {
     const { error, error_message, error_code } = txResponse as unknown as ErrorResponse;

@@ -13,20 +13,21 @@ import {
 import { getMarketSymbol, getOrderId, validateMarketSymbol } from '../utils';
 
 /**
- * Retrieves order book data for mulitple market pairs. Returns a
- * {@link FetchOrdersResponse}.
+ * Retrieves order book data for multiple market pairs. Returns a {@link FetchOrdersResponse}.
  *
  * @category Methods
+ *
+ * @param symbol (Optional) Market symbol to filter Orders by
+ * @param since (Optional) Only return Orders since this date
+ * @param limit (Optional) Total number of entries to return (default is 20)
+ * @param params (Optional) Additional request parameters
+ * @returns A FetchOrdersResponse object
  */
 async function fetchOrders(
   this: SDKContext,
-  /** Filter Orders by market symbol */
   symbol?: MarketSymbol,
-  /** Only return Orders since this date */
   since?: UnixTimestamp,
-  /** Total number of Orders to return */
   limit: number = DEFAULT_LIMIT,
-  /** eslint-disable-next-line */
   params: FetchOrdersParams = {}
 ): Promise<FetchOrdersResponse> {
   if (symbol) validateMarketSymbol(symbol);

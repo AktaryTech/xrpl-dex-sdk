@@ -6,12 +6,9 @@ import BigNumber from 'bignumber.js';
 export type AccountAddress = string;
 export type IssuerAddress = string;
 export type Sequence = number;
-
 export type RippleUrl = string;
-
 export type CurrencyCode = `${string}+${IssuerAddress}` | string;
 export type MarketSymbol = `${CurrencyCode | string}/${CurrencyCode | string}`;
-
 export type ResponseInfo = Record<string, any>;
 
 /**
@@ -41,21 +38,4 @@ export enum XrplNetwork {
   Devnet = 'devnet',
   NFTDevnet = 'nft_devnet',
   Local = 'local',
-}
-
-/**
- * Parameters
- */
-export interface PaginationParams {
-  /** Limit the number of transactions to retrieve. */
-  limit?: number;
-  /** Value from a previous paginated response. Resume retrieving data where that response left off. */
-  marker?: unknown;
-}
-
-/**
- * Responses
- */
-export interface BaseResponse {
-  info: Record<string, any>;
 }

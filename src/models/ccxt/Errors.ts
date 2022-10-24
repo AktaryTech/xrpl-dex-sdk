@@ -1,3 +1,8 @@
+/**
+ * CCXT Errors
+ *
+ * https://docs.ccxt.com/en/latest/manual.html#error-handling
+ */
 export class BaseError extends Error {
   constructor(message: string) {
     super(message);

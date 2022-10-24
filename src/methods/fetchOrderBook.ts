@@ -19,14 +19,16 @@ import { getSharedOrderData, getTakerAmount, parseMarketSymbol, validateMarketSy
  * {@link FetchOrderBookResponse}.
  *
  * @category Methods
+ *
+ * @param symbol Market symbol to get order book for
+ * @param limit (Optional) Total number of entries to return (default is 20)
+ * @param params (Optional) Additional request parameters
+ * @returns A FetchOrderBookResponse object
  */
 async function fetchOrderBook(
   this: SDKContext,
-  /** Token pair (called Unified Market Symbol in CCXT) */
   symbol: MarketSymbol,
-  /** Number of results to return */
   limit: number = DEFAULT_LIMIT,
-  /** Parameters specific to the exchange API endpoint */
   params: FetchOrderBookParams = {
     searchLimit: DEFAULT_SEARCH_LIMIT,
   }

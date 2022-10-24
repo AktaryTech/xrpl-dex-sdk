@@ -6,12 +6,11 @@ import { SDKContext, CurrencyCode, FetchTransactionFeeResponse, ArgumentsRequire
  * currency. Returns a {@link FetchTransactionFeeResponse}.
  *
  * @category Methods
+ *
+ * @param code Currency code to get fees for
+ * @returns A FetchTransactionsFeeResponse object
  */
-async function fetchTransactionFee(
-  this: SDKContext,
-  /** Currency code to get fees for */
-  code: CurrencyCode
-): Promise<FetchTransactionFeeResponse> {
+async function fetchTransactionFee(this: SDKContext, code: CurrencyCode): Promise<FetchTransactionFeeResponse> {
   if (!code) throw new ArgumentsRequired('Missing required arguments for fetchTransactionFee call');
 
   const { result: feesResult } = await this.client.request({ command: 'fee' } as FeeRequest);

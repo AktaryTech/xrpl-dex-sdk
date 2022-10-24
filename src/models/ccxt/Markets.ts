@@ -1,3 +1,8 @@
+/**
+ * CCXT Markets
+ *
+ * https://docs.ccxt.com/en/latest/manual.html?#market-structure
+ */
 import { CurrencyCode, MarketSymbol, PercentDecimal } from '../common';
 
 export interface Market {

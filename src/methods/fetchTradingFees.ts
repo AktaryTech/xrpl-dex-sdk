@@ -6,6 +6,9 @@ import { validateMarketSymbol } from '../utils';
  * Returns a {@link FetchTradingFeesResponse}.
  *
  * @category Methods
+ *
+ * @returns A FetchTradingFeesResponse object
+ *
  */
 async function fetchTradingFees(this: SDKContext): Promise<FetchTradingFeesResponse> {
   const markets = await this.fetchMarkets();

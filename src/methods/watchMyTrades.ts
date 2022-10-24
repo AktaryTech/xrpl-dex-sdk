@@ -6,16 +6,14 @@ import { MarketSymbol, SDKContext, AffectedNode, TradeStream, ArgumentsRequired 
 import { getMarketSymbol, getTradeFromData, validateMarketSymbol } from '../utils';
 
 /**
- * Listens for new Trades from the SDK user for a given market symbol. Returns a
+ * Listens for new Trades from the SDK user for a given market pair. Returns a
  * {@link WatchMyTradesResponse}.
  *
  * @category Methods
+ *
+ * @param symbol Market symbol to watch
  */
-async function watchMyTrades(
-  this: SDKContext,
-  /** Filter Trades by market symbol */
-  symbol: MarketSymbol
-): Promise<TradeStream> {
+async function watchMyTrades(this: SDKContext, symbol: MarketSymbol): Promise<TradeStream> {
   if (!symbol) throw new ArgumentsRequired('Missing required arguments for watchMyTrades call');
   validateMarketSymbol(symbol);
 

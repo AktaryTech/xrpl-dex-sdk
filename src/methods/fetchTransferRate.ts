@@ -4,10 +4,11 @@ import { ArgumentsRequired, FetchTransferRateResponse, IssuerAddress, SDKContext
 import { BN } from '../utils';
 
 /**
- * Retrieves an Issuer's transfer rate (if any)
- * a {@link FetchTransferRateResponse}.
+ * Retrieves an Issuer's transfer rate (if any). Returns a {@link FetchTransferRateResponse}.
  *
  * @category Methods
+ *
+ * @param issuer Issuer address to get data for
  */
 async function fetchTransferRate(this: SDKContext, issuer: IssuerAddress): Promise<FetchTransferRateResponse> {
   if (!issuer) throw new ArgumentsRequired('Missing required arguments for fetchTransferRate call');

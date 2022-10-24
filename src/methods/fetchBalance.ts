@@ -10,6 +10,10 @@ import { BN, getCurrencyCode } from '../utils';
  * and funds availability. Returns a {@link FetchBalanceResponse}.
  *
  * @category Methods
+ *
+ * @param this SDKContext
+ * @param params (Optional) Additional request parameters
+ * @returns A FetchBalanceResponse object
  */
 async function fetchBalance(
   this: SDKContext,

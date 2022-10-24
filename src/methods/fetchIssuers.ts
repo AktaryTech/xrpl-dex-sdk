@@ -3,10 +3,11 @@ import { issuers as issuersData } from '../data';
 import { BadRequest, FetchIssuersResponse, SDKContext, XrplNetwork } from '../models';
 
 /**
- * Retrieves a list of trusted issuers
- * a {@link FetchIssuersResponse}.
+ * Retrieves a list of trusted issuers. Returns a {@link FetchIssuersResponse}.
  *
  * @category Methods
+ *
+ * @returns a FetchIssuersResponse object
  */
 async function fetchIssuers(this: SDKContext): Promise<FetchIssuersResponse> {
   const issuers = issuersData[this.params.network || XrplNetwork.Mainnet];

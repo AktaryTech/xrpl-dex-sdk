@@ -8,6 +8,9 @@ import { validateMarketSymbol } from '../utils';
  * Returns a {@link FetchMarketResponse}.
  *
  * @category Methods
+ *
+ * @param symbol Market symbol to get information for
+ * @returns FetchMarketResponse
  */
 async function fetchMarket(this: SDKContext, symbol: MarketSymbol): Promise<FetchMarketResponse> {
   if (!symbol) throw new ArgumentsRequired('Missing required arguments for fetchMarket call');

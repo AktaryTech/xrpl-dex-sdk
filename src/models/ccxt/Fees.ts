@@ -1,3 +1,8 @@
+/**
+ * CCXT Fees
+ *
+ * https://docs.ccxt.com/en/latest/manual.html?#fees
+ */
 import { CurrencyCode, Drops, MarketSymbol, PercentDecimal } from '../common';
 
 /**
