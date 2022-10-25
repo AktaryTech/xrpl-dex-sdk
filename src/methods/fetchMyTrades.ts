@@ -16,7 +16,7 @@ import {
 import { fetchAccountTxns, getMarketSymbol, getOfferFromNode, getTradeFromData, validateMarketSymbol } from '../utils';
 
 /**
- * Fetch the SDK user's {@link Trades} for a given market symbol.
+ * Fetch the SDK user's {@link Trades} for a given market symbol. Returns a {@link FetchMyTradesResponse}.
  *
  * @category Methods
  *

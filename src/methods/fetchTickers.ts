@@ -10,7 +10,8 @@ import {
 import { validateMarketSymbol } from '../utils';
 
 /**
- * Retrieves price {@link Ticker} data for multiple {@link Market} pairs.
+ * Retrieves price {@link Ticker} data for multiple {@link Market} pairs. Returns a
+ * {@link FetchTickersResponse}.
  *
  * @category Methods
  *

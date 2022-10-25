@@ -9,7 +9,8 @@ import {
 import { validateMarketSymbol } from '../utils';
 
 /**
- * Places a Limit Buy {@link Order} on the Ripple dEX.
+ * Places a Limit Buy {@link Order} on the Ripple dEX. Returns a {@link CreateLimitBuyOrderResponse}
+ * with the newly created Order's ID.
  *
  * @category Methods
  *

@@ -4,10 +4,10 @@ import { OrderId, CancelOrderResponse, SDKContext, ArgumentsRequired } from '../
 import { parseOrderId, validateOrderId } from '../utils';
 
 /**
- * Cancels an {@link Order} on the Ripple dEX. Returns an {@link CancelOrderResponse}
- * with the canceled Order object.
+ * Cancels an {@link Order} on the Ripple dEX. Returns a Promise resolving to a {@link CancelOrderResponse}
+ * with the ID of the canceled Order object.
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#canceling-orders}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#canceling-orders
  *
  * @category Methods
  *

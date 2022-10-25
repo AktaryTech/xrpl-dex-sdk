@@ -1,7 +1,7 @@
 /**
  * CCXT Order Book Types
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#order-book}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#order-book
  */
 import { Readable } from 'stream';
 import { BigNumberish, MarketSymbol } from '../common';
@@ -18,7 +18,7 @@ export type OrderBookLevel = 'L1' | 'L2' | 'L3';
 /**
  * OrderBook
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#order-book-structure}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#order-book-structure
  */
 export interface OrderBook {
   symbol: MarketSymbol;

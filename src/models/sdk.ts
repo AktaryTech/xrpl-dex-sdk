@@ -150,6 +150,15 @@ export interface SDKContext {
     limit?: number,
     params?: FetchL2OrderBookParams
   ): Promise<FetchL2OrderBookResponse>;
+  /**
+   * Retrieves info about a single {@link Market} being traded on the dEX. Returns a {@link FetchMarketResponse}.
+   *
+   * @category Methods
+   *
+   * @param symbol - {@link MarketSymbol} to get information for
+   * @returns A Promise resolving to a {@link FetchMarketResponse} object
+   */
+
   fetchMarket(symbol: MarketSymbol): Promise<FetchMarketResponse>;
   fetchMarkets(): Promise<FetchMarketsResponse>;
   fetchMyTrades(
@@ -178,12 +187,7 @@ export interface SDKContext {
   loadMarkets(reload?: boolean): Promise<LoadMarketsResponse>;
   watchBalance(params: WatchBalanceParams): Promise<Readable>;
   watchOrderBook(symbol: MarketSymbol, limit?: number): Promise<WatchOrderBookResponse>;
-  watchOrders(
-    symbol?: MarketSymbol,
-    since?: UnixTimestamp,
-    limit?: number,
-    params?: WatchOrdersParams
-  ): Promise<WatchOrdersResponse>;
+  watchOrders(symbol?: MarketSymbol, params?: WatchOrdersParams): Promise<WatchOrdersResponse>;
   watchStatus(): Promise<Readable>;
   watchTicker(symbol: MarketSymbol, params: WatchTickerParams): Promise<Readable>;
   watchTickers(symbols: MarketSymbol[], params: WatchTickersParams): Promise<Readable>;

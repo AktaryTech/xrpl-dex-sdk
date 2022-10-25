@@ -4,11 +4,12 @@ import { ArgumentsRequired, FetchTransferRateResponse, IssuerAddress, SDKContext
 import { BN } from '../utils';
 
 /**
- * Retrieves an {@link Issuer}'s transfer rate (if any).
+ * Retrieves an {@link Issuer}'s transfer rate (if any). Returns a {@link FetchTransferRateResponse}
+ * with the transfer rate, or zero if the Issuer has no transfer fees.
  *
  * @category Methods
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#fees}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#fees
  *
  * @param issuer - Issuer address to get data for
  * @returns A {@link FetchTransferRateResponse} object

@@ -13,11 +13,12 @@ import {
 import { getMarketSymbol, getOrderId, validateMarketSymbol } from '../utils';
 
 /**
- * Retrieves {@link OrderBook} data for multiple {@link Market} pairs.
+ * Retrieves {@link OrderBook} data for multiple {@link Market} pairs. Returns a
+ * {@link FetchOrdersResponse} with a list of any matching Orders.
  *
  * @category Methods
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#querying-multiple-orders-and-trades}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#querying-multiple-orders-and-trades
  *
  * @param symbol - (Optional) {@link MarketSymbol} to filter {@link Order}s by
  * @param since - (Optional) Only return Orders since this date

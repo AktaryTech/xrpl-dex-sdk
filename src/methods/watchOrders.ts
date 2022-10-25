@@ -23,13 +23,14 @@ import {
 } from '../utils';
 
 /**
- * Listens for new {@link Orders} for a single {@link Market} pair.
+ * Listens for new {@link Orders} for a single {@link Market} pair. Returns a Promise
+ * resolving to a {@link WatchOrdersResponse}.
  *
  * @category Methods
  *
  * @param symbol - (Optional) {@link MarketSymbol} to filter Orders by
  * @param params - (Optional) A {@link WatchOrdersParams} object
- * @returns A {@link WatchOrdersResponse} object
+ * @returns A Promise resolving to a {@link WatchOrdersResponse} object
  */
 async function watchOrders(
   this: SDKContext,

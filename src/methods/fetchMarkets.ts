@@ -3,7 +3,7 @@ import { markets } from '../data';
 import { FetchMarketsResponse, SDKContext, XrplNetwork } from '../models';
 
 /**
- * Retrieves info for all {@link Markets} being traded on the dEX.
+ * Retrieves info for all {@link Markets} being traded on the dEX. Returns a {@link FetchMarketsResponse}.
  *
  * @category Methods
  *

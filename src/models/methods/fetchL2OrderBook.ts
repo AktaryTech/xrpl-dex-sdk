@@ -3,7 +3,7 @@ import { OrderBook } from '../ccxt';
 import { AccountAddress } from '../common';
 
 /**
- * Request parameters for a fetchL2OrderBook call
+ * Request parameters for a {@link SDK.fetchL2OrderBook} call.
  *
  * @category Parameters
  */
@@ -17,7 +17,7 @@ export interface FetchL2OrderBookParams {
 }
 
 /**
- * Expected response from a fetchL2OrderBook call
+ * Expected response from a {@link SDK.fetchL2OrderBook} call.
  *
  * @category Responses
  */

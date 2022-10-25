@@ -2,18 +2,19 @@ import _ from 'lodash';
 import { Readable } from 'stream';
 import { OfferCreate, Payment, SubscribeRequest, TransactionStream } from 'xrpl';
 import { LedgerStreamResponse } from 'xrpl/dist/npm/models/methods/subscribe';
-import { WatchBalanceParams, SDKContext, BalanceStream, ArgumentsRequired } from '../models';
+import { WatchBalanceParams, SDKContext, ArgumentsRequired, WatchBalanceResponse } from '../models';
 import { getAmountCurrencyCode } from '../utils';
 
 /**
- * Listens for new {@link OrderBook} data for a single {@link Market} pair.
+ * Listens for new {@link OrderBook} data for a single {@link Market} pair. Returns a Promise
+ * resolving to a {@link WatchBalanceResponse}.
  *
  * @category Methods
  *
  * @param params - (Optional) A {@link WatchBalanceParams} object
- * @returns A Promise that returns a {@link BalanceStream}
+ * @returns A Promise resolving to a {@link WatchBalanceResponse} object
  */
-async function watchBalance(this: SDKContext, params: WatchBalanceParams): Promise<BalanceStream> {
+async function watchBalance(this: SDKContext, params: WatchBalanceParams): Promise<WatchBalanceResponse> {
   if (!params) throw new ArgumentsRequired('Missing required arguments for watchBalance call');
   const account = this.wallet.classicAddress;
 

@@ -3,14 +3,6 @@ import { markets } from '../data';
 import { ArgumentsRequired, FetchMarketResponse, MarketSymbol, SDKContext, XrplNetwork } from '../models';
 import { validateMarketSymbol } from '../utils';
 
-/**
- * Retrieves info about a single {@link Market} being traded on the dEX.
- *
- * @category Methods
- *
- * @param symbol - {@link MarketSymbol} to get information for
- * @returns A {@link FetchMarketResponse} object
- */
 async function fetchMarket(this: SDKContext, symbol: MarketSymbol): Promise<FetchMarketResponse> {
   if (!symbol) throw new ArgumentsRequired('Missing required arguments for fetchMarket call');
   validateMarketSymbol(symbol);

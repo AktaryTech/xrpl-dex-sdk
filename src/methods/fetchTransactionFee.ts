@@ -2,11 +2,12 @@ import { FeeRequest } from 'xrpl';
 import { SDKContext, CurrencyCode, FetchTransactionFeeResponse, ArgumentsRequired } from '../models';
 
 /**
- * Returns information about fees incurred for performing transactions with a given {@link Currency}.
+ * Fetches information about fees incurred for performing transactions with a given {@link Currency}.
+ * Returns a {@link FetchTransactionFeesResponse}.
  *
  * @category Methods
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#fees}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#fees
  *
  * @param code - {@link CurrencyCode} to get fees for
  * @returns A {@link FetchTransactionsFeeResponse} object

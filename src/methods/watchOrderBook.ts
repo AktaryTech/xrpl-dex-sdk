@@ -2,23 +2,24 @@ import _ from 'lodash';
 import { Readable } from 'stream';
 import { SubscribeRequest, TransactionStream } from 'xrpl';
 import { DEFAULT_LIMIT } from '../constants';
-import { MarketSymbol, OrderBookStream, SDKContext, ArgumentsRequired } from '../models';
+import { MarketSymbol, SDKContext, ArgumentsRequired, WatchOrderBookResponse } from '../models';
 import { getTakerAmount, parseMarketSymbol, validateMarketSymbol } from '../utils';
 
 /**
- * Listens for new {@link OrderBook} data for a single {@link Market} pair.
+ * Listens for new {@link OrderBook} data for a single {@link Market} pair. Returns a Promise
+ * resolving to a {@link WatchOrderBookResponse}.
  *
  * @category Methods
  *
  * @param symbol - {@link MarketSymbol} to get order book for
  * @param limit - (Optional) Total number of entries to return (default is 20)
- * @returns A Promise that returns an {@link OrderBookStream} object
+ * @returns A Promise resolving to a {@link WatchOrderBookResponse} object
  */
 async function watchOrderBook(
   this: SDKContext,
   symbol: MarketSymbol,
   limit: number = DEFAULT_LIMIT
-): Promise<OrderBookStream> {
+): Promise<WatchOrderBookResponse> {
   if (!symbol) throw new ArgumentsRequired('Missing required arguments for watchOrderBook call');
   validateMarketSymbol(symbol);
 

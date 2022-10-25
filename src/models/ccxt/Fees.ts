@@ -1,7 +1,7 @@
 /**
  * CCXT Fees
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#fees}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#fees
  */
 import { CurrencyCode, Drops, MarketSymbol, PercentDecimal } from '../common';
 
@@ -10,7 +10,7 @@ import { CurrencyCode, Drops, MarketSymbol, PercentDecimal } from '../common';
  *
  * This is not related to the Fees endpoints.
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#fee-structure}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#fee-structure
  */
 export interface Fee {
   /** Fee currency */

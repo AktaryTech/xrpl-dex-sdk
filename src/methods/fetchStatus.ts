@@ -2,8 +2,8 @@ import { ServerStateRequest } from 'xrpl';
 import { SDKContext, ExchangeStatusType, FetchStatusResponse } from '../models';
 
 /**
- * Returns information regarding {@link ExchangeStatus} from either the info
- * hardcoded in the exchange instance or the API, if available.
+ * Fetches information regarding {@link ExchangeStatus} from either the info hardcoded in
+ * the exchange instance or the API, if available. Returns a {@link FetchStatusResponse}.
  *
  * @category Methods
  *

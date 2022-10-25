@@ -22,11 +22,12 @@ import {
 } from '../utils';
 
 /**
- * Places an {@link Order} on the Ripple dEX.
+ * Places an {@link Order} on the Ripple dEX. Returns a {@link CreateOrderResponse} with the
+ * newly created Order's ID.
  *
  * @category Methods
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#placing-orders}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#placing-orders
  *
  * @param symbol - {@link MarketSymbol} for new Order
  * @param side - Order direction (buy or sell)

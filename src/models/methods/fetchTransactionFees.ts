@@ -1,7 +1,7 @@
 import { TransactionFee } from '../ccxt';
 
 /**
- * Expected response from a fetchTransactionFees call
+ * Expected response from a {@link SDK.fetchTransactionFees} call.
  *
  * @category Responses
  */

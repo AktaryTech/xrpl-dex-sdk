@@ -6,12 +6,12 @@ import { Balances, FetchBalanceParams, FetchBalanceResponse, SDKContext } from '
 import { BN, getCurrencyCode } from '../utils';
 
 /**
- * Returns information about an account's balances, sorted by currency
- * and funds availability.
+ * Fetches information about an account's balances, sorted by currency and funds availability.
+ * Returns a {@link FetchBalanceResponse}.
  *
  * @category Methods
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#account-balance}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#account-balance
  *
  * @param params - (Optional) A {@link FetchBalanceParams} object
  * @returns A {@link FetchBalanceResponse} object

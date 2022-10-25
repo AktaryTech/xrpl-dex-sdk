@@ -24,7 +24,7 @@ export type OrderSide = 'buy' | 'sell';
 /**
  * Order
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#order-structure}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#order-structure
  */
 export interface Order {
   id: OrderId;

@@ -15,7 +15,7 @@ import {
 import { getSharedOrderData, getTakerAmount, parseMarketSymbol, validateMarketSymbol } from '../utils';
 
 /**
- * Retrieves order book data for a single {@link Market} pair.
+ * Retrieves order book data for a single {@link Market} pair. Returns a {@link FetchOrderBookResponse}.
  *
  * @category Methods
  *

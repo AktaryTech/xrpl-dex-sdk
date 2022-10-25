@@ -3,7 +3,7 @@ import { Memo } from 'xrpl/dist/npm/models/common';
 import { CreateOrderResponse } from './createOrder';
 
 /**
- * Request parameters for a createLimitBuyOrder call
+ * Request parameters for a {@link SDK.createLimitBuyOrder} call.
  *
  * @category Parameters
  */
@@ -17,7 +17,7 @@ export interface CreateLimitBuyOrderParams {
 }
 
 /**
- * Expected response from a createLimitBuyOrder call
+ * Expected response from a {@link SDK.createLimitBuyOrder} call.
  *
  * @category Responses
  */

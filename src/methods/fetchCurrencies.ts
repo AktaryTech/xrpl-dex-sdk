@@ -5,7 +5,7 @@ import { FetchCurrenciesResponse, SDKContext, XrplNetwork } from '../models';
 import { parseCurrencyCode } from '../utils';
 
 /**
- * Retrieves a list of {@link Currencies} being traded on the dEX.
+ * Retrieves a list of {@link Currencies} being traded on the dEX. Returns a {@link FetchCurrenciesResponse}.
  *
  * @category Methods
  *

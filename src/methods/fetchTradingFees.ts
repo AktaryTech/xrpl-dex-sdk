@@ -2,11 +2,12 @@ import { SDKContext, FetchTradingFeesResponse, MarketSymbol } from '../models';
 import { validateMarketSymbol } from '../utils';
 
 /**
- * Returns information about the fees incurred while trading on any {@link Market}.
+ * Fetches information about the fees incurred while trading on any {@link Market}. Returns a
+ * {@link FetchTradingFeesResponse}.
  *
  * @category Methods
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#fees}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#fees
  *
  * @returns A {@link FetchTradingFeesResponse} object
  */

@@ -3,7 +3,7 @@ import { issuers as issuersData } from '../data';
 import { BadRequest, FetchIssuersResponse, SDKContext, XrplNetwork } from '../models';
 
 /**
- * Retrieves a list of trusted {@link Issuers}.
+ * Retrieves a list of trusted {@link Issuers}. Returns a {@link FetchIssuersResponse}.
  *
  * @category Methods
  *

@@ -3,7 +3,7 @@ import { DEFAULT_LIMIT } from '../constants';
 import { MarketSymbol, SDKContext, FetchL2OrderBookParams, FetchL2OrderBookResponse } from '../models';
 
 /**
- * Retrieves L2 order book data for a single market pair.
+ * Retrieves L2 order book data for a single market pair. Returns a {@link FetchL2OrderBookResponse}.
  *
  * @category Methods
  *

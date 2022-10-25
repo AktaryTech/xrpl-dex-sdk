@@ -2,18 +2,19 @@ import _ from 'lodash';
 import { Readable } from 'stream';
 import { SubscribeRequest, TransactionStream } from 'xrpl';
 import { Offer } from 'xrpl/dist/npm/models/ledger';
-import { MarketSymbol, SDKContext, AffectedNode, TradeStream, ArgumentsRequired } from '../models';
+import { MarketSymbol, SDKContext, AffectedNode, ArgumentsRequired, WatchMyTradesResponse } from '../models';
 import { getMarketSymbol, getTradeFromData, validateMarketSymbol } from '../utils';
 
 /**
- * Listens for new {@link Trades} from the SDK user for a given {@link Market} pair.
+ * Listens for new {@link Trades} from the SDK user for a given {@link Market} pair. Returns a Promise
+ * resolving to a {@link WatchMyTradesResponse}.
  *
  * @category Methods
  *
  * @param symbol - {@link MarketSymbol} to watch
- * @returns A Promise that returns a {@link TradeStream}
+ * @returns A Promise resolving to a {@link WatchMyTradesResponse} object
  */
-async function watchMyTrades(this: SDKContext, symbol: MarketSymbol): Promise<TradeStream> {
+async function watchMyTrades(this: SDKContext, symbol: MarketSymbol): Promise<WatchMyTradesResponse> {
   if (!symbol) throw new ArgumentsRequired('Missing required arguments for watchMyTrades call');
   validateMarketSymbol(symbol);
 

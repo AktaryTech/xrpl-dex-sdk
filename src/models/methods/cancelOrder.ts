@@ -1,7 +1,7 @@
 import { OrderId } from '../ccxt';
 
 /**
- * Expected response from a cancelOrder call
+ * Expected response from a {@link SDK.cancelOrder} call.
  *
  * @category Responses
  */

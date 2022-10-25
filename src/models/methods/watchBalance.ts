@@ -2,7 +2,7 @@ import { BalanceStream } from '../ccxt';
 import { CurrencyCode } from '../common';
 
 /**
- * Request parameters for a watchBalance call
+ * Request parameters for a {@link SDK.watchBalance} call.
  *
  * @category Parameters
  */
@@ -12,7 +12,7 @@ export interface WatchBalanceParams {
 }
 
 /**
- * Expected response from a watchBalance call
+ * Expected response from a {@link SDK.watchBalance} call.
  *
  * @category Responses
  */

@@ -1,7 +1,7 @@
 /**
  * CCXT Errors
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html#error-handling}
+ * @link https://docs.ccxt.com/en/latest/manual.html#error-handling
  */
 export class BaseError extends Error {
   constructor(message: string) {
@@ -12,7 +12,7 @@ export class BaseError extends Error {
 /**
  * Exchange Errors
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#exchangeerror}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#exchangeerror
  */
 export class ExchangeError extends BaseError {}
 export class AuthenticationError extends ExchangeError {}
@@ -33,7 +33,7 @@ export class NotSupported extends ExchangeError {}
 /**
  * Network Errors
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#networkerror}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#networkerror
  */
 export class NetworkError extends BaseError {}
 export class DDoSProtection extends NetworkError {}

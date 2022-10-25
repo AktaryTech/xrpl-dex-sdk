@@ -7,7 +7,7 @@ import { MarketSymbol, FetchTickerParams, Ticker, FetchTickerResponse, SDKContex
 import { BN, getTakerAmount, parseMarketSymbol, validateMarketSymbol } from '../utils';
 
 /**
- * Retrieves {@link Ticker} data for a single {@link Market} pair.
+ * Retrieves {@link Ticker} data for a single {@link Market} pair. Returns a {@link FetchTickerResponse}.
  *
  * @category Methods
  *

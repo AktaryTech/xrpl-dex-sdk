@@ -1,14 +1,14 @@
 /**
  * CCXT Markets
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#markets}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#markets
  */
 import { CurrencyCode, MarketSymbol, PercentDecimal } from '../common';
 
 /**
  * Market
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#market-structure}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#market-structure
  */
 export interface Market {
   /** String literal for referencing within an exchange */

@@ -10,11 +10,12 @@ import {
 import { validateMarketSymbol } from '../utils';
 
 /**
- * Fetches a list of canceled {@link Orders} from the dEX.
+ * Fetches a list of canceled {@link Orders} from the dEX. Returns a {@link FetchCanceledOrdersResponse}
+ * with any retrieved Orders.
  *
  * @category Methods
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#querying-orders}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#querying-orders
  *
  * @param symbol - (Optional) {@link MarketSymbol} to filter Orders by
  * @param since - (Optional) Only return Orders since this date

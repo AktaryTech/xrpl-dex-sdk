@@ -1,11 +1,12 @@
 import { FetchFeesResponse, SDKContext } from '../models';
 
 /**
- * Returns information about currency-related {@link Fees} incurred for performing transactions.
+ * Fetches information about currency-related {@link Fees} incurred for performing transactions.
+ * Returns a {@link FetchFeesResponse}.
  *
  * @category Methods
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#fees}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#fees
  *
  * @returns A {@link FetchFeesResponse} object
  */

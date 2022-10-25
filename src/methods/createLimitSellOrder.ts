@@ -9,11 +9,12 @@ import {
 import { validateMarketSymbol } from '../utils';
 
 /**
- * Places a Limit Sell {@link Order} on the Ripple dEX.
+ * Places a Limit Sell {@link Order} on the Ripple dEX. Returns a {@link CreateLimitSellOrderResponse}
+ * with the newly created Order's ID.
  *
  * @category Methods
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#placing-orders}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#placing-orders
  *
  * @param symbol - {@link MarketSymbol} for new Order
  * @param amount - How much currency you want to trade (in units of base currency)

@@ -16,11 +16,12 @@ import {
 import { getMarketSymbol, getOfferFromNode, getTradeFromData, validateMarketSymbol } from '../utils';
 
 /**
- * Fetch {@link Trades} for a given {@link MarketSymbol}.
+ * Fetch {@link Trades} for a given {@link MarketSymbol}. Returns a {@link FetchTradesResponse} with any
+ * matching Trades.
  *
  * @category Methods
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#querying-multiple-orders-and-trades}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#querying-multiple-orders-and-trades
  *
  * @param symbol - (Optional) {@link MarketSymbol} to filter Trades by
  * @param since - (Optional) Only return Trades since this date

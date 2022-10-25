@@ -1,11 +1,12 @@
 import { SDKContext, CurrencyCode, FetchTransactionFeesResponse } from '../models';
 
 /**
- * Returns information about fees incurred for performing transactions with multiple {@link Currencies}.
+ * Fetches information about fees incurred for performing transactions with multiple {@link Currencies}.
+ * Returns a {@link FetchTransactionFeesResponse}.
  *
  * @category Methods
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#fees}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#fees
  *
  * @param codes - Array of {@link CurrencyCode}s to get fees for
  * @returns A {@link FetchTransactionFeesResponse} object

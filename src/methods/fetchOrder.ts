@@ -27,11 +27,11 @@ import {
 } from '../utils';
 
 /**
- * Fetches an {@link Order} from the dEX.
+ * Fetches an {@link Order} from the dEX. Returns a {@link FetchOrderResponse} with the matching Order.
  *
  * @category Methods
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#querying-orders}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#querying-orders
  *
  * @param id - {@link OrderId} of the Order to fetch
  * @param symbol - (Optional) The {@link MarketSymbol} of the Order to fetch

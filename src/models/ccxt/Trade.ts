@@ -1,9 +1,9 @@
 /**
  * CCXT Trades
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#public-trades}
- * {@link https://docs.ccxt.com/en/latest/manual.html?#my-trades}
- * {@link https://docs.ccxt.com/en/latest/manual.html?#how-orders-are-related-to-trades}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#public-trades
+ * @link https://docs.ccxt.com/en/latest/manual.html?#my-trades
+ * @link https://docs.ccxt.com/en/latest/manual.html?#how-orders-are-related-to-trades
  */
 import { Readable } from 'stream';
 import { Amount } from 'xrpl/dist/npm/models/common';
@@ -15,7 +15,7 @@ export type TradeStream = Readable;
 /**
  * Trade
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#trade-structure}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#trade-structure
  */
 export interface Trade {
   // trade id

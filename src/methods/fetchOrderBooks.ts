@@ -4,7 +4,7 @@ import { SDKContext, FetchOrderBooksParams, FetchOrderBooksResponse, MarketSymbo
 import { validateMarketSymbol } from '../utils';
 
 /**
- * Retrieves order book data for multiple {@link Market} pairs.
+ * Retrieves order book data for multiple {@link Market} pairs. Returns a {@link FetchOrderBooksResponse}.
  *
  * @category Methods
  *
