@@ -16,11 +16,10 @@ import { validateMarketSymbol } from '../utils';
  *
  * {@link https://docs.ccxt.com/en/latest/manual.html?#querying-orders}
  *
- * @param this SDKContext
- * @param symbol (Optional) {@link MarketSymbol} to filter Orders by
- * @param since (Optional) Only return Orders since this date
- * @param limit (Optional) Total number of Orders to return (default is 20)
- * @param params (Optional) A {@link FetchCanceledOrdersParams}
+ * @param symbol - (Optional) {@link MarketSymbol} to filter Orders by
+ * @param since - (Optional) Only return Orders since this date
+ * @param limit - (Optional) Total number of Orders to return (default is 20)
+ * @param params - (Optional) A {@link FetchCanceledOrdersParams}
  * @returns A {@link FetchCanceledOrdersResponse} object
  */
 async function fetchCanceledOrders(

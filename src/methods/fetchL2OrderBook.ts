@@ -9,9 +9,9 @@ import { MarketSymbol, SDKContext, FetchL2OrderBookParams, FetchL2OrderBookRespo
  *
  * @link https://docs.ccxt.com/en/latest/manual.html?#order-book
  *
- * @param symbol {@link MarketSymbol} to get order book for
- * @param limit (Optional) Total number of entries to return (default is 20)
- * @param params (Optional) A {@link FetchL2OrderBookParams}
+ * @param symbol - {@link MarketSymbol} to get order book for
+ * @param limit - (Optional) Total number of entries to return (default is 20)
+ * @param params - (Optional) A {@link FetchL2OrderBookParams}
  * @returns A {@link FetchL2OrderBookResponse} object
  */
 async function fetchL2OrderBook(

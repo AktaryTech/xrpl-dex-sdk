@@ -13,13 +13,12 @@ import { validateMarketSymbol } from '../utils';
  *
  * @category Methods
  *
- * {@link https://docs.ccxt.com/en/latest/manual.html?#placing-orders}
+ * @link https://docs.ccxt.com/en/latest/manual.html?#placing-orders
  *
- * @param this SDKContext
- * @param symbol {@link MarketSymbol} for new Order
- * @param amount How much currency you want to trade (in units of base currency)
- * @param price Price at which the order is to be fullfilled (in units of quote currency)
- * @param params (Optional) A {@link CreateLimitBuyOrderParams} object
+ * @param symbol - {@link MarketSymbol} for new Order
+ * @param amount - How much currency you want to trade (in units of base currency)
+ * @param price - Price at which the order is to be fullfilled (in units of quote currency)
+ * @param params - (Optional) A {@link CreateLimitBuyOrderParams} object
  * @returns A {@link CreateLimitBuyOrderResponse} object
  */
 async function createLimitBuyOrder(

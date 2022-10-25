@@ -8,7 +8,7 @@ import { SDKContext, CurrencyCode, FetchTransactionFeeResponse, ArgumentsRequire
  *
  * {@link https://docs.ccxt.com/en/latest/manual.html?#fees}
  *
- * @param code {@link CurrencyCode} to get fees for
+ * @param code - {@link CurrencyCode} to get fees for
  * @returns A {@link FetchTransactionsFeeResponse} object
  */
 async function fetchTransactionFee(this: SDKContext, code: CurrencyCode): Promise<FetchTransactionFeeResponse> {

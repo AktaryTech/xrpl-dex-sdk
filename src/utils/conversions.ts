@@ -7,7 +7,7 @@ import { getBaseAmountKey, getOrderSideFromFlags, getQuoteAmountKey } from './or
 /**
  * Given a MarketSymbol string, returns its Base and Quote currencies.
  *
- * @param symbol MarketSymbol to parse
+ * @param symbol - MarketSymbol to parse
  * @returns
  */
 export const parseMarketSymbol = (symbol: MarketSymbol): [base: CurrencyCode, quote: CurrencyCode] => {
@@ -45,7 +45,7 @@ export const getMarketSymbolFromAmount = (base: Amount, quote: Amount): MarketSy
 /**
  * Validates a MarketSymbol string. Throws an error if invalid, otherwise returns nothing.
  *
- * @param symbol MarketSymbol to evaluate
+ * @param symbol - MarketSymbol to evaluate
  */
 export const validateMarketSymbol = (symbol: MarketSymbol) => {
   if (!symbol.includes('/'))
@@ -84,7 +84,7 @@ export const parseCurrencyCode = (currencyCode: CurrencyCode): { currency: strin
 /**
  * Creates a CurrencyCode from `currency` and `issuer` values.
  *
- * @param code Currency code (usually three characters)
+ * @param code - Currency code (usually three characters)
  * @param issuer Issuer address
  */
 export const getCurrencyCode = (code: string, issuer?: IssuerAddress): CurrencyCode =>
@@ -93,7 +93,7 @@ export const getCurrencyCode = (code: string, issuer?: IssuerAddress): CurrencyC
 /**
  * Parses an Amount object and returns the issuer adddress.
  *
- * @param amount Amount to parse
+ * @param amount - Amount to parse
  */
 export const getAmountIssuer = (amount: Amount): AccountAddress | undefined =>
   typeof amount === 'object' ? amount.issuer : undefined;
@@ -101,7 +101,7 @@ export const getAmountIssuer = (amount: Amount): AccountAddress | undefined =>
 /**
  * Parses an Amount object and returns the currency code.
  *
- * @param amount Amount to parse
+ * @param amount - Amount to parse
  */
 export const getAmountCurrencyCode = (amount: Amount): CurrencyCode =>
   typeof amount === 'object' ? amount.currency : 'XRP';
@@ -109,7 +109,7 @@ export const getAmountCurrencyCode = (amount: Amount): CurrencyCode =>
 /**
  * Creates an Amount from a `CurrencyCode` and value.
  *
- * @param code Amount CurrencyCode
+ * @param code - Amount CurrencyCode
  * @param value Amount value
  */
 export const getAmount = (code: CurrencyCode, value: BigNumberish): Amount => {
@@ -120,7 +120,7 @@ export const getAmount = (code: CurrencyCode, value: BigNumberish): Amount => {
 /**
  * Creates an Amount object without a value.
  *
- * @param code Amount CurrencyCode
+ * @param code - Amount CurrencyCode
  */
 export const getTakerAmount = (code: CurrencyCode): TakerAmount => {
   const { currency, issuer } = parseCurrencyCode(code);

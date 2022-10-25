@@ -9,9 +9,8 @@ import { handleTxErrors, parseCurrencyCode } from '../utils';
  *
  * @category Methods
  *
- * @param this SDKContext
- * @param code {@link CurrencyCode} for an issued (non-XRP) currency
- * @param amount Max amount of this currency you can receive
+ * @param code - {@link CurrencyCode} for an issued (non-XRP) currency
+ * @param amount - Max amount of this currency you can receive
  * @returns A {@link CreateTrustLineResponse} object
  */
 async function createTrustLine(this: SDKContext, code: CurrencyCode, amount: string): Promise<CreateTrustLineResponse> {

@@ -158,7 +158,7 @@ export const getOrderTimeInForce = (order: Record<string, any>): OrderTimeInForc
 /**
  * Gets the Offer object key of the Offer's base currency.
  *
- * @param side Offer side (buy or sell)
+ * @param side - Offer side (buy or sell)
  * @returns Either `TakerPays` or `TakerGets`
  */
 export const getBaseAmountKey = (side: OrderSide) => (side === 'buy' ? 'TakerPays' : 'TakerGets');
@@ -166,7 +166,7 @@ export const getBaseAmountKey = (side: OrderSide) => (side === 'buy' ? 'TakerPay
 /**
  * Gets the Offer object key of the Offer's quote currency.
  *
- * @param side Offer side (buy or sell)
+ * @param side - Offer side (buy or sell)
  * @returns Either `TakerPays` or `TakerGets`
  */
 export const getQuoteAmountKey = (side: OrderSide) => (side === 'buy' ? 'TakerGets' : 'TakerPays');
@@ -174,7 +174,7 @@ export const getQuoteAmountKey = (side: OrderSide) => (side === 'buy' ? 'TakerGe
 /**
  * Gets whether a Trade was from a taker or maker.
  *
- * @param side Offer side (buy or sell)
+ * @param side - Offer side (buy or sell)
  * @returns Either `taker` or `maker`
  */
 export const getTakerOrMaker = (side: OrderSide) => (side === 'buy' ? 'taker' : 'maker');
@@ -488,7 +488,7 @@ export const fetchTxn = async (client: Client, txnHash: string): Promise<TxRespo
  *
  * @param client Async JSON-RPC client
  * @param account Account to get transactions for
- * @param limit (Optional) Max number of responses to return
+ * @param limit - (Optional) Max number of responses to return
  * @param marker (Optional) Marker returned by XRPL ledger. Used for pagination
  * @returns The AccountTransactions, or undefined if none found
  */

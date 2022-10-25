@@ -6,7 +6,7 @@ import { LoadCurrenciesResponse, SDKContext } from '../models';
  *
  * @category Methods
  *
- * @param reload (Optional) Whether to refresh the cache
+ * @param reload - (Optional) Whether to refresh the cache
  * @returns A Promise that returns a {@link LoadCurrenciesResponse} object
  */
 async function loadCurrencies(this: SDKContext, reload = false): Promise<LoadCurrenciesResponse> {

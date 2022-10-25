@@ -11,7 +11,7 @@ import { parseOrderId, validateOrderId } from '../utils';
  *
  * @category Methods
  *
- * @param id ID of the Order to cancel
+ * @param id - ID of the Order to cancel
  * @returns A {@link CancelOrderResponse} object
  */
 async function cancelOrder(this: SDKContext, id: OrderId): Promise<CancelOrderResponse> {

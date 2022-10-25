@@ -10,7 +10,7 @@ import { getMarketSymbol, getTradeFromData, validateMarketSymbol } from '../util
  *
  * @category Methods
  *
- * @param symbol {@link MarketSymbol} to watch
+ * @param symbol - {@link MarketSymbol} to watch
  * @returns A Promise that returns a {@link TradeStream}
  */
 async function watchMyTrades(this: SDKContext, symbol: MarketSymbol): Promise<TradeStream> {

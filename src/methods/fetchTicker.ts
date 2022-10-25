@@ -13,8 +13,8 @@ import { BN, getTakerAmount, parseMarketSymbol, validateMarketSymbol } from '../
  *
  * @link https://docs.ccxt.com/en/latest/manual.html?#a-single-ticker-for-one-symbol
  *
- * @param symbol {@link MarketSymbol} to get price ticker data for
- * @param params (Optional) A {@link FetchTickerParams} object
+ * @param symbol - {@link MarketSymbol} to get price ticker data for
+ * @param params - (Optional) A {@link FetchTickerParams} object
  * @returns A {@link FetchTickerResponse} object
  */
 async function fetchTicker(

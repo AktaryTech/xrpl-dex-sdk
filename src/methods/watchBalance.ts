@@ -10,7 +10,7 @@ import { getAmountCurrencyCode } from '../utils';
  *
  * @category Methods
  *
- * @param params (Optional) A {@link WatchBalanceParams} object
+ * @param params - (Optional) A {@link WatchBalanceParams} object
  * @returns A Promise that returns a {@link BalanceStream}
  */
 async function watchBalance(this: SDKContext, params: WatchBalanceParams): Promise<BalanceStream> {

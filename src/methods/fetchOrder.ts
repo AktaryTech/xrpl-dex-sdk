@@ -33,10 +33,9 @@ import {
  *
  * {@link https://docs.ccxt.com/en/latest/manual.html?#querying-orders}
  *
- * @param this SDKContext
- * @param id {@link OrderId} of the Order to fetch
- * @param symbol (Optional) The {@link MarketSymbol} of the Order to fetch
- * @param params (Optional) A {@link FetchOrderParams} object
+ * @param id - {@link OrderId} of the Order to fetch
+ * @param symbol - (Optional) The {@link MarketSymbol} of the Order to fetch
+ * @param params - (Optional) A {@link FetchOrderParams} object
  * @returns A {@link FetchOrderResponse} object
  */
 async function fetchOrder(

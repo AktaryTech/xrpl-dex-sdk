@@ -27,8 +27,8 @@ import {
  *
  * @category Methods
  *
- * @param symbol (Optional) {@link MarketSymbol} to filter Orders by
- * @param params (Optional) A {@link WatchOrdersParams} object
+ * @param symbol - (Optional) {@link MarketSymbol} to filter Orders by
+ * @param params - (Optional) A {@link WatchOrdersParams} object
  * @returns A {@link WatchOrdersResponse} object
  */
 async function watchOrders(

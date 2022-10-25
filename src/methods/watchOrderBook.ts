@@ -10,8 +10,8 @@ import { getTakerAmount, parseMarketSymbol, validateMarketSymbol } from '../util
  *
  * @category Methods
  *
- * @param symbol {@link MarketSymbol} to get order book for
- * @param limit (Optional) Total number of entries to return (default is 20)
+ * @param symbol - {@link MarketSymbol} to get order book for
+ * @param limit - (Optional) Total number of entries to return (default is 20)
  * @returns A Promise that returns an {@link OrderBookStream} object
  */
 async function watchOrderBook(

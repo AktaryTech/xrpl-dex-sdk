@@ -10,7 +10,7 @@ import { BN } from '../utils';
  *
  * {@link https://docs.ccxt.com/en/latest/manual.html?#fees}
  *
- * @param issuer Issuer address to get data for
+ * @param issuer - Issuer address to get data for
  * @returns A {@link FetchTransferRateResponse} object
  */
 async function fetchTransferRate(this: SDKContext, issuer: IssuerAddress): Promise<FetchTransferRateResponse> {

@@ -16,8 +16,8 @@ import { getMarketSymbol, validateMarketSymbol } from '../utils';
  *
  * @category Methods
  *
- * @param symbols Array of {@link MarketSymbols} to get price ticker data for
- * @param params (Optional) A {@link WatchTickerParams} object
+ * @param symbols - Array of {@link MarketSymbols} to get price ticker data for
+ * @param params - (Optional) A {@link WatchTickerParams} object
  * @returns A {@link WatchTickersResponse} object
  */
 async function watchTickers(

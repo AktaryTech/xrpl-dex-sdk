@@ -8,7 +8,7 @@ import { validateMarketSymbol } from '../utils';
  *
  * @category Methods
  *
- * @param symbol {@link MarketSymbol} to get information for
+ * @param symbol - {@link MarketSymbol} to get information for
  * @returns A {@link FetchMarketResponse} object
  */
 async function fetchMarket(this: SDKContext, symbol: MarketSymbol): Promise<FetchMarketResponse> {

@@ -10,9 +10,9 @@ import { validateMarketSymbol } from '../utils';
  *
  * @link https://docs.ccxt.com/en/latest/manual.html?#order-book
  *
- * @param symbols Array of {@link MarketSymbol}s to get order books for
- * @param limit (Optional) Total number of entries to return (default is 20)
- * @param params (Optional) A {@link FetchOrderBookParams} object
+ * @param symbols - Array of {@link MarketSymbol}s to get order books for
+ * @param limit - (Optional) Total number of entries to return (default is 20)
+ * @param params - (Optional) A {@link FetchOrderBookParams} object
  * @returns A {@link FetchOrderBooksResponse} object
  */
 async function fetchOrderBooks(

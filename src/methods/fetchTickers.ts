@@ -16,8 +16,8 @@ import { validateMarketSymbol } from '../utils';
  *
  * @link https://docs.ccxt.com/en/latest/manual.html?#multiple-tickers-for-all-or-many-symbols
  *
- * @param symbols Array of {@link MarketSymbol}s to get price ticker data for
- * @param params (Optional) A {@link FetchTickersParams} object
+ * @param symbols - Array of {@link MarketSymbol}s to get price ticker data for
+ * @param params - (Optional) A {@link FetchTickersParams} object
  * @returns A {@link FetchTickersResponse} object
  */
 async function fetchTickers(

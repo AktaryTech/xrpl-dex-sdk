@@ -28,13 +28,12 @@ import {
  *
  * {@link https://docs.ccxt.com/en/latest/manual.html?#placing-orders}
  *
- * @param this SDKContext
- * @param symbol {@link MarketSymbol} for new Order
- * @param side Order direction (buy or sell)
- * @param type Order type (only limit is supported)
- * @param amount How much currency you want to trade (in units of base currency)
- * @param price Price at which the order is to be fullfilled (in units of quote currency)
- * @param params (Optional) a {@link CreateOrderParams} object
+ * @param symbol - {@link MarketSymbol} for new Order
+ * @param side - Order direction (buy or sell)
+ * @param type - Order type (only limit is supported)
+ * @param amount - How much currency you want to trade (in units of base currency)
+ * @param price - Price at which the order is to be fullfilled (in units of quote currency)
+ * @param params - (Optional) a {@link CreateOrderParams} object
  * @returns A {@link CreateOrderResponse} object
  */
 async function createOrder(

@@ -7,7 +7,7 @@ import { SDKContext, CurrencyCode, FetchTransactionFeesResponse } from '../model
  *
  * {@link https://docs.ccxt.com/en/latest/manual.html?#fees}
  *
- * @param codes Array of {@link CurrencyCode}s to get fees for
+ * @param codes - Array of {@link CurrencyCode}s to get fees for
  * @returns A {@link FetchTransactionFeesResponse} object
  */
 async function fetchTransactionFees(this: SDKContext, codes: CurrencyCode[]): Promise<FetchTransactionFeesResponse> {

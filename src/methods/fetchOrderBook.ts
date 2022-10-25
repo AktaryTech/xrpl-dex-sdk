@@ -21,9 +21,9 @@ import { getSharedOrderData, getTakerAmount, parseMarketSymbol, validateMarketSy
  *
  * @link https://docs.ccxt.com/en/latest/manual.html?#order-book
  *
- * @param symbol {@link MarketSymbol} to get order book for
- * @param limit (Optional) Total number of entries to return (default is 20)
- * @param params (Optional) A {@link FetchOrderBookParams} object
+ * @param symbol - {@link MarketSymbol} to get order book for
+ * @param limit - (Optional) Total number of entries to return (default is 20)
+ * @param params - (Optional) A {@link FetchOrderBookParams} object
  * @returns A {@link FetchOrderBookResponse} object
  */
 async function fetchOrderBook(

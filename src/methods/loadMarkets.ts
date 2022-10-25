@@ -6,7 +6,7 @@ import { LoadMarketsResponse, SDKContext } from '../models';
  *
  * @category Methods
  *
- * @param reload (Optional) Whether to refresh the cache
+ * @param reload - (Optional) Whether to refresh the cache
  * @returns A Promise that returns a {@link LoadMarketsResponse} object
  */
 async function loadMarkets(this: SDKContext, reload = false): Promise<LoadMarketsResponse> {

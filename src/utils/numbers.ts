@@ -5,7 +5,7 @@ import { BigNumberish } from '../models';
 /**
  * Alias for quickly creating BigNumber instances.
  *
- * @param amount `String` or `number` value to create BigNumber from
+ * @param amount - `String` or `number` value to create BigNumber from
  * @returns BigNumber
  */
 export const BN = (amount: BigNumberish) => new BigNumber(amount);
@@ -13,7 +13,7 @@ export const BN = (amount: BigNumberish) => new BigNumber(amount);
 /**
  * Parses an Amount object and returns the value as a BigNumber.
  *
- * @param amount Amount object to parse
+ * @param amount - Amount object to parse
  * @returns BigNumber
  */
 export const parseAmountValue = (amount: Amount): BigNumber => BN(typeof amount === 'string' ? amount : amount.value);
@@ -22,7 +22,7 @@ export const parseAmountValue = (amount: Amount): BigNumber => BN(typeof amount 
  * Parses an Amount object and returns the value as a BigNumber, including subtracting
  * a provided `subtractor` value from the given Amount.
  *
- * @param amount Amount object to parse
+ * @param amount - Amount object to parse
  * @param subtractor (Optional) Amount object to subtract from first amount
  * @returns BigNumber
  */
@@ -39,7 +39,7 @@ export const parseCurrencyAmount = (amount: Amount, subtractor?: Amount): BigNum
 /**
  * Subtracts one Amount object from another, returning the difference as an Amount.
  *
- * @param amount Amount to use as minuend
+ * @param amount - Amount to use as minuend
  * @param subtractor Amount to use as subtrahend
  * @returns Difference between provided values
  */

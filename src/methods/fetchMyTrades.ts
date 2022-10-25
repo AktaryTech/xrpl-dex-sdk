@@ -20,10 +20,10 @@ import { fetchAccountTxns, getMarketSymbol, getOfferFromNode, getTradeFromData, 
  *
  * @category Methods
  *
- * @param symbol {@link MarketSymbol} to filter Trades by
- * @param since (Optional) Only return Trades since this date
- * @param limit (Optional) Total number of Trades to return (default is 20)
- * @param params (Optional) A {@link FetchMyTradesParams} object
+ * @param symbol - {@link MarketSymbol} to filter Trades by
+ * @param since - (Optional) Only return Trades since this date
+ * @param limit - (Optional) Total number of Trades to return (default is 20)
+ * @param params - (Optional) A {@link FetchMyTradesParams} object
  * @returns A {@link FetchMyTradesResponse} object
  */
 async function fetchMyTrades(

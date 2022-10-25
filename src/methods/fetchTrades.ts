@@ -22,10 +22,10 @@ import { getMarketSymbol, getOfferFromNode, getTradeFromData, validateMarketSymb
  *
  * {@link https://docs.ccxt.com/en/latest/manual.html?#querying-multiple-orders-and-trades}
  *
- * @param symbol (Optional) {@link MarketSymbol} to filter Trades by
- * @param since (Optional) Only return Trades since this date
- * @param limit (Optional) Total number of Trades to return (default is 20)
- * @param params (Optional) A {@link FetchTradesParams} object
+ * @param symbol - (Optional) {@link MarketSymbol} to filter Trades by
+ * @param since - (Optional) Only return Trades since this date
+ * @param limit - (Optional) Total number of Trades to return (default is 20)
+ * @param params - (Optional) A {@link FetchTradesParams} object
  * @returns A {@link FetchTradesResponse} object
  */
 async function fetchTrades(

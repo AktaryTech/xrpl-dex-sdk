@@ -8,7 +8,7 @@ import { validateMarketSymbol } from '../utils';
  *
  * {@link https://docs.ccxt.com/en/latest/manual.html?#fees}
  *
- * @param symbol (Optional) {@link MarketSymbol} to get trading fees for
+ * @param symbol - (Optional) {@link MarketSymbol} to get trading fees for
  * @returns A {@link FetchTradingFeeResponse} object
  */
 async function fetchTradingFee(

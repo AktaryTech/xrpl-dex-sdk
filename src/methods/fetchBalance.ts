@@ -13,8 +13,7 @@ import { BN, getCurrencyCode } from '../utils';
  *
  * {@link https://docs.ccxt.com/en/latest/manual.html?#account-balance}
  *
- * @param this SDKContext
- * @param params (Optional) A {@link FetchBalanceParams} object
+ * @param params - (Optional) A {@link FetchBalanceParams} object
  * @returns A {@link FetchBalanceResponse} object
  */
 async function fetchBalance(
