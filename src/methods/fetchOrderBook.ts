@@ -15,15 +15,16 @@ import {
 import { getSharedOrderData, getTakerAmount, parseMarketSymbol, validateMarketSymbol } from '../utils';
 
 /**
- * Retrieves order book data for a single market pair. Returns an
- * {@link FetchOrderBookResponse}.
+ * Retrieves order book data for a single {@link Market} pair.
  *
  * @category Methods
  *
- * @param symbol Market symbol to get order book for
+ * @link https://docs.ccxt.com/en/latest/manual.html?#order-book
+ *
+ * @param symbol {@link MarketSymbol} to get order book for
  * @param limit (Optional) Total number of entries to return (default is 20)
- * @param params (Optional) Additional request parameters
- * @returns A FetchOrderBookResponse object
+ * @param params (Optional) A {@link FetchOrderBookParams} object
+ * @returns A {@link FetchOrderBookResponse} object
  */
 async function fetchOrderBook(
   this: SDKContext,

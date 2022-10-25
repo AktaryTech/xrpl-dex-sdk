@@ -12,12 +12,12 @@ import {
 } from '../utils';
 
 /**
- * Listens for new Trades for a given market symbol. Returns a {@link WatchTradesResponse}.
+ * Listens for new {@link Trades} for a given {@link Market}.
  *
  * @category Methods
  *
- * @param symbol (Optional) Market symbol to filter Trades by
- * @returns A WatchTradesResponse object
+ * @param symbol (Optional) {@link MarketSymbol} to filter Trades by
+ * @returns A {@link WatchTradesResponse} object
  */
 async function watchTrades(this: SDKContext, symbol: MarketSymbol): Promise<WatchTradesResponse> {
   if (!symbol) throw new ArgumentsRequired('Missing required arguments for watchTrades call');

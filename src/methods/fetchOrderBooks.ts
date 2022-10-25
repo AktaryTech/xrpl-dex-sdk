@@ -4,15 +4,16 @@ import { SDKContext, FetchOrderBooksParams, FetchOrderBooksResponse, MarketSymbo
 import { validateMarketSymbol } from '../utils';
 
 /**
- * Retrieves order book data for multiple market pairs. Returns an
- * {@link FetchOrderBooksResponse}.
+ * Retrieves order book data for multiple {@link Market} pairs.
  *
  * @category Methods
  *
- * @param symbols Array of Market symbols to get order books for
+ * @link https://docs.ccxt.com/en/latest/manual.html?#order-book
+ *
+ * @param symbols Array of {@link MarketSymbol}s to get order books for
  * @param limit (Optional) Total number of entries to return (default is 20)
- * @param params (Optional) Additional request parameters
- * @returns A FetchOrderBooksResponse object
+ * @param params (Optional) A {@link FetchOrderBookParams} object
+ * @returns A {@link FetchOrderBooksResponse} object
  */
 async function fetchOrderBooks(
   this: SDKContext,

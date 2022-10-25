@@ -4,15 +4,17 @@ import { FetchOpenOrdersParams, FetchOpenOrdersResponse, MarketSymbol, UnixTimes
 import { validateMarketSymbol } from '../utils';
 
 /**
- * Fetches a list of open Orders from the dEX. Returns a {@link FetchOpenOrdersResponse}.
+ * Fetches a list of open {@link Order}s from the dEX.
  *
  * @category Methods
  *
- * @param symbol (Optional) Market symbol to filter Orders by
+ * {@link https://docs.ccxt.com/en/latest/manual.html?#querying-orders}
+ *
+ * @param symbol (Optional) {@link MarketSymbol} to filter Orders by
  * @param since (Optional) Only return Orders since this date
  * @param limit (Optional) Total number of Orders to return (default is 20)
- * @param params (Optional) Additional request parameters
- * @returns A FetchOpenOrdersResponse object
+ * @param params (Optional) A {@link FetchOpenOrdersParams} object
+ * @returns A {@link FetchOpenOrdersResponse} object
  */
 async function fetchOpenOrders(
   this: SDKContext,

@@ -2,14 +2,14 @@ import { SDKContext, FetchTradingFeeResponse, MarketSymbol, ArgumentsRequired } 
 import { validateMarketSymbol } from '../utils';
 
 /**
- * Returns information about the fees incurred while trading on given market.
- * Returns a {@link FetchTradingFeeResponse}.
+ * Returns information about the fees incurred while trading on given {@link Market}.
  *
  * @category Methods
  *
- * @param symbol (Optional) Market symbol to get trading fees for
- * @returns A FetchTradingFeeResponse object
+ * {@link https://docs.ccxt.com/en/latest/manual.html?#fees}
  *
+ * @param symbol (Optional) {@link MarketSymbol} to get trading fees for
+ * @returns A {@link FetchTradingFeeResponse} object
  */
 async function fetchTradingFee(
   this: SDKContext,

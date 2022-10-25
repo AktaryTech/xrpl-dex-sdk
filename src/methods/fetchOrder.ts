@@ -27,16 +27,17 @@ import {
 } from '../utils';
 
 /**
- * Fetches an Order from the dEX. Returns a {@link FetchOrderResponse} with the Order,
- * or undefined if the Order was not found.
+ * Fetches an {@link Order} from the dEX.
  *
  * @category Methods
  *
+ * {@link https://docs.ccxt.com/en/latest/manual.html?#querying-orders}
+ *
  * @param this SDKContext
- * @param id ID of the Order to fetch
- * @param symbol (Optional) The symbol of the Order to fetch
- * @param params (Optional) Additional request parameters
- * @returns A FetchOrderResponse object
+ * @param id {@link OrderId} of the Order to fetch
+ * @param symbol (Optional) The {@link MarketSymbol} of the Order to fetch
+ * @param params (Optional) A {@link FetchOrderParams} object
+ * @returns A {@link FetchOrderResponse} object
  */
 async function fetchOrder(
   this: SDKContext,

@@ -68,10 +68,6 @@ export const validateMarketSymbol = (symbol: MarketSymbol) => {
 };
 
 /**
- * Currencies
- */
-
-/**
  * Parses a currency code into its `currency` and `issuer` values.
  *
  * @param currencyCode Code to parse

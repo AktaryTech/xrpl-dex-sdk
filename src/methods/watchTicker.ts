@@ -5,13 +5,13 @@ import { MarketSymbol, WatchTickerParams, SDKContext, Ticker, WatchTickerRespons
 import { validateMarketSymbol } from '../utils';
 
 /**
- * Listens for new price ticker data for a single market pair. Returns a {@link WatchTickerResponse}.
+ * Listens for new {@link Ticker} data for a single {@link Market} pair.
  *
  * @category Methods
  *
- * @param symbol Market symbol to get price ticker data for
- * @param params (Optional) Additional request parameters
- * @returns A WatchTickerResponse object
+ * @param symbol {@link MarketSymbol} to get price ticker data for
+ * @param params (Optional) A {@link WatchTickerParams} object
+ * @returns A {@link WatchTickerResponse} object
  */
 async function watchTicker(
   this: SDKContext,

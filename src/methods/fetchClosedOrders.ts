@@ -4,17 +4,18 @@ import { FetchClosedOrdersParams, FetchClosedOrdersResponse, MarketSymbol, UnixT
 import { validateMarketSymbol } from '../utils';
 
 /**
- * Fetches a list of closed Orders from the dEX. Returns a {@link FetchClosedOrderResponse}.
+ * Fetches a list of closed {@link Orders} from the dEX.
  *
  * @category Methods
  *
+ * {@link https://docs.ccxt.com/en/latest/manual.html?#querying-orders}
+ *
  * @param this SDKContext
- * @param symbol (Optional) Market symbol to filter Orders by
- * @param params (Optional) Additional request parameters
+ * @param symbol (Optional) {@link MarketSymbol} to filter Orders by
  * @param since (Optional) Only return Orders since this date
  * @param limit (Optional) Total number of Orders to return (default is 20)
- * @param params (Optional) Additional request parameters
- * @returns A FetchClosedOrdersResponse object
+ * @param params (Optional) A {@link FetchClosedOrdersResponse}
+ * @returns A {@link FetchClosedOrdersResponse} object
  */
 async function fetchClosedOrders(
   this: SDKContext,

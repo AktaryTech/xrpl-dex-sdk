@@ -10,13 +10,15 @@ import {
 import { validateMarketSymbol } from '../utils';
 
 /**
- * Retrieves price ticker data for multiple market pairs. Returns a {@link FetchTickersResponse}.
+ * Retrieves price {@link Ticker} data for multiple {@link Market} pairs.
  *
  * @category Methods
  *
- * @param symbols Array of market symbol to get price ticker data for
- * @param params (Optional) Additional request parameters
- * @returns A FetchTickersResponse object
+ * @link https://docs.ccxt.com/en/latest/manual.html?#multiple-tickers-for-all-or-many-symbols
+ *
+ * @param symbols Array of {@link MarketSymbol}s to get price ticker data for
+ * @param params (Optional) A {@link FetchTickersParams} object
+ * @returns A {@link FetchTickersResponse} object
  */
 async function fetchTickers(
   this: SDKContext,

@@ -5,12 +5,11 @@ import { FetchCurrenciesResponse, SDKContext, XrplNetwork } from '../models';
 import { parseCurrencyCode } from '../utils';
 
 /**
- * Retrieves a list of currencies being traded on the dEX. Returns
- * a {@link FetchCurrenciesResponse}.
+ * Retrieves a list of {@link Currencies} being traded on the dEX.
  *
  * @category Methods
  *
- * @returns A FetchCurrenciesResponse object
+ * @returns A {@link FetchCurrenciesResponse} object
  */
 async function fetchCurrencies(this: SDKContext): Promise<FetchCurrenciesResponse> {
   const response = currencies[this.params.network || XrplNetwork.Mainnet];

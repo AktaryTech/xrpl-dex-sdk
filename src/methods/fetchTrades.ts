@@ -16,15 +16,17 @@ import {
 import { getMarketSymbol, getOfferFromNode, getTradeFromData, validateMarketSymbol } from '../utils';
 
 /**
- * Fetch Trades for a given market symbol. Returns a {@link FetchTradesResponse}.
+ * Fetch {@link Trades} for a given {@link MarketSymbol}.
  *
  * @category Methods
  *
- * @param symbol (Optional) Market symbol to filter Trades by
+ * {@link https://docs.ccxt.com/en/latest/manual.html?#querying-multiple-orders-and-trades}
+ *
+ * @param symbol (Optional) {@link MarketSymbol} to filter Trades by
  * @param since (Optional) Only return Trades since this date
  * @param limit (Optional) Total number of Trades to return (default is 20)
- * @param params (Optional) Additional request parameters
- * @returns A FetchTradesResponse object
+ * @param params (Optional) A {@link FetchTradesParams} object
+ * @returns A {@link FetchTradesResponse} object
  */
 async function fetchTrades(
   this: SDKContext,

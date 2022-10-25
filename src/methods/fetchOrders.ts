@@ -13,15 +13,17 @@ import {
 import { getMarketSymbol, getOrderId, validateMarketSymbol } from '../utils';
 
 /**
- * Retrieves order book data for multiple market pairs. Returns a {@link FetchOrdersResponse}.
+ * Retrieves {@link OrderBook} data for multiple {@link Market} pairs.
  *
  * @category Methods
  *
- * @param symbol (Optional) Market symbol to filter Orders by
+ * {@link https://docs.ccxt.com/en/latest/manual.html?#querying-multiple-orders-and-trades}
+ *
+ * @param symbol (Optional) {@link MarketSymbol} to filter {@link Order}s by
  * @param since (Optional) Only return Orders since this date
  * @param limit (Optional) Total number of entries to return (default is 20)
- * @param params (Optional) Additional request parameters
- * @returns A FetchOrdersResponse object
+ * @param params (Optional) A {@link FetchOrdersParams} object
+ * @returns A {@link FetchOrdersResponse} object
  */
 async function fetchOrders(
   this: SDKContext,

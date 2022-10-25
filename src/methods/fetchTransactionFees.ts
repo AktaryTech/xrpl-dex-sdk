@@ -1,13 +1,14 @@
 import { SDKContext, CurrencyCode, FetchTransactionFeesResponse } from '../models';
 
 /**
- * Returns information about fees incurred for performing transactions with a
- * list of currencies. Returns a {@link FetchTransactionFeesResponse}.
+ * Returns information about fees incurred for performing transactions with multiple {@link Currencies}.
  *
  * @category Methods
  *
- * @param codes Array of currency codes to get fees for
- * @returns A FetchTransactionFeesResponse object
+ * {@link https://docs.ccxt.com/en/latest/manual.html?#fees}
+ *
+ * @param codes Array of {@link CurrencyCode}s to get fees for
+ * @returns A {@link FetchTransactionFeesResponse} object
  */
 async function fetchTransactionFees(this: SDKContext, codes: CurrencyCode[]): Promise<FetchTransactionFeesResponse> {
   const response: FetchTransactionFeesResponse = [];

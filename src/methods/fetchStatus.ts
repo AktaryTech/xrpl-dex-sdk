@@ -3,12 +3,11 @@ import { SDKContext, ExchangeStatusType, FetchStatusResponse } from '../models';
 
 /**
  * Returns information regarding {@link ExchangeStatus} from either the info
- * hardcoded in the exchange instance or the API, if available. Returns a
- * {@link FetchStatusResponse}.
+ * hardcoded in the exchange instance or the API, if available.
  *
  * @category Methods
  *
- * @returns A FetchStatusResponse object
+ * @returns A {@link FetchStatusResponse} object
  */
 async function fetchStatus(this: SDKContext): Promise<FetchStatusResponse> {
   const serverStateResponse = await this.client.request({

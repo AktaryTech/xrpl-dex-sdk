@@ -6,10 +6,11 @@ import { WatchStatusResponse } from '../models';
 
 /**
  * Streams information regarding {@link ExchangeStatus} from either the info
- * hardcoded in the exchange instance or the API, if available. Returns a
- * {@link WatchStatusResponse} object.
+ * hardcoded in the exchange instance or the API, if available.
  *
  * @category Methods
+ *
+ * @returns A {@link WatchStatusResponse} object
  */
 async function watchStatus(this: SDKContext): Promise<WatchStatusResponse> {
   const statusStream = new Readable({ read: () => this });

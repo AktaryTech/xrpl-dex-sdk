@@ -1,6 +1,12 @@
-import { BadRequest, OrderNotFound, InsufficientFunds } from 'ccxt';
 import { ErrorResponse, LedgerEntryResponse } from 'xrpl';
-import { TxResponse, XrplErrorTypes, XrplTransactionErrorTypes } from '../models';
+import {
+  TxResponse,
+  XrplErrorTypes,
+  XrplTransactionErrorTypes,
+  BadRequest,
+  OrderNotFound,
+  InsufficientFunds,
+} from '../models';
 
 /**
  * Evaluates a LedgerEntry response and throws any errors found.

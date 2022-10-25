@@ -6,12 +6,12 @@ import { WatchBalanceParams, SDKContext, BalanceStream, ArgumentsRequired } from
 import { getAmountCurrencyCode } from '../utils';
 
 /**
- * Listens for new order book data for a single market pair. Returns a
- * {@link WatchBalanceResponse}.
+ * Listens for new {@link OrderBook} data for a single {@link Market} pair.
  *
  * @category Methods
  *
- * @param params (Optional) Additional request parameters
+ * @param params (Optional) A {@link WatchBalanceParams} object
+ * @returns A Promise that returns a {@link BalanceStream}
  */
 async function watchBalance(this: SDKContext, params: WatchBalanceParams): Promise<BalanceStream> {
   if (!params) throw new ArgumentsRequired('Missing required arguments for watchBalance call');

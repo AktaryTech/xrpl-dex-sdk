@@ -1,7 +1,7 @@
 /**
  * CCXT Orders
  *
- * https://docs.ccxt.com/en/latest/manual.html?#order-structure
+ * https://docs.ccxt.com/en/latest/manual.html?#orders
  */
 import { AccountAddress, MarketSymbol, Sequence, UnixTimestamp, XrplTimestamp } from '../common';
 import { Fee, Trade } from '.';
@@ -21,6 +21,11 @@ export type OrderTimeInForce = 'GTC' | 'IOC' | 'FOK' | 'PO';
 
 export type OrderSide = 'buy' | 'sell';
 
+/**
+ * Order
+ *
+ * {@link https://docs.ccxt.com/en/latest/manual.html?#order-structure}
+ */
 export interface Order {
   id: OrderId;
   /** The XRPL ledger hash of the related Offer */
@@ -45,6 +50,9 @@ export interface Order {
   info: Record<string, any>;
 }
 
+/**
+ * Data used to assemble Order objects.
+ */
 export interface OrderSourceData {
   date: XrplTimestamp;
   filled: BigNumber;

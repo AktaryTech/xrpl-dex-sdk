@@ -12,14 +12,13 @@ import {
 import { getMarketSymbol, validateMarketSymbol } from '../utils';
 
 /**
- * Listens for new price ticker data for multiple market pairs. Returns a
- * {@link WatchTickersResponse}.
+ * Listens for new {@link Ticker} data for multiple {@link Market} pairs.
  *
  * @category Methods
  *
- * @param symbols Array of market symbol to get price ticker data for
- * @param params (Optional) Additional request parameters
- * @returns A WatchTickersResponse object
+ * @param symbols Array of {@link MarketSymbols} to get price ticker data for
+ * @param params (Optional) A {@link WatchTickerParams} object
+ * @returns A {@link WatchTickersResponse} object
  */
 async function watchTickers(
   this: SDKContext,

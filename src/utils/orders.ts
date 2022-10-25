@@ -49,11 +49,7 @@ import { getAmountCurrencyCode, getAmountIssuer, getMarketSymbol, getMarketSymbo
 import { BN, parseAmountValue, subtractAmounts } from './numbers';
 
 /**
- * Parsers
- */
-
-/**
- * Returns Node data in an agnostic format.
+ * Parses a Node and returns its data in an agnostic format.
  *
  * @param affectedNode Node object to parse
  * @param entryType LedgerEntry type to filter by (defaults to Offer)
@@ -160,7 +156,7 @@ export const getOrderTimeInForce = (order: Record<string, any>): OrderTimeInForc
 };
 
 /**
- * Gets the key of an Offer's base currency.
+ * Gets the Offer object key of the Offer's base currency.
  *
  * @param side Offer side (buy or sell)
  * @returns Either `TakerPays` or `TakerGets`
@@ -168,7 +164,7 @@ export const getOrderTimeInForce = (order: Record<string, any>): OrderTimeInForc
 export const getBaseAmountKey = (side: OrderSide) => (side === 'buy' ? 'TakerPays' : 'TakerGets');
 
 /**
- * Gets the key of an Offer's quote currency.
+ * Gets the Offer object key of the Offer's quote currency.
  *
  * @param side Offer side (buy or sell)
  * @returns Either `TakerPays` or `TakerGets`
@@ -227,7 +223,7 @@ export const getOfferFromNode = (node: Node): Offer | undefined => {
 };
 
 /**
- * Returns an Offer Ledger object from a Transaction
+ * Returns an Offer Ledger object from a Transaction.
  *
  * @param transaction Transaction to parse
  * @param overrides Object of values to override transaction defaults with
@@ -525,7 +521,7 @@ export const fetchAccountTxns = async (
 };
 
 /**
- * Filter out irrelevant Transactions, parse AffectedNodes, and normalize results.
+ * Parse any Transaction and return data relevant to creating an Order/Trade.
  *
  * @param orderId OrderId to filter with when parsing
  * @param transaction Transaction to parse
@@ -604,7 +600,7 @@ export const parseTransaction = (
  * Get data for the most recent Transaction to affect an Order.
  *
  * @param orderId OrderId to filter with when parsing
- * @param searchLimit Max total transactions to search through looking for matching ones.
+ * @param searchLimit Max total transactions to search through looking for matching ones
  * @return Object with the previous transaction's data and ID
  */
 export const getMostRecentTx = async (

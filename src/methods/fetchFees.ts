@@ -1,12 +1,13 @@
 import { FetchFeesResponse, SDKContext } from '../models';
 
 /**
- * Returns information about fees incurred for performing transactions with a
- * list of currencies. Returns a {@link FetchFeesResponse}.
+ * Returns information about currency-related {@link Fees} incurred for performing transactions.
  *
  * @category Methods
  *
- * @returns A FetchFeesResponse object
+ * {@link https://docs.ccxt.com/en/latest/manual.html?#fees}
+ *
+ * @returns A {@link FetchFeesResponse} object
  */
 async function fetchFees(this: SDKContext): Promise<FetchFeesResponse> {
   const currencies = await this.fetchCurrencies();

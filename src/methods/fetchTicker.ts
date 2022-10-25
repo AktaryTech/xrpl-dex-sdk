@@ -7,13 +7,15 @@ import { MarketSymbol, FetchTickerParams, Ticker, FetchTickerResponse, SDKContex
 import { BN, getTakerAmount, parseMarketSymbol, validateMarketSymbol } from '../utils';
 
 /**
- * Retrieves price ticker data for a single market pair. Returns a {@link FetchTickerResponse}.
+ * Retrieves {@link Ticker} data for a single {@link Market} pair.
  *
  * @category Methods
  *
- * @param symbol Market symbol to get price ticker data for
- * @param params (Optional) Additional request parameters
- * @returns A FetchTickerResponse object
+ * @link https://docs.ccxt.com/en/latest/manual.html?#a-single-ticker-for-one-symbol
+ *
+ * @param symbol {@link MarketSymbol} to get price ticker data for
+ * @param params (Optional) A {@link FetchTickerParams} object
+ * @returns A {@link FetchTickerResponse} object
  */
 async function fetchTicker(
   this: SDKContext,

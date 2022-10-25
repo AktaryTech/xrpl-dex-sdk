@@ -10,16 +10,18 @@ import {
 import { validateMarketSymbol } from '../utils';
 
 /**
- * Fetches a list of canceled Orders from the dEX. Returns a {@link FetchCanceledOrderResponse}.
+ * Fetches a list of canceled {@link Orders} from the dEX.
  *
  * @category Methods
  *
+ * {@link https://docs.ccxt.com/en/latest/manual.html?#querying-orders}
+ *
  * @param this SDKContext
- * @param symbol (Optional) Market symbol to filter Orders by
+ * @param symbol (Optional) {@link MarketSymbol} to filter Orders by
  * @param since (Optional) Only return Orders since this date
  * @param limit (Optional) Total number of Orders to return (default is 20)
- * @param params (Optional) Additional request parameters
- * @returns A FetchCanceledOrdersResponse object
+ * @param params (Optional) A {@link FetchCanceledOrdersParams}
+ * @returns A {@link FetchCanceledOrdersResponse} object
  */
 async function fetchCanceledOrders(
   this: SDKContext,

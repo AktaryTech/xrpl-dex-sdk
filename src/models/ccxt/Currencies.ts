@@ -1,10 +1,15 @@
 /**
  * CCXT Currencies
  *
- * https://docs.ccxt.com/en/latest/manual.html?#currency-structure
+ * {@link https://docs.ccxt.com/en/latest/manual.html?#markets}
  */
 import { CurrencyCode, PercentDecimal } from '../common';
 
+/**
+ * Currency
+ *
+ * {@link https://docs.ccxt.com/en/latest/manual.html?#currency-structure}
+ */
 export interface Currency {
   code: CurrencyCode;
   fee?: PercentDecimal;

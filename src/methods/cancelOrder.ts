@@ -4,13 +4,15 @@ import { OrderId, CancelOrderResponse, SDKContext, ArgumentsRequired } from '../
 import { parseOrderId, validateOrderId } from '../utils';
 
 /**
- * Cancels an Order on the Ripple dEX. Returns an {@link CancelOrderResponse}
+ * Cancels an {@link Order} on the Ripple dEX. Returns an {@link CancelOrderResponse}
  * with the canceled Order object.
+ *
+ * {@link https://docs.ccxt.com/en/latest/manual.html?#canceling-orders}
  *
  * @category Methods
  *
  * @param id ID of the Order to cancel
- * @returns A CancelOrderResponse object
+ * @returns A {@link CancelOrderResponse} object
  */
 async function cancelOrder(this: SDKContext, id: OrderId): Promise<CancelOrderResponse> {
   if (!id) throw new ArgumentsRequired('Missing required arguments for cancelOrder call');

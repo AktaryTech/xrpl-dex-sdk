@@ -4,23 +4,17 @@ import { ArgumentsRequired, BadRequest, BadSymbol, CreateTrustLineResponse, Curr
 import { handleTxErrors, parseCurrencyCode } from '../utils';
 
 /**
- * Creates a Trust Line to a currency Issuer on the XRPL ledger. Returns a
+ * Creates a Trust Line to a currency {@link Issuer} on the XRPL ledger. Returns a
  * {@link CreateTrustLineResponse} with the newly created Trust Line.
  *
  * @category Methods
  *
  * @param this SDKContext
- * @param code Code for an issued (non-XRP) currency
+ * @param code {@link CurrencyCode} for an issued (non-XRP) currency
  * @param amount Max amount of this currency you can receive
- * @returns A CreateTrustLineResponse object
+ * @returns A {@link CreateTrustLineResponse} object
  */
-async function createTrustLine(
-  this: SDKContext,
-  /** Currency code */
-  code: CurrencyCode,
-  /** Max amount of this currency you can receive */
-  amount: string
-): Promise<CreateTrustLineResponse> {
+async function createTrustLine(this: SDKContext, code: CurrencyCode, amount: string): Promise<CreateTrustLineResponse> {
   if (!code || !amount) throw new ArgumentsRequired('Missing required arguments for createTrustLine call');
 
   if (code === 'XRP') throw new BadRequest('No Trust Line needed for XRP');
