@@ -20,7 +20,7 @@ async function fetchOrderBooks(
   sdk: SDK,
   symbols: MarketSymbol[],
   limit: number = DEFAULT_LIMIT,
-  params: FetchOrderBooksParams
+  params: FetchOrderBooksParams = {}
 ): Promise<FetchOrderBooksResponse> {
   if (!symbols) throw new ArgumentsRequired('Missing required arguments for fetchOrderBooks call');
   const orderBooks: FetchOrderBooksResponse = {};
@@ -28,7 +28,7 @@ async function fetchOrderBooks(
   for (let s = 0, sl = symbols.length; s < sl; s += 1) {
     const symbol = symbols[s];
     validateMarketSymbol(symbol);
-    const orderBook = await sdk.fetchOrderBook(symbol, limit, params[symbol] || {});
+    const orderBook = await sdk.fetchOrderBook(symbol, limit, params[symbol] ?? {});
     if (orderBook) orderBooks[symbol] = orderBook;
   }
 

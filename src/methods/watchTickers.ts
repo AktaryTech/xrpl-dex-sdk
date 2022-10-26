@@ -18,7 +18,7 @@ import { getMarketSymbol, validateMarketSymbol } from '../utils';
 async function watchTickers(
   sdk: SDK,
   symbols: MarketSymbol[],
-  params: WatchTickersParams
+  params: WatchTickersParams = {}
 ): Promise<WatchTickersResponse> {
   if (!symbols) throw new ArgumentsRequired('Missing required arguments for watchTickers call');
 

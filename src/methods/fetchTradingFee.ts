@@ -10,7 +10,7 @@ import SDK from '../sdk';
  *
  * @link https://docs.ccxt.com/en/latest/manual.html?#fees
  *
- * @param symbol - (Optional) {@link models.MarketSymbol} to get trading fees for
+ * @param symbol - {@link models.MarketSymbol} to get trading fees for
  * @returns {@link models.FetchTradingFeeResponse}
  */
 async function fetchTradingFee(

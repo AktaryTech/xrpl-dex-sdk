@@ -44,7 +44,7 @@ export class SDK implements models.SDKContext {
     symbol: models.MarketSymbol,
     amount: string,
     price: string,
-    params: models.CreateLimitBuyOrderParams
+    params?: models.CreateLimitBuyOrderParams
   ) => methods.createLimitBuyOrder(this, symbol, amount, price, params);
 
   /**
@@ -65,7 +65,7 @@ export class SDK implements models.SDKContext {
     symbol: models.MarketSymbol,
     amount: string,
     price: string,
-    params: models.CreateLimitSellOrderParams
+    params?: models.CreateLimitSellOrderParams
   ) => methods.createLimitSellOrder(this, symbol, amount, price, params);
 
   /**
@@ -90,7 +90,7 @@ export class SDK implements models.SDKContext {
     type: models.OrderType,
     amount: string,
     price: string,
-    params: models.CreateOrderParams
+    params?: models.CreateOrderParams
   ) => methods.createOrder(this, symbol, side, type, amount, price, params);
 
   /**
@@ -116,7 +116,7 @@ export class SDK implements models.SDKContext {
    * @param params - (Optional) A {@link models.FetchBalanceParams} object
    * @returns {@link models.FetchBalanceResponse}
    */
-  fetchBalance = (params: models.FetchBalanceParams) => methods.fetchBalance(this, params);
+  fetchBalance = (params?: models.FetchBalanceParams) => methods.fetchBalance(this, params);
 
   /**
    * Fetches a list of canceled {@link models.Orders} from the dEX. Returns a {@link models.FetchCanceledOrdersResponse}
@@ -232,7 +232,7 @@ export class SDK implements models.SDKContext {
    * @param params - (Optional) A {@link models.FetchOrderBookParams} object
    * @returns A {@link models.FetchOrderBooksResponse} object
    */
-  fetchOrderBooks = (symbols: models.MarketSymbol[], limit: number, params: models.FetchOrderBooksParams) =>
+  fetchOrderBooks = (symbols: models.MarketSymbol[], limit?: number, params?: models.FetchOrderBooksParams) =>
     methods.fetchOrderBooks(this, symbols, limit, params);
 
   /**
@@ -360,7 +360,7 @@ export class SDK implements models.SDKContext {
    * @param params - (Optional) A {@link models.FetchTickerParams} object
    * @returns A {@link models.FetchTickerResponse} object
    */
-  fetchTicker = (symbol: models.MarketSymbol, params: models.FetchTickerParams) =>
+  fetchTicker = (symbol: models.MarketSymbol, params?: models.FetchTickerParams) =>
     methods.fetchTicker(this, symbol, params);
 
   /**
@@ -375,7 +375,7 @@ export class SDK implements models.SDKContext {
    * @param params - (Optional) A {@link models.FetchTickersParams} object
    * @returns A {@link models.FetchTickersResponse} object
    */
-  fetchTickers = (symbols: models.MarketSymbol[], params: models.FetchTickersParams) =>
+  fetchTickers = (symbols: models.MarketSymbol[], params?: models.FetchTickersParams) =>
     methods.fetchTickers(this, symbols, params);
 
   /**
@@ -407,7 +407,7 @@ export class SDK implements models.SDKContext {
    *
    * @link https://docs.ccxt.com/en/latest/manual.html?#fees
    *
-   * @param symbol - (Optional) {@link models.MarketSymbol} to get trading fees for
+   * @param symbol - {@link models.MarketSymbol} to get trading fees for
    * @returns A {@link models.FetchTradingFeeResponse} object
    */
   fetchTradingFee = (symbol: models.MarketSymbol) => methods.fetchTradingFee(this, symbol);
@@ -505,7 +505,7 @@ export class SDK implements models.SDKContext {
    * @param params - (Optional) A {@link models.WatchBalanceParams} object
    * @returns A Promise resolving to a {@link models.WatchBalanceResponse} object
    */
-  watchBalance = (params: models.WatchBalanceParams) => methods.watchBalance(this, params);
+  watchBalance = (params?: models.WatchBalanceParams) => methods.watchBalance(this, params);
 
   /**
    * Listens for new {@link models.OrderBook} data for a single {@link models.Market} pair. Returns a Promise
@@ -553,7 +553,7 @@ export class SDK implements models.SDKContext {
    * @param params - (Optional) A {@link models.WatchTickerParams} object
    * @returns A Promise resolving to a {@link models.WatchTickerResponse} object
    */
-  watchTicker = (symbol: models.MarketSymbol, params: models.WatchTickerParams) =>
+  watchTicker = (symbol: models.MarketSymbol, params?: models.WatchTickerParams) =>
     methods.watchTicker(this, symbol, params);
 
   /**
@@ -566,7 +566,7 @@ export class SDK implements models.SDKContext {
    * @param params - (Optional) A {@link models.WatchTickerParams} object
    * @returns A Promise resolving to a {@link models.WatchTickersResponse} object
    */
-  watchTickers = (symbols: models.MarketSymbol[], params: models.WatchTickersParams) =>
+  watchTickers = (symbols: models.MarketSymbol[], params?: models.WatchTickersParams) =>
     methods.watchTickers(this, symbols, params);
 
   /**
@@ -575,7 +575,7 @@ export class SDK implements models.SDKContext {
    *
    * @category Trades
    *
-   * @param symbol - (Optional) {@link models.MarketSymbol} to filter Trades by
+   * @param symbol - {@link models.MarketSymbol} to filter Trades by
    * @returns A Promise resolving to a {@link models.WatchTradesResponse} object
    */
   watchTrades = (symbol: models.MarketSymbol) => methods.watchTrades(this, symbol);
@@ -618,6 +618,22 @@ export class SDK implements models.SDKContext {
       ? Wallet.fromSecret(walletSecret)
       : new Wallet(walletPublicKey as string, walletPrivateKey as string);
   }
+
+  /**
+   * Connects to the XRPL network.
+   */
+  connect = async (): Promise<void> => {
+    if (this.client) await this.client.connect();
+    if (this.broadcastClient) await this.broadcastClient.connect();
+  };
+
+  /**
+   * Disconnects from the XRPL network.
+   */
+  disconnect = async (): Promise<void> => {
+    if (this.client) await this.client.disconnect();
+    if (this.broadcastClient) await this.broadcastClient.disconnect();
+  };
 }
 
 export default SDK;

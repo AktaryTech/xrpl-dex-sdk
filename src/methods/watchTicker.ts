@@ -15,7 +15,11 @@ import SDK from '../sdk';
  * @param params - (Optional) A {@link models.WatchTickerParams} object
  * @returns {@link models.WatchTickerResponse}
  */
-async function watchTicker(sdk: SDK, symbol: MarketSymbol, params: WatchTickerParams): Promise<WatchTickerResponse> {
+async function watchTicker(
+  sdk: SDK,
+  symbol: MarketSymbol,
+  params: WatchTickerParams = {}
+): Promise<WatchTickerResponse> {
   if (!symbol) throw new ArgumentsRequired('Missing required arguments for watchTicker call');
   validateMarketSymbol(symbol);
 

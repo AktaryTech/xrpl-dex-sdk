@@ -18,7 +18,7 @@ import SDK from '../sdk';
  *
  * @category Methods
  *
- * @param symbol - (Optional) {@link models.MarketSymbol} to filter Trades by
+ * @param symbol - {@link models.MarketSymbol} to filter Trades by
  * @returns {@link models.WatchTradesResponse}
  */
 async function watchTrades(sdk: SDK, symbol: MarketSymbol): Promise<WatchTradesResponse> {
